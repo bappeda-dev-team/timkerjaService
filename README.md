@@ -3,8 +3,8 @@
 
 ### Kebutuhan
 
-- Go versi 1.23.0
-- PostgreSQL 16
+- Go versi 1.24.2
+- MYSQL
 - java 17
 - Flyway
 
@@ -33,7 +33,7 @@ go get github.com/labstack/echo/v4/middleware
 ketikkan perintah:
 
 ```sh
-go run main.go
+make run
 ```
 
 untuk hot reload(only macOS/linux)
