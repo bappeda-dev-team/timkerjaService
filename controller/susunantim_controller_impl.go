@@ -28,7 +28,7 @@ func NewSusunanTimControllerImpl(susunanTimService service.SusunanTimService) *S
 // @Success 201 {object} web.WebResponse{data=web.SusunanTimResponse} "Created"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /susunantim [post]
+// @Router /api/v1/timkerja/susunantim [post]
 func (controller *SusunanTimControllerImpl) Create(c echo.Context) error {
 	SusunanTimCreateRequest := web.SusunanTimCreateRequest{}
 	err := c.Bind(&SusunanTimCreateRequest)
@@ -66,7 +66,7 @@ func (controller *SusunanTimControllerImpl) Create(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.SusunanTimResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /susunantim/{id} [put]
+// @Router /api/v1/timkerja/susunantim/{id} [put]
 func (controller *SusunanTimControllerImpl) Update(c echo.Context) error {
 	SusunanTimUpdateRequest := web.SusunanTimUpdateRequest{}
 	err := c.Bind(&SusunanTimUpdateRequest)
@@ -111,7 +111,7 @@ func (controller *SusunanTimControllerImpl) Update(c echo.Context) error {
 // @Success 200 {object} web.WebResponse "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /susunantim/{id} [delete]
+// @Router /api/v1/timkerja/susunantim/{id} [delete]
 func (controller *SusunanTimControllerImpl) Delete(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -154,7 +154,7 @@ func (controller *SusunanTimControllerImpl) Delete(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.SusunanTimResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /susunantim/{id} [get]
+// @Router /api/v1/timkerja/susunantim/{id} [get]
 func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -196,7 +196,7 @@ func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} web.WebResponse{data=[]web.SusunanTimResponse} "OK"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /susunantim [get]
+// @Router /api/v1/timkerja/susunantim [get]
 func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
 	SusunanTimResponses, err := controller.SusunanTimService.FindAll(c.Request().Context())
 	if err != nil {

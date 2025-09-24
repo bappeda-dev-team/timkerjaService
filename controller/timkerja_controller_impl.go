@@ -28,7 +28,7 @@ func NewTimKerjaControllerImpl(timKerjaService service.TimKerjaService) *TimKerj
 // @Success 201 {object} web.WebResponse{data=web.TimKerjaResponse} "Created"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /timkerja [post]
+// @Router /api/v1/timkerja/timkerja [post]
 func (controller *TimKerjaControllerImpl) Create(c echo.Context) error {
 	TimKerjaCreateRequest := web.TimKerjaCreateRequest{}
 	err := c.Bind(&TimKerjaCreateRequest)
@@ -66,7 +66,7 @@ func (controller *TimKerjaControllerImpl) Create(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.TimKerjaResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /timkerja/{id} [put]
+// @Router /api/v1/timkerja/timkerja/{id} [put]
 func (controller *TimKerjaControllerImpl) Update(c echo.Context) error {
 	TimKerjaUpdateRequest := web.TimKerjaUpdateRequest{}
 	err := c.Bind(&TimKerjaUpdateRequest)
@@ -103,7 +103,7 @@ func (controller *TimKerjaControllerImpl) Update(c echo.Context) error {
 // @Success 200 {object} web.WebResponse "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /timkerja/{id} [delete]
+// @Router /api/v1/timkerja/timkerja/{id} [delete]
 func (controller *TimKerjaControllerImpl) Delete(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -146,7 +146,7 @@ func (controller *TimKerjaControllerImpl) Delete(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.TimKerjaResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /timkerja/{id} [get]
+// @Router /api/v1/timkerja/timkerja/{id} [get]
 func (controller *TimKerjaControllerImpl) FindById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -188,7 +188,7 @@ func (controller *TimKerjaControllerImpl) FindById(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaResponse} "OK"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /only_timkerja [get]
+// @Router /api/v1/timkerja/only_timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 	TimKerjaResponses, err := controller.TimKerjaService.FindAll(c.Request().Context())
 	if err != nil {
@@ -213,7 +213,7 @@ func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
-// @Router /timkerja [get]
+// @Router /api/v1/timkerja/timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 	TimKerjaResponses, err := controller.TimKerjaService.FindAllTm(c.Request().Context())
 	if err != nil {

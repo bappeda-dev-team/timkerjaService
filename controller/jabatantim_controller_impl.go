@@ -28,7 +28,7 @@ func NewJabatanTimControllerImpl(jabatanTimService service.JabatanTimService) *J
 // @Success 201 {object} web.WebResponse{data=web.JabatanTimResponse} "Created"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /jabatantim [post]
+// @Router /api/v1/timkerja/jabatantim [post]
 func (controller *JabatanTimControllerImpl) Create(c echo.Context) error {
 
 	JabatanTimCreateRequest := web.JabatanTimCreateRequest{}
@@ -67,7 +67,7 @@ func (controller *JabatanTimControllerImpl) Create(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.JabatanTimResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /jabatantim/{id} [put]
+// @Router /api/v1/timkerja/jabatantim/{id} [put]
 func (controller *JabatanTimControllerImpl) Update(c echo.Context) error {
 	JabatanTimUpdateRequest := web.JabatanTimUpdateRequest{}
 	err := c.Bind(&JabatanTimUpdateRequest)
@@ -112,7 +112,7 @@ func (controller *JabatanTimControllerImpl) Update(c echo.Context) error {
 // @Success 200 {object} web.WebResponse "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /jabatantim/{id} [delete]
+// @Router /api/v1/timkerja/jabatantim/{id} [delete]
 func (controller *JabatanTimControllerImpl) Delete(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -154,7 +154,7 @@ func (controller *JabatanTimControllerImpl) Delete(c echo.Context) error {
 // @Success 200 {object} web.WebResponse{data=web.JabatanTimResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /jabatantim/{id} [get]
+// @Router /api/v1/timkerja/jabatantim/{id} [get]
 func (controller *JabatanTimControllerImpl) FindById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -196,7 +196,7 @@ func (controller *JabatanTimControllerImpl) FindById(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} web.WebResponse{data=[]web.JabatanTimResponse} "OK"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /jabatantim [get]
+// @Router /api/v1/timkerja/jabatantim [get]
 func (controller *JabatanTimControllerImpl) FindAll(c echo.Context) error {
 	JabatanTimResponses, err := controller.JabatanTimService.FindAll(c.Request().Context())
 	if err != nil {
