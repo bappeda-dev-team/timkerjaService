@@ -16,7 +16,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.Use(middleware.CORS())
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	e.GET("/swagger/doc.json", echoSwagger.WrapHandler)
+	e.GET("/api/v1/timkerja/swagger/doc.json", echoSwagger.WrapHandler)
 
 	e.POST("/timkerja", timKerjaController.Create)
 	e.PUT("/timkerja/:id", timKerjaController.Update)
