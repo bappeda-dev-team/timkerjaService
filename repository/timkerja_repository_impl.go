@@ -24,8 +24,8 @@ func (repository *TimKerjaRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *TimKerjaRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error) {
-	query := "UPDATE tim_kerja SET kode_tim = ?, nama_tim = ?, keterangan = ?, tahun = ?, is_active = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, timKerja.KodeTim, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive, timKerja.Id)
+	query := "UPDATE tim_kerja SET nama_tim = ?, keterangan = ?, tahun = ?, is_active = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, query, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive, timKerja.Id)
 	if err != nil {
 		return domain.TimKerja{}, err
 	}

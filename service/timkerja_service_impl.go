@@ -38,7 +38,7 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	defer helper.CommitOrRollback(tx)
 
 	timKerjaDomain := domain.TimKerja{
-		KodeTim:    timKerja.KodeTim,
+		KodeTim:    helper.GenerateKodeTim(0),
 		NamaTim:    timKerja.NamaTim,
 		Keterangan: timKerja.Keterangan,
 		Tahun:      timKerja.Tahun,

@@ -97,8 +97,6 @@ definitions:
         type: boolean
       keterangan:
         type: string
-      kode_tim:
-        type: string
       nama_tim:
         type: string
       tahun:
@@ -143,8 +141,6 @@ definitions:
       is_active:
         type: boolean
       keterangan:
-        type: string
-      kode_tim:
         type: string
       nama_tim:
         type: string

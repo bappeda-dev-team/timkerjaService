@@ -989,9 +989,6 @@
                 "keterangan": {
                     "type": "string"
                 },
-                "kode_tim": {
-                    "type": "string"
-                },
                 "nama_tim": {
                     "type": "string"
                 },
@@ -1059,9 +1056,6 @@
                     "type": "boolean"
                 },
                 "keterangan": {
-                    "type": "string"
-                },
-                "kode_tim": {
                     "type": "string"
                 },
                 "nama_tim": {

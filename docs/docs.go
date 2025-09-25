@@ -995,9 +995,6 @@ const docTemplate = `{
                 "keterangan": {
                     "type": "string"
                 },
-                "kode_tim": {
-                    "type": "string"
-                },
                 "nama_tim": {
                     "type": "string"
                 },
@@ -1065,9 +1062,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "keterangan": {
-                    "type": "string"
-                },
-                "kode_tim": {
                     "type": "string"
                 },
                 "nama_tim": {
