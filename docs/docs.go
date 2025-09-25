@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/timkerja/jabatantim": {
+        "/jabatantim": {
             "get": {
                 "description": "Get All Jabatan Tim",
                 "consumes": [
@@ -124,7 +124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/jabatantim/{id}": {
+        "/jabatantim/{id}": {
             "get": {
                 "description": "Get Jabatan Tim detail by ID",
                 "consumes": [
@@ -285,7 +285,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/only_timkerja": {
+        "/only_timkerja": {
             "get": {
                 "description": "Get All Tim Kerja",
                 "consumes": [
@@ -329,7 +329,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/susunantim": {
+        "/susunantim": {
             "get": {
                 "description": "Get All Susunan Tim",
                 "consumes": [
@@ -429,7 +429,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/susunantim/{id}": {
+        "/susunantim/{id}": {
             "get": {
                 "description": "Get Susunan Tim detail by ID",
                 "consumes": [
@@ -590,7 +590,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/timkerja": {
+        "/timkerja": {
             "get": {
                 "description": "Get All Tim Kerja with their Susunan Tim details",
                 "consumes": [
@@ -690,7 +690,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/timkerja/timkerja/{id}": {
+        "/timkerja/{id}": {
             "get": {
                 "description": "Get Tim Kerja detail by ID",
                 "consumes": [

@@ -174,7 +174,7 @@ info:
   title: Tim Kerja Service API
   version: "1.0"
 paths:
-  /api/v1/timkerja/jabatantim:
+  /jabatantim:
     get:
       consumes:
       - application/json
@@ -234,7 +234,7 @@ paths:
       summary: Create Jabatan Tim
       tags:
       - Jabatan Tim
-  /api/v1/timkerja/jabatantim/{id}:
+  /jabatantim/{id}:
     delete:
       consumes:
       - application/json
@@ -335,7 +335,7 @@ paths:
       summary: Update Jabatan Tim
       tags:
       - Jabatan Tim
-  /api/v1/timkerja/only_timkerja:
+  /only_timkerja:
     get:
       consumes:
       - application/json
@@ -361,7 +361,7 @@ paths:
       summary: Get All Tim Kerja
       tags:
       - Tim Kerja
-  /api/v1/timkerja/susunantim:
+  /susunantim:
     get:
       consumes:
       - application/json
@@ -421,7 +421,7 @@ paths:
       summary: Create Susunan Tim
       tags:
       - Susunan Tim
-  /api/v1/timkerja/susunantim/{id}:
+  /susunantim/{id}:
     delete:
       consumes:
       - application/json
@@ -522,7 +522,7 @@ paths:
       summary: Update Susunan Tim
       tags:
       - Susunan Tim
-  /api/v1/timkerja/timkerja:
+  /timkerja:
     get:
       consumes:
       - application/json
@@ -582,7 +582,7 @@ paths:
       summary: Create Tim Kerja
       tags:
       - Tim Kerja
-  /api/v1/timkerja/timkerja/{id}:
+  /timkerja/{id}:
     delete:
       consumes:
       - application/json
