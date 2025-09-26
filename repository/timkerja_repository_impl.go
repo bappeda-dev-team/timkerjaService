@@ -97,6 +97,7 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
             st.id, 
             st.kode_tim, 
             st.pegawai_id,
+            st.nama_pegawai,
             st.nama_jabatan_tim,
             jt.level_jabatan, -- ambil dari tabel jabatan_tim
             st.keterangan,
@@ -115,12 +116,13 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
 
 	for rows.Next() {
 		var susunanTim domain.SusunanTim
-		var levelJabatan sql.NullInt32 // handle jika level jabatan bisa null
+		var levelJabatan sql.NullInt32
 
 		err := rows.Scan(
 			&susunanTim.Id,
 			&susunanTim.KodeTim,
 			&susunanTim.PegawaiId,
+			&susunanTim.NamaPegawai,
 			&susunanTim.NamaJabatanTim,
 			&levelJabatan,
 			&susunanTim.Keterangan,

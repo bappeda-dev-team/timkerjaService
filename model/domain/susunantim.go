@@ -7,6 +7,7 @@ type SusunanTim struct {
 	KodeTim        string
 	PegawaiId      string
 	NamaJabatanTim string
+	NamaPegawai    string
 	IsActive       bool
 	Keterangan     *string
 	LevelJabatan   int

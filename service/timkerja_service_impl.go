@@ -162,6 +162,7 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context) ([]web.TimKer
 				susunanTimResponses = append(susunanTimResponses, web.SusunanTimDetailResponse{
 					Id:           st.Id,
 					PegawaiId:    st.PegawaiId,
+					NamaPegawai:  st.NamaPegawai,
 					NamaJabatan:  st.NamaJabatanTim,
 					LevelJabatan: st.LevelJabatan,
 					Keterangan:   st.Keterangan,

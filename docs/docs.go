@@ -906,6 +906,9 @@ const docTemplate = `{
                 "nama_jabatan_tim": {
                     "type": "string"
                 },
+                "nama_pegawai": {
+                    "type": "string"
+                },
                 "nip": {
                     "type": "string"
                 }
@@ -927,6 +930,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "nama_jabatan": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
                     "type": "string"
                 },
                 "nip": {
@@ -955,6 +961,9 @@ const docTemplate = `{
                 "nama_jabatan_tim": {
                     "type": "string"
                 },
+                "nama_pegawai": {
+                    "type": "string"
+                },
                 "nip": {
                     "type": "string"
                 },
@@ -979,6 +988,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nama_jabatan_tim": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
                     "type": "string"
                 },
                 "nip": {

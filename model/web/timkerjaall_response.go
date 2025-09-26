@@ -10,6 +10,7 @@ type TimKerjaDetailResponse struct {
 type SusunanTimDetailResponse struct {
 	Id           int     `json:"id"`
 	PegawaiId    string  `json:"nip"`
+	NamaPegawai  string  `json:"nama_pegawai"`
 	NamaJabatan  string  `json:"nama_jabatan"`
 	LevelJabatan int     `json:"level_jabatan"`
 	Keterangan   *string `json:"keterangan"`

@@ -40,6 +40,7 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 	susunanTimDomain := domain.SusunanTim{
 		KodeTim:        susunanTim.KodeTim,
 		PegawaiId:      susunanTim.PegawaiId,
+		NamaPegawai:    susunanTim.NamaPegawai,
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
 		Keterangan:     &susunanTim.Keterangan,
@@ -53,6 +54,7 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 	return web.SusunanTimResponse{
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
+		NamaPegawai:    susunanTimDomain.NamaPegawai,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
@@ -75,6 +77,7 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 		Id:             susunanTim.Id,
 		KodeTim:        susunanTim.KodeTim,
 		PegawaiId:      susunanTim.PegawaiId,
+		NamaPegawai:    susunanTim.NamaPegawai,
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
 		Keterangan:     &susunanTim.Keterangan,
@@ -89,6 +92,7 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 		Id:             susunanTimDomain.Id,
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
+		NamaPegawai:    susunanTimDomain.NamaPegawai,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
@@ -125,6 +129,7 @@ func (service *SusunanTimServiceImpl) FindById(ctx context.Context, id int) (web
 	return web.SusunanTimResponse{
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
+		NamaPegawai:    susunanTimDomain.NamaPegawai,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,

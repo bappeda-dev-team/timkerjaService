@@ -71,7 +71,7 @@ go get -u github.com/swaggo/echo-swagger
 
 ###Migrate db
 ```sh
-flyway -url=jdbc:mysql://localhost:3306/db_alurkerja_mahakamulu -user=root -password=agnar -locations=filesystem:./db/migrations migrate
+flyway -url=jdbc:mysql://localhost:3306/db_timkerja -user=root -password=agnar -locations=filesystem:./db/migrations migrate
 ```
 
 ###Maintenance Database

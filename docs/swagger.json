@@ -900,6 +900,9 @@
                 "nama_jabatan_tim": {
                     "type": "string"
                 },
+                "nama_pegawai": {
+                    "type": "string"
+                },
                 "nip": {
                     "type": "string"
                 }
@@ -921,6 +924,9 @@
                     "type": "integer"
                 },
                 "nama_jabatan": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
                     "type": "string"
                 },
                 "nip": {
@@ -949,6 +955,9 @@
                 "nama_jabatan_tim": {
                     "type": "string"
                 },
+                "nama_pegawai": {
+                    "type": "string"
+                },
                 "nip": {
                     "type": "string"
                 },
@@ -973,6 +982,9 @@
                     "type": "string"
                 },
                 "nama_jabatan_tim": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
                     "type": "string"
                 },
                 "nip": {

@@ -39,6 +39,8 @@ definitions:
         type: string
       nama_jabatan_tim:
         type: string
+      nama_pegawai:
+        type: string
       nip:
         type: string
     type: object
@@ -53,6 +55,8 @@ definitions:
       level_jabatan:
         type: integer
       nama_jabatan:
+        type: string
+      nama_pegawai:
         type: string
       nip:
         type: string
@@ -71,6 +75,8 @@ definitions:
         type: string
       nama_jabatan_tim:
         type: string
+      nama_pegawai:
+        type: string
       nip:
         type: string
       updated_at:
@@ -87,6 +93,8 @@ definitions:
       kode_tim:
         type: string
       nama_jabatan_tim:
+        type: string
+      nama_pegawai:
         type: string
       nip:
         type: string

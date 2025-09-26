@@ -1,0 +1,1 @@
+ALTER TABLE `susunan_tim` ADD COLUMN `nama_pegawai` VARCHAR(255) DEFAULT '';
