@@ -2,10 +2,13 @@ package helper
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
 
-func GenerateKodeTim(lastNumber int) string {
+func GenerateKodeTim(_ int) string {
 	year := time.Now().Year()
-	return fmt.Sprintf("TIM-%d-%d", year, lastNumber+1)
+	// Generate random 5-digit number between 10000-99999
+	randomNum := 10000 + rand.Intn(90000)
+	return fmt.Sprintf("TIM-%d-%d", year, randomNum)
 }
