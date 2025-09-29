@@ -72,7 +72,11 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 	defer helper.CommitOrRollback(tx)
 
 	timKerjaDomain := domain.TimKerja{
-		Id: timKerja.Id,
+		Id:         timKerja.Id,
+		NamaTim:    timKerja.NamaTim,
+		Keterangan: timKerja.Keterangan,
+		Tahun:      timKerja.Tahun,
+		IsActive:   timKerja.IsActive,
 	}
 
 	timKerjaDomain, err = service.TimKerjaRepository.Update(ctx, tx, timKerjaDomain)
@@ -80,8 +84,13 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 		return web.TimKerjaResponse{}, err
 	}
 
+	kodeTim, err := service.TimKerjaRepository.FindById(ctx, tx, timKerjaDomain.Id)
+	if err != nil {
+		return web.TimKerjaResponse{}, err
+	}
+
 	return web.TimKerjaResponse{
-		KodeTim:    timKerjaDomain.KodeTim,
+		KodeTim:    kodeTim.KodeTim,
 		NamaTim:    timKerjaDomain.NamaTim,
 		Keterangan: timKerjaDomain.Keterangan,
 		Tahun:      timKerjaDomain.Tahun,

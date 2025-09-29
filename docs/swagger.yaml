@@ -653,6 +653,11 @@ paths:
       - application/json
       description: Update Tim Kerja
       parameters:
+      - description: Tim Kerja ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Tim Kerja Update Request
         in: body
         name: data

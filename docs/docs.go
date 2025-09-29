@@ -759,6 +759,13 @@ const docTemplate = `{
                 "summary": "Update Tim Kerja",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Tim Kerja ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "Tim Kerja Update Request",
                         "name": "data",
                         "in": "body",

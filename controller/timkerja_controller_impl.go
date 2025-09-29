@@ -62,6 +62,7 @@ func (controller *TimKerjaControllerImpl) Create(c echo.Context) error {
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param id path int true "Tim Kerja ID"
 // @Param data body web.TimKerjaUpdateRequest true "Tim Kerja Update Request"
 // @Success 200 {object} web.WebResponse{data=web.TimKerjaResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
@@ -75,6 +76,13 @@ func (controller *TimKerjaControllerImpl) Update(c echo.Context) error {
 			Code:   http.StatusBadRequest,
 			Status: "BAD_REQUEST",
 			Data:   err.Error(),
+		})
+	}
+	TimKerjaUpdateRequest.Id, err = strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
 		})
 	}
 
