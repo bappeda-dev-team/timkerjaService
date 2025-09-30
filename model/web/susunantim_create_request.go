@@ -1,10 +1,10 @@
 package web
 
 type SusunanTimCreateRequest struct {
-	KodeTim        string `json:"kode_tim"`
-	PegawaiId      string `json:"nip"`
-	NamaPegawai    string `json:"nama_pegawai"`
-	NamaJabatanTim string `json:"nama_jabatan_tim"`
+	KodeTim        string `json:"kode_tim" validate:"required"`
+	PegawaiId      string `json:"nip" validate:"required"`
+	NamaPegawai    string `json:"nama_pegawai" validate:"required"`
+	NamaJabatanTim string `json:"nama_jabatan_tim" validate:"required"`
 	IsActive       bool   `json:"is_active"`
 	Keterangan     string `json:"keterangan"`
 }
