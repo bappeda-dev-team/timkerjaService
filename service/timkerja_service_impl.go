@@ -184,6 +184,7 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context) ([]web.TimKer
 			Id:          timKerja.Id,
 			KodeTim:     timKerja.KodeTim,
 			NamaTim:     timKerja.NamaTim,
+			Keterangan:  timKerja.Keterangan,
 			SusunanTims: susunanTimResponses,
 		})
 	}

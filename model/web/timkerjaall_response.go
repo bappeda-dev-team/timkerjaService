@@ -4,6 +4,7 @@ type TimKerjaDetailResponse struct {
 	Id          int                        `json:"id"`
 	KodeTim     string                     `json:"kode_tim"`
 	NamaTim     string                     `json:"nama_tim"`
+	Keterangan  string                     `json:"keterangan"`
 	SusunanTims []SusunanTimDetailResponse `json:"susunan_tims"`
 }
 
