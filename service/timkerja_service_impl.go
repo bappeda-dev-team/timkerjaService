@@ -191,3 +191,55 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context) ([]web.TimKer
 
 	return result, nil
 }
+
+func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, programUnggulan web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error) {
+	err := service.Validator.Struct(programUnggulan)
+	if err != nil {
+		return web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	programUnggulanDomain := domain.ProgramUnggulanTimKerja{
+		KodeTim:           programUnggulan.KodeTim,
+		IdProgramUnggulan: programUnggulan.IdProgramUnggulan,
+		Tahun:             programUnggulan.Tahun,
+		KodeOpd:           programUnggulan.KodeOpd,
+	}
+
+	programUnggulanDomain, err = service.TimKerjaRepository.AddProgramUnggulan(ctx, tx, programUnggulanDomain)
+	if err != nil {
+		return web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+	// setelah simpan cek external service
+
+	namaProgramUnggulan := "NOT_CHECKED"
+
+	return web.ProgramUnggulanTimKerjaResponse{
+		Id:                programUnggulanDomain.Id,
+		KodeTim:           programUnggulanDomain.KodeTim,
+		IdProgramUnggulan: programUnggulanDomain.IdProgramUnggulan,
+		ProgramUnggulan:   namaProgramUnggulan,
+		Tahun:             programUnggulan.Tahun,
+		KodeOpd:           programUnggulan.KodeOpd,
+	}, nil
+}
+
+func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return []web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	programUnggulans, err := service.TimKerjaRepository.FindProgramUnggulanByKodeTim(ctx, tx, kodeTim)
+	if err != nil {
+		return []web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+
+	return helper.ToProgramUnggulanResponses(programUnggulans), nil
+}

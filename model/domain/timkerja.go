@@ -12,3 +12,11 @@ type TimKerja struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
+
+type ProgramUnggulanTimKerja struct {
+	Id                int
+	KodeTim           string
+	IdProgramUnggulan int
+	Tahun             string
+	KodeOpd           string
+}

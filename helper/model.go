@@ -53,3 +53,18 @@ func ToTimKerjaResponses(timKerjaDomains []domain.TimKerja) []web.TimKerjaRespon
 	}
 	return timKerjaResponses
 }
+
+func ToProgramUnggulanResponses(programUnggulans []domain.ProgramUnggulanTimKerja) []web.ProgramUnggulanTimKerjaResponse {
+	programUnggulanReponses := make([]web.ProgramUnggulanTimKerjaResponse, len(programUnggulans))
+	for i, programUnggulanDomain := range programUnggulans {
+		programUnggulanReponses[i] = web.ProgramUnggulanTimKerjaResponse{
+			Id:                programUnggulanDomain.Id,
+			KodeTim:           programUnggulanDomain.KodeTim,
+			IdProgramUnggulan: programUnggulanDomain.IdProgramUnggulan,
+			ProgramUnggulan:   "TEST_X",
+			Tahun:             programUnggulanDomain.Tahun,
+			KodeOpd:           programUnggulanDomain.KodeOpd,
+		}
+	}
+	return programUnggulanReponses
+}

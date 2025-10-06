@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"timkerjaService/model/web"
@@ -236,5 +237,78 @@ func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 		Code:   http.StatusOK,
 		Status: "OK",
 		Data:   TimKerjaResponses,
+	})
+}
+
+// @Summary Add program unggulan to tim kerja
+// @Description Add program unggulan to existing tim kerja, multiple
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
+// @Failure 500 {object} web.WebResponse
+// @Router /timkerja/{kodetim}/program_unggulan [post]
+func (controller *TimKerjaControllerImpl) AddProgramUnggulan(c echo.Context) error {
+	ProgramUnggulanCreateRequest := web.ProgramUnggulanTimKerjaRequest{}
+	err := c.Bind(&ProgramUnggulanCreateRequest)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	ProgramUnggulanCreateRequest.KodeTim = c.Param("kodetim")
+	log.Printf("Create: %v", ProgramUnggulanCreateRequest)
+
+	ProgramUnggulanTimKerjaResponse, err := controller.TimKerjaService.AddProgramUnggulan(c.Request().Context(), ProgramUnggulanCreateRequest)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "SERVER ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   ProgramUnggulanTimKerjaResponse,
+	})
+}
+
+// @Summary Add program unggulan to tim kerja
+// @Description Add program unggulan to existing tim kerja, multiple
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
+// @Failure 500 {object} web.WebResponse
+// @Router /timkerja/{kodetim}/program_unggulan [get]
+func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Context) error {
+	kodeTim := c.Param("kodetim")
+	if kodeTim == "" {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   "KODE TIM TIDAK DITEMUKAN",
+		})
+	}
+
+	ProgramUnggulanTimKerjaResponse, err := controller.TimKerjaService.FindAllProgramUnggulanTim(c.Request().Context(), kodeTim)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "SERVER ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   ProgramUnggulanTimKerjaResponse,
 	})
 }

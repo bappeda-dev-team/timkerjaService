@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"log"
 	"timkerjaService/model/domain"
 )
 
@@ -141,4 +142,45 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
 	}
 
 	return timKerjaList, susunanTimMap, nil
+}
+
+func (repository *TimKerjaRepositoryImpl) AddProgramUnggulan(ctx context.Context, tx *sql.Tx, programUnggulan domain.ProgramUnggulanTimKerja) (domain.ProgramUnggulanTimKerja, error) {
+	log.Printf("Program Unggulan Input: %v", programUnggulan)
+	query := "INSERT INTO tb_program_unggulan(kode_tim, id_program_unggulan, tahun, kode_opd) VALUES (?, ?, ?, ?)"
+	_, err := tx.ExecContext(ctx, query, programUnggulan.KodeTim, programUnggulan.IdProgramUnggulan, programUnggulan.Tahun, programUnggulan.KodeOpd)
+	if err != nil {
+		return domain.ProgramUnggulanTimKerja{}, err
+	}
+
+	return programUnggulan, nil
+}
+
+func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.ProgramUnggulanTimKerja, error) {
+	query := "SELECT pu.id, pu.kode_tim, pu.id_program_unggulan, pu.tahun, pu.kode_opd FROM tb_program_unggulan pu WHERE pu.kode_tim = ?"
+	rows, err := tx.QueryContext(ctx, query, kodeTim)
+	if err != nil {
+		return []domain.ProgramUnggulanTimKerja{}, err
+	}
+	defer rows.Close()
+
+	var listProgramUnggulans []domain.ProgramUnggulanTimKerja
+
+	for rows.Next() {
+		var programUnggulan domain.ProgramUnggulanTimKerja
+
+		err := rows.Scan(
+			&programUnggulan.Id,
+			&programUnggulan.KodeTim,
+			&programUnggulan.IdProgramUnggulan,
+			&programUnggulan.Tahun,
+			&programUnggulan.KodeOpd,
+		)
+		if err != nil {
+			return []domain.ProgramUnggulanTimKerja{}, err
+		}
+
+		listProgramUnggulans = append(listProgramUnggulans, programUnggulan)
+	}
+
+	return listProgramUnggulans, nil
 }
