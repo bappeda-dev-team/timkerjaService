@@ -14,9 +14,10 @@ type TimKerja struct {
 }
 
 type ProgramUnggulanTimKerja struct {
-	Id                int
-	KodeTim           string
-	IdProgramUnggulan int
-	Tahun             string
-	KodeOpd           string
+	Id                  int
+	KodeTim             string
+	IdProgramUnggulan   int
+	NamaProgramUnggulan string
+	Tahun               string
+	KodeOpd             string
 }

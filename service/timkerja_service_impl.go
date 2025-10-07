@@ -3,7 +3,12 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log"
+	"net/http"
+	"os"
+	"time"
 	"timkerjaService/helper"
+	"timkerjaService/internal"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
 	"timkerjaService/repository"
@@ -216,8 +221,21 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 		return web.ProgramUnggulanTimKerjaResponse{}, err
 	}
 	// setelah simpan cek external service
+	perencanaanClient := internal.NewPerencanaanClient(
+		"https://testapi.kertaskerja.cc",
+		&http.Client{Timeout: 25 * time.Second},
+	)
 
+	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(programUnggulanDomain.IdProgramUnggulan)
+	if err != nil {
+		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
+	}
+
+	// inject namaProgramUnggulan
 	namaProgramUnggulan := "NOT_CHECKED"
+	if perencanaanResp != nil {
+		namaProgramUnggulan = perencanaanResp.NamaTagging
+	}
 
 	return web.ProgramUnggulanTimKerjaResponse{
 		Id:                programUnggulanDomain.Id,
@@ -241,5 +259,37 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 		return []web.ProgramUnggulanTimKerjaResponse{}, err
 	}
 
-	return helper.ToProgramUnggulanResponses(programUnggulans), nil
+	if len(programUnggulans) == 0 {
+		return []web.ProgramUnggulanTimKerjaResponse{}, nil
+	}
+
+	// perencanaan service
+	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	perencanaanClient := internal.NewPerencanaanClient(
+		perencanaanHost,
+		&http.Client{Timeout: 25 * time.Second},
+	)
+
+	var perencanaanResponses []domain.ProgramUnggulanTimKerja
+	for _, p := range programUnggulans {
+		resp := domain.ProgramUnggulanTimKerja{
+			Id:                p.Id,
+			KodeTim:           p.KodeTim,
+			IdProgramUnggulan: p.IdProgramUnggulan,
+			Tahun:             p.Tahun,
+			KodeOpd:           p.KodeOpd,
+		}
+
+		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(p.IdProgramUnggulan)
+		if err != nil {
+			log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
+			resp.NamaProgramUnggulan = "NOT_CHECKED"
+		} else if perencanaanResp != nil {
+			resp.NamaProgramUnggulan = perencanaanResp.NamaTagging
+		}
+		log.Printf("PERENCANAN RESP: %v", perencanaanResp)
+		perencanaanResponses = append(perencanaanResponses, resp)
+	}
+
+	return helper.ToProgramUnggulanResponses(perencanaanResponses), nil
 }

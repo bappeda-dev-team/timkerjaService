@@ -61,7 +61,7 @@ func ToProgramUnggulanResponses(programUnggulans []domain.ProgramUnggulanTimKerj
 			Id:                programUnggulanDomain.Id,
 			KodeTim:           programUnggulanDomain.KodeTim,
 			IdProgramUnggulan: programUnggulanDomain.IdProgramUnggulan,
-			ProgramUnggulan:   "TEST_X",
+			ProgramUnggulan:   programUnggulanDomain.NamaProgramUnggulan,
 			Tahun:             programUnggulanDomain.Tahun,
 			KodeOpd:           programUnggulanDomain.KodeOpd,
 		}
