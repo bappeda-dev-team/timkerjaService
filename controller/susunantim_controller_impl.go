@@ -176,8 +176,8 @@ func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 	SusunanTimResponse, err := controller.SusunanTimService.FindById(c.Request().Context(), idInt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:   http.StatusInternalServerError,
-			Status: "INTERNAL_SERVER_ERROR",
+			Code:   http.StatusNotFound,
+			Status: "NOT FOUND",
 			Data:   err.Error(),
 		})
 	}

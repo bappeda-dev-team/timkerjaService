@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"timkerjaService/model/domain"
 )
 
@@ -66,7 +67,7 @@ func (repository *SusunanTimRepositoryImpl) FindById(ctx context.Context, tx *sq
 		return susunanTim, nil
 	}
 
-	return domain.SusunanTim{}, nil
+	return domain.SusunanTim{}, errors.New("susunan tim not found")
 }
 
 func (repository *SusunanTimRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]domain.SusunanTim, error) {

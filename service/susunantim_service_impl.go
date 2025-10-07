@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"timkerjaService/helper"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
@@ -124,7 +125,7 @@ func (service *SusunanTimServiceImpl) FindById(ctx context.Context, id int) (web
 
 	susunanTimDomain, err := service.SusunanTimRepository.FindById(ctx, tx, id)
 	if err != nil {
-		return web.SusunanTimResponse{}, err
+		return web.SusunanTimResponse{}, errors.New("susunan tim not found")
 	}
 
 	return web.SusunanTimResponse{
