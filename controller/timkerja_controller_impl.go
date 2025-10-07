@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -160,27 +161,36 @@ func (controller *TimKerjaControllerImpl) FindById(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD_REQUEST",
+			Code:    http.StatusBadRequest,
+			Status:  "BAD_REQUEST",
+			Message: "format id jelek.",
 		})
 	}
 
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD_REQUEST",
-			Data:   err.Error(),
+			Code:    http.StatusBadRequest,
+			Status:  "BAD_REQUEST",
+			Message: "format id jelek.",
 		})
 	}
 
 	TimKerjaResponse, err := controller.TimKerjaService.FindById(c.Request().Context(), idInt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:   http.StatusInternalServerError,
-			Status: "INTERNAL_SERVER_ERROR",
-			Data:   err.Error(),
+			Code:    http.StatusInternalServerError,
+			Status:  "INTERNAL_SERVER_ERROR",
+			Message: "TERJADI KESALAHAN FATAL.",
 		})
+	}
+	if TimKerjaResponse.Id == 0 {
+		return c.JSON(http.StatusNotFound, web.WebResponse{
+			Code:    http.StatusNotFound,
+			Status:  "NOT FOUND",
+			Message: fmt.Sprintf("Tim kerja dengan ID: %s. tidak ditemukan.", id),
+		})
+
 	}
 
 	return c.JSON(http.StatusOK, web.WebResponse{

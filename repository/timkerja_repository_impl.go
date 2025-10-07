@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"timkerjaService/model/domain"
 )
@@ -15,18 +16,28 @@ func NewTimKerjaRepositoryImpl() *TimKerjaRepositoryImpl {
 }
 
 func (repository *TimKerjaRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error) {
-	query := "INSERT INTO tim_kerja (kode_tim, nama_tim, keterangan, tahun, is_active) VALUES (?, ?, ?, ?, ?)"
-	_, err := tx.ExecContext(ctx, query, timKerja.KodeTim, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive)
+	query := "INSERT INTO tim_kerja (kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat) VALUES (?, ?, ?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, query,
+		timKerja.KodeTim,
+		timKerja.NamaTim,
+		timKerja.Keterangan,
+		timKerja.Tahun,
+		timKerja.IsActive,
+		timKerja.IsSekretariat)
 	if err != nil {
 		return domain.TimKerja{}, err
 	}
-
+	lastID, err := result.LastInsertId()
+	if err != nil {
+		return domain.TimKerja{}, fmt.Errorf("gagal ambil last insert id: %w", err)
+	}
+	timKerja.Id = int(lastID)
 	return timKerja, nil
 }
 
 func (repository *TimKerjaRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error) {
-	query := "UPDATE tim_kerja SET nama_tim = ?, keterangan = ?, tahun = ?, is_active = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive, timKerja.Id)
+	query := "UPDATE tim_kerja SET nama_tim = ?, keterangan = ?, tahun = ?, is_active = ?, is_sekretariat = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, query, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive, timKerja.IsSekretariat, timKerja.Id)
 	if err != nil {
 		return domain.TimKerja{}, err
 	}
@@ -44,7 +55,7 @@ func (repository *TimKerjaRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active FROM tim_kerja WHERE id = ?"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, query, id)
 	if err != nil {
 		return domain.TimKerja{}, err
@@ -53,7 +64,7 @@ func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.
 
 	if rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive)
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return domain.TimKerja{}, err
 		}
@@ -64,7 +75,7 @@ func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.
 }
 
 func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active FROM tim_kerja ORDER BY id ASC"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return []domain.TimKerja{}, err
@@ -74,7 +85,7 @@ func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	var timKerjaList []domain.TimKerja
 	for rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive)
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return []domain.TimKerja{}, err
 		}
@@ -146,8 +157,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
 
 func (repository *TimKerjaRepositoryImpl) AddProgramUnggulan(ctx context.Context, tx *sql.Tx, programUnggulan domain.ProgramUnggulanTimKerja) (domain.ProgramUnggulanTimKerja, error) {
 	log.Printf("Program Unggulan Input: %v", programUnggulan)
-	query := "INSERT INTO tb_program_unggulan(kode_tim, id_program_unggulan, tahun, kode_opd) VALUES (?, ?, ?, ?)"
-	_, err := tx.ExecContext(ctx, query, programUnggulan.KodeTim, programUnggulan.IdProgramUnggulan, programUnggulan.Tahun, programUnggulan.KodeOpd)
+	query := "INSERT INTO tb_program_unggulan(kode_tim, id_program_unggulan, tahun, kode_opd, kode_program_unggulan) VALUES (?, ?, ?, ?, ?)"
+	_, err := tx.ExecContext(ctx, query, programUnggulan.KodeTim, programUnggulan.IdProgramUnggulan, programUnggulan.Tahun, programUnggulan.KodeOpd, programUnggulan.KodeProgramUnggulan)
 	if err != nil {
 		return domain.ProgramUnggulanTimKerja{}, err
 	}

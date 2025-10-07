@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -43,11 +44,12 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	defer helper.CommitOrRollback(tx)
 
 	timKerjaDomain := domain.TimKerja{
-		KodeTim:    helper.GenerateKodeTim(0),
-		NamaTim:    timKerja.NamaTim,
-		Keterangan: timKerja.Keterangan,
-		Tahun:      timKerja.Tahun,
-		IsActive:   timKerja.IsActive,
+		KodeTim:       helper.GenerateKodeTim(0),
+		NamaTim:       timKerja.NamaTim,
+		Keterangan:    timKerja.Keterangan,
+		Tahun:         timKerja.Tahun,
+		IsActive:      timKerja.IsActive,
+		IsSekretariat: timKerja.IsSekretariat,
 	}
 
 	timKerjaDomain, err = service.TimKerjaRepository.Create(ctx, tx, timKerjaDomain)
@@ -56,11 +58,13 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	}
 
 	return web.TimKerjaResponse{
-		KodeTim:    timKerjaDomain.KodeTim,
-		NamaTim:    timKerjaDomain.NamaTim,
-		Keterangan: timKerjaDomain.Keterangan,
-		Tahun:      timKerjaDomain.Tahun,
-		IsActive:   timKerjaDomain.IsActive,
+		Id:            timKerjaDomain.Id,
+		KodeTim:       timKerjaDomain.KodeTim,
+		NamaTim:       timKerjaDomain.NamaTim,
+		Keterangan:    timKerjaDomain.Keterangan,
+		Tahun:         timKerjaDomain.Tahun,
+		IsActive:      timKerjaDomain.IsActive,
+		IsSekretariat: timKerja.IsSekretariat,
 	}, nil
 }
 
@@ -77,11 +81,12 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 	defer helper.CommitOrRollback(tx)
 
 	timKerjaDomain := domain.TimKerja{
-		Id:         timKerja.Id,
-		NamaTim:    timKerja.NamaTim,
-		Keterangan: timKerja.Keterangan,
-		Tahun:      timKerja.Tahun,
-		IsActive:   timKerja.IsActive,
+		Id:            timKerja.Id,
+		NamaTim:       timKerja.NamaTim,
+		Keterangan:    timKerja.Keterangan,
+		Tahun:         timKerja.Tahun,
+		IsActive:      timKerja.IsActive,
+		IsSekretariat: timKerja.IsSekretariat,
 	}
 
 	timKerjaDomain, err = service.TimKerjaRepository.Update(ctx, tx, timKerjaDomain)
@@ -95,11 +100,13 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 	}
 
 	return web.TimKerjaResponse{
-		KodeTim:    kodeTim.KodeTim,
-		NamaTim:    timKerjaDomain.NamaTim,
-		Keterangan: timKerjaDomain.Keterangan,
-		Tahun:      timKerjaDomain.Tahun,
-		IsActive:   timKerjaDomain.IsActive,
+		Id:            timKerjaDomain.Id,
+		KodeTim:       kodeTim.KodeTim,
+		NamaTim:       timKerjaDomain.NamaTim,
+		Keterangan:    timKerjaDomain.Keterangan,
+		Tahun:         timKerjaDomain.Tahun,
+		IsActive:      timKerjaDomain.IsActive,
+		IsSekretariat: timKerjaDomain.IsSekretariat,
 	}, nil
 }
 
@@ -127,15 +134,20 @@ func (service *TimKerjaServiceImpl) FindById(ctx context.Context, id int) (web.T
 
 	timKerjaDomain, err := service.TimKerjaRepository.FindById(ctx, tx, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return web.TimKerjaResponse{}, sql.ErrNoRows
+		}
 		return web.TimKerjaResponse{}, err
 	}
 
 	return web.TimKerjaResponse{
-		KodeTim:    timKerjaDomain.KodeTim,
-		NamaTim:    timKerjaDomain.NamaTim,
-		Keterangan: timKerjaDomain.Keterangan,
-		Tahun:      timKerjaDomain.Tahun,
-		IsActive:   timKerjaDomain.IsActive,
+		Id:            timKerjaDomain.Id,
+		KodeTim:       timKerjaDomain.KodeTim,
+		NamaTim:       timKerjaDomain.NamaTim,
+		Keterangan:    timKerjaDomain.Keterangan,
+		Tahun:         timKerjaDomain.Tahun,
+		IsActive:      timKerjaDomain.IsActive,
+		IsSekretariat: timKerjaDomain.IsSekretariat,
 	}, nil
 }
 
@@ -186,11 +198,13 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context) ([]web.TimKer
 		}
 
 		result = append(result, web.TimKerjaDetailResponse{
-			Id:          timKerja.Id,
-			KodeTim:     timKerja.KodeTim,
-			NamaTim:     timKerja.NamaTim,
-			Keterangan:  timKerja.Keterangan,
-			SusunanTims: susunanTimResponses,
+			Id:            timKerja.Id,
+			KodeTim:       timKerja.KodeTim,
+			NamaTim:       timKerja.NamaTim,
+			Keterangan:    timKerja.Keterangan,
+			IsActive:      timKerja.IsActive,
+			IsSekretariat: timKerja.IsSekretariat,
+			SusunanTims:   susunanTimResponses,
 		})
 	}
 
@@ -209,32 +223,46 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	}
 	defer helper.CommitOrRollback(tx)
 
+	// cek external service
+	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	if perencanaanHost == "" {
+		log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+	}
+	perencanaanClient := internal.NewPerencanaanClient(
+		perencanaanHost,
+		&http.Client{Timeout: 25 * time.Second},
+	)
+
+	// ambil kode program unggulan
+	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.IdProgramUnggulan)
+	if err != nil {
+		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
+	}
+
+	var kodeProgramUnggulan string
+	if perencanaanResp != nil {
+		kodeProgramUnggulan = perencanaanResp.KodeProgramUnggulan
+	} else {
+		kodeProgramUnggulan = "UNCHECKED"
+	}
+
 	programUnggulanDomain := domain.ProgramUnggulanTimKerja{
-		KodeTim:           programUnggulan.KodeTim,
-		IdProgramUnggulan: programUnggulan.IdProgramUnggulan,
-		Tahun:             programUnggulan.Tahun,
-		KodeOpd:           programUnggulan.KodeOpd,
+		KodeTim:             programUnggulan.KodeTim,
+		KodeProgramUnggulan: kodeProgramUnggulan,
+		IdProgramUnggulan:   programUnggulan.IdProgramUnggulan,
+		Tahun:               programUnggulan.Tahun,
+		KodeOpd:             programUnggulan.KodeOpd,
 	}
 
 	programUnggulanDomain, err = service.TimKerjaRepository.AddProgramUnggulan(ctx, tx, programUnggulanDomain)
 	if err != nil {
 		return web.ProgramUnggulanTimKerjaResponse{}, err
 	}
-	// setelah simpan cek external service
-	perencanaanClient := internal.NewPerencanaanClient(
-		"https://testapi.kertaskerja.cc",
-		&http.Client{Timeout: 25 * time.Second},
-	)
-
-	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulanDomain.IdProgramUnggulan)
-	if err != nil {
-		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
-	}
 
 	// inject namaProgramUnggulan
 	namaProgramUnggulan := "NOT_CHECKED"
 	if perencanaanResp != nil {
-		namaProgramUnggulan = perencanaanResp.NamaTagging
+		namaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
 	}
 
 	return web.ProgramUnggulanTimKerjaResponse{
@@ -284,7 +312,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 			continue
 		}
 		if perencanaanResp != nil {
-			p.NamaProgramUnggulan = perencanaanResp.NamaTagging
+			p.NamaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
 		}
 	}
 

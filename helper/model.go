@@ -41,14 +41,15 @@ func ToTimKerjaResponses(timKerjaDomains []domain.TimKerja) []web.TimKerjaRespon
 	timKerjaResponses := make([]web.TimKerjaResponse, len(timKerjaDomains))
 	for i, timKerjaDomain := range timKerjaDomains {
 		timKerjaResponses[i] = web.TimKerjaResponse{
-			Id:         timKerjaDomain.Id,
-			KodeTim:    timKerjaDomain.KodeTim,
-			NamaTim:    timKerjaDomain.NamaTim,
-			Keterangan: timKerjaDomain.Keterangan,
-			Tahun:      timKerjaDomain.Tahun,
-			IsActive:   timKerjaDomain.IsActive,
-			CreatedAt:  timKerjaDomain.CreatedAt,
-			UpdatedAt:  timKerjaDomain.UpdatedAt,
+			Id:            timKerjaDomain.Id,
+			KodeTim:       timKerjaDomain.KodeTim,
+			NamaTim:       timKerjaDomain.NamaTim,
+			Keterangan:    timKerjaDomain.Keterangan,
+			Tahun:         timKerjaDomain.Tahun,
+			IsActive:      timKerjaDomain.IsActive,
+			IsSekretariat: timKerjaDomain.IsSekretariat,
+			CreatedAt:     timKerjaDomain.CreatedAt,
+			UpdatedAt:     timKerjaDomain.UpdatedAt,
 		}
 	}
 	return timKerjaResponses
