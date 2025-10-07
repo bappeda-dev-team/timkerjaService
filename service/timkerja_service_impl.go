@@ -248,48 +248,45 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 }
 
 func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
+	// Ambil data dari DB dulu — jangan tahan TX terlalu lama
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
-		return []web.ProgramUnggulanTimKerjaResponse{}, err
+		return nil, err
 	}
-	defer helper.CommitOrRollback(tx)
 
 	programUnggulans, err := service.TimKerjaRepository.FindProgramUnggulanByKodeTim(ctx, tx, kodeTim)
+	helper.CommitOrRollback(tx)
 	if err != nil {
-		return []web.ProgramUnggulanTimKerjaResponse{}, err
+		return nil, err
 	}
-
 	if len(programUnggulans) == 0 {
 		return []web.ProgramUnggulanTimKerjaResponse{}, nil
 	}
 
-	// perencanaan service
+	// 🔗 Siapkan client eksternal (Perencanaan)
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
-	perencanaanClient := internal.NewPerencanaanClient(
-		perencanaanHost,
-		&http.Client{Timeout: 25 * time.Second},
-	)
-
-	var perencanaanResponses []domain.ProgramUnggulanTimKerja
-	for _, p := range programUnggulans {
-		resp := domain.ProgramUnggulanTimKerja{
-			Id:                p.Id,
-			KodeTim:           p.KodeTim,
-			IdProgramUnggulan: p.IdProgramUnggulan,
-			Tahun:             p.Tahun,
-			KodeOpd:           p.KodeOpd,
-		}
-
-		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
-		if err != nil {
-			log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
-			resp.NamaProgramUnggulan = "NOT_CHECKED"
-		} else if perencanaanResp != nil {
-			resp.NamaProgramUnggulan = perencanaanResp.NamaTagging
-		}
-		log.Printf("PERENCANAN RESP: %v", perencanaanResp)
-		perencanaanResponses = append(perencanaanResponses, resp)
+	if perencanaanHost == "" {
+		log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+		return helper.ToProgramUnggulanResponses(programUnggulans), nil
 	}
 
-	return helper.ToProgramUnggulanResponses(perencanaanResponses), nil
+	perencanaanClient := internal.NewPerencanaanClient(
+		perencanaanHost,
+		&http.Client{Timeout: 20 * time.Second},
+	)
+
+	for i := range programUnggulans {
+		p := &programUnggulans[i]
+		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
+		if err != nil {
+			log.Printf("⚠️ Gagal cek program unggulan [%d]: %v", p.IdProgramUnggulan, err)
+			p.NamaProgramUnggulan = "NOT_CHECKED"
+			continue
+		}
+		if perencanaanResp != nil {
+			p.NamaProgramUnggulan = perencanaanResp.NamaTagging
+		}
+	}
+
+	return helper.ToProgramUnggulanResponses(programUnggulans), nil
 }

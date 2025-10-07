@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	myMiddleware "timkerjaService/middleware"
 )
 
 func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController) *echo.Echo {
@@ -14,6 +15,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	e.Use(myMiddleware.SessionIDMiddleware)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/swagger/doc.json", echoSwagger.WrapHandler)
