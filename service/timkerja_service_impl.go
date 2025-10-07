@@ -226,7 +226,7 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 		&http.Client{Timeout: 25 * time.Second},
 	)
 
-	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(programUnggulanDomain.IdProgramUnggulan)
+	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulanDomain.IdProgramUnggulan)
 	if err != nil {
 		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
 	}
@@ -280,7 +280,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 			KodeOpd:           p.KodeOpd,
 		}
 
-		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(p.IdProgramUnggulan)
+		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
 		if err != nil {
 			log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
 			resp.NamaProgramUnggulan = "NOT_CHECKED"

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,19 +35,41 @@ func NewPerencanaanClient(host string, httpClient *http.Client) *PerencanaanClie
 	}
 }
 
-func (c *PerencanaanClient) GetProgramUnggulan(idProgramUnggulan int) (*ProgramUnggulanResponse, error) {
+// key untuk context session id
+type ctxKey string
+
+const SessionIDKey ctxKey = "X-Session-Id"
+
+// Inject session ID ke context (opsional)
+func WithSessionID(ctx context.Context, sessionID string) context.Context {
+	return context.WithValue(ctx, SessionIDKey, sessionID)
+}
+
+// Ambil session ID dari context
+func getSessionID(ctx context.Context) string {
+	if v := ctx.Value(SessionIDKey); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return s
+		}
+	}
+	return os.Getenv("DEV_SESSION_ID") // fallback
+}
+
+func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, idProgramUnggulan int) (*ProgramUnggulanResponse, error) {
 	// url check program unggulan
 	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/detail/%d", c.host, idProgramUnggulan)
-	log.Printf("url: %v", url)
 	// request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("Gagal membuat request: %w", err)
 	}
 
-	if os.Getenv("APP_ENV") == "development" {
-		sessionID := os.Getenv("DEV_SESSION_ID")
+	sessionID := getSessionID(ctx)
+	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
+		log.Printf("🪪 X-Session-Id diterapkan: %s", sessionID)
+	} else {
+		log.Printf("⚠️ Tidak ada X-Session-Id ditemukan, mungkin akan 401")
 	}
 
 	// send request
@@ -72,7 +95,6 @@ func (c *PerencanaanClient) GetProgramUnggulan(idProgramUnggulan int) (*ProgramU
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("gagal decode response: %w", err)
 	}
-	log.Printf("resp: %v", result)
 
 	return result.Data, nil
 }
