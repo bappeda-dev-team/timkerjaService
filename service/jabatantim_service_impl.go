@@ -48,6 +48,7 @@ func (service *JabatanTimServiceImpl) Create(ctx context.Context, jabatanTim web
 	}
 
 	return web.JabatanTimResponse{
+		Id:           jabatanTimDomain.Id,
 		NamaJabatan:  jabatanTimDomain.NamaJabatan,
 		LevelJabatan: jabatanTimDomain.LevelJabatan,
 	}, nil

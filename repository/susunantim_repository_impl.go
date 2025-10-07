@@ -15,10 +15,17 @@ func NewSusunanTimRepositoryImpl() *SusunanTimRepositoryImpl {
 
 func (repository *SusunanTimRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, susunanTim domain.SusunanTim) (domain.SusunanTim, error) {
 	query := "INSERT INTO susunan_tim (kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim, is_active, keterangan) VALUES (?, ?, ?, ?, ?, ?)"
-	_, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan)
+	result, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan)
 	if err != nil {
 		return domain.SusunanTim{}, err
 	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return domain.SusunanTim{}, err
+	}
+
+	susunanTim.Id = int(id)
 
 	return susunanTim, nil
 }

@@ -52,6 +52,7 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 	}
 
 	return web.SusunanTimResponse{
+		Id:             susunanTimDomain.Id,
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
 		NamaPegawai:    susunanTimDomain.NamaPegawai,
