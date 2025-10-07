@@ -9,9 +9,9 @@ type TimKerjaCreateRequest struct {
 
 type ProgramUnggulanTimKerjaRequest struct {
 	KodeTim           string
-	IdProgramUnggulan int    `json:"id_program_unggulan"`
-	Tahun             string `json:"tahun"`
-	KodeOpd           string `json:"kode_opd"`
+	IdProgramUnggulan int    `json:"id_program_unggulan" validate:"required"`
+	Tahun             string `json:"tahun" validate:"required"`
+	KodeOpd           string `json:"kode_opd" validate:"required"`
 	RealisasiAnggaran int    `json:"realisasi_anggaran"`
 	FaktorPendorong   string `json:"faktor_pendorong"`
 	FaktorPenghambat  string `json:"faktor_penghambat"`
