@@ -195,3 +195,84 @@ func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx conte
 
 	return listProgramUnggulans, nil
 }
+
+func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, error) {
+	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE is_sekretariat ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return []domain.TimKerja{}, err
+	}
+	defer rows.Close()
+
+	var timKerjaList []domain.TimKerja
+	for rows.Next() {
+		var timKerja domain.TimKerja
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		if err != nil {
+			return []domain.TimKerja{}, err
+		}
+
+		timKerjaList = append(timKerjaList, timKerja)
+	}
+
+	return timKerjaList, nil
+
+}
+
+func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
+	timKerjaList, err := repository.FindAllTimSekretariat(ctx, tx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Get all susunan tim with jabatan details
+	query := `
+        SELECT
+            st.id,
+            st.kode_tim,
+            st.pegawai_id,
+            st.nama_pegawai,
+            st.nama_jabatan_tim,
+            jt.level_jabatan, -- ambil dari tabel jabatan_tim
+            st.keterangan,
+            st.is_active
+        FROM susunan_tim st
+        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan -- join dengan jabatan_tim untuk dapat level
+        ORDER BY st.kode_tim, jt.level_jabatan ASC`
+
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	susunanTimMap := make(map[string][]domain.SusunanTim)
+
+	for rows.Next() {
+		var susunanTim domain.SusunanTim
+		var levelJabatan sql.NullInt32
+
+		err := rows.Scan(
+			&susunanTim.Id,
+			&susunanTim.KodeTim,
+			&susunanTim.PegawaiId,
+			&susunanTim.NamaPegawai,
+			&susunanTim.NamaJabatanTim,
+			&levelJabatan,
+			&susunanTim.Keterangan,
+			&susunanTim.IsActive,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// Handle null values
+		if levelJabatan.Valid {
+			susunanTim.LevelJabatan = int(levelJabatan.Int32)
+		}
+
+		susunanTimMap[susunanTim.KodeTim] = append(susunanTimMap[susunanTim.KodeTim], susunanTim)
+	}
+
+	return timKerjaList, susunanTimMap, nil
+}
