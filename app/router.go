@@ -26,6 +26,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/timkerja/:id", timKerjaController.FindById)
 	e.GET("/only_timkerja", timKerjaController.FindAll)
 	e.GET("/timkerja", timKerjaController.FindAllTm)
+	e.GET("/timkerja-non-sekretariat", timKerjaController.FindAllTimNonSekretariat)
 	e.GET("/timkerja-sekretariat", timKerjaController.FindAllTimSekretariat)
 	// Program unggulan
 	e.POST("/timkerja/:kodetim/program_unggulan", timKerjaController.AddProgramUnggulan)

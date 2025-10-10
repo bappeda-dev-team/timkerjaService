@@ -323,6 +323,31 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 	})
 }
 
+// @Summary Get All Tim Kerja Non Sekretariat with Details
+// @Description Get All Tim Kerja sekretariat with susunan tim
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
+// @Failure 500 {object} web.WebResponse
+// @Router /timkerja-sekretariat [get]
+func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Context) error {
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimNonSekretariat(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   TimKerjaResponses,
+	})
+}
+
 // @Summary Get All Tim Kerja Sekretariat with Details
 // @Description Get All Tim Kerja sekretariat with susunan tim
 // @Tags Tim Kerja

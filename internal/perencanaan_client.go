@@ -1,3 +1,4 @@
+// TODO: ambil data pokin dari laporan tagging
 package internal
 
 import (

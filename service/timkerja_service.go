@@ -14,5 +14,6 @@ type TimKerjaService interface {
 	FindAllTm(ctx context.Context) ([]web.TimKerjaDetailResponse, error)
 	AddProgramUnggulan(ctx context.Context, timKerja web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error)
 	FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error)
+	FindAllTimNonSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error)
 	FindAllTimSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error)
 }
