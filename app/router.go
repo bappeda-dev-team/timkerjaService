@@ -31,6 +31,16 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// Program unggulan
 	e.POST("/timkerja/:kodetim/program_unggulan", timKerjaController.AddProgramUnggulan)
 	e.GET("/timkerja/:kodetim/program_unggulan", timKerjaController.FindAllProgramUnggulanTim)
+	// TODO
+	e.DELETE("/timkerja/:kodetim/program_unggulan/:id", timKerjaController.DeleteProgramUnggulan)
+	// TODO
+ // POST simpan realisasi anggaran by subkegiatan
+ // post simpan faktor pendrong, penghambat, rtl, bukti dukung
+ // patch simpan url bukti dukung
+// post simpan rencana kinerja dari sekret
+// hapus rencana kinerja dari sekret
+// response sret
+// get rekin by tim kerja sekret
 
 	e.POST("/susunantim", susunanTimController.Create)
 	e.PUT("/susunantim/:id", susunanTimController.Update)

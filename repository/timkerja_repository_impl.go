@@ -357,3 +357,12 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx c
 
 	return timKerjaList, susunanTimMap, nil
 }
+
+func (repository *TimKerjaRepositoryImpl) DeleteProgramUnggulan(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error {
+	query := "DELETE FROM tb_program_unggulan WHERE id = ? AND kode_tim = ?"
+	_, err := tx.ExecContext(ctx, query, id, kodeTim)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -13,4 +13,5 @@ type TimKerjaController interface {
 	FindAllProgramUnggulanTim(c echo.Context) error
 	FindAllTimNonSekretariat(c echo.Context) error
 	FindAllTimSekretariat(c echo.Context) error
+	DeleteProgramUnggulan(c echo.Context) error
 }

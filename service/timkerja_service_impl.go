@@ -410,3 +410,18 @@ func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context) (
 
 	return result, nil
 }
+
+func (service *TimKerjaServiceImpl) DeleteProgramUnggulan(ctx context.Context, id int, kodeTim string) error {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	err = service.TimKerjaRepository.DeleteProgramUnggulan(ctx, tx, id, kodeTim)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

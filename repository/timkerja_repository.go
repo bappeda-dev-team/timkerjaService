@@ -19,4 +19,5 @@ type TimKerjaRepository interface {
 	FindAllTimNonSekretariat(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, error)
 	FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimSekretariat(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, error)
+	DeleteProgramUnggulan(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
 }
