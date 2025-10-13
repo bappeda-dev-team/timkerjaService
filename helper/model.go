@@ -1,6 +1,10 @@
 package helper
 
 import (
+	"context"
+	"log"
+	"sync"
+	"timkerjaService/internal"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
 )
@@ -74,13 +78,13 @@ func ToRencanaKinerjaTimResponses(rencanaKinerjas []domain.RencanaKinerjaTimKerj
 	rencanaKinerjaReponses := make([]web.RencanaKinerjaTimKerjaResponse, len(rencanaKinerjas))
 	for i, rencanaKinerjaDomain := range rencanaKinerjas {
 		rencanaKinerjaReponses[i] = web.RencanaKinerjaTimKerjaResponse{
-			Id:              rencanaKinerjaDomain.Id,
-			KodeTim:         rencanaKinerjaDomain.KodeTim,
-			IdRencanKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
-			IdPegawai:       rencanaKinerjaDomain.IdPegawai,
-			RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
-			Tahun:           rencanaKinerjaDomain.Tahun,
-			KodeOpd:         rencanaKinerjaDomain.KodeOpd,
+			Id:               rencanaKinerjaDomain.Id,
+			KodeTim:          rencanaKinerjaDomain.KodeTim,
+			IdRencanaKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
+			IdPegawai:        rencanaKinerjaDomain.IdPegawai,
+			RencanaKinerja:   rencanaKinerjaDomain.RencanaKinerja,
+			Tahun:            rencanaKinerjaDomain.Tahun,
+			KodeOpd:          rencanaKinerjaDomain.KodeOpd,
 		}
 	}
 	return rencanaKinerjaReponses
@@ -108,4 +112,62 @@ func ToRealisasiPokinResponses(realisasis []domain.RealisasiPokin) []web.Realisa
 		}
 	}
 	return realisasiResponses
+}
+
+// internal
+func MergeRencanaKinerjaWithRekinParallel(
+	ctx context.Context,
+	rencanas []domain.RencanaKinerjaTimKerja,
+	client *internal.PerencanaanClient,
+	maxConcurrency int,
+) []web.RencanaKinerjaTimKerjaResponse {
+	responses := make([]web.RencanaKinerjaTimKerjaResponse, len(rencanas))
+	sem := make(chan struct{}, maxConcurrency)
+	var wg sync.WaitGroup
+
+	for i, r := range rencanas {
+		wg.Add(1)
+		go func(i int, r domain.RencanaKinerjaTimKerja) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			resp := web.RencanaKinerjaTimKerjaResponse{
+				Id:               r.Id,
+				KodeTim:          r.KodeTim,
+				IdRencanaKinerja: r.IdRencanaKinerja,
+				IdPegawai:        r.IdPegawai,
+				Tahun:            r.Tahun,
+				KodeOpd:          r.KodeOpd,
+			}
+
+			// === Fetch API eksternal ===
+			dataRincian, err := client.GetDataRincianKerja(ctx, r.IdRencanaKinerja, r.IdPegawai)
+			if err != nil {
+				log.Printf("⚠️ gagal fetch rincian kerja [%v]: %v", r.IdRencanaKinerja, err)
+				resp.RencanaKinerja = "NOT_CHECKED"
+				responses[i] = resp
+				return
+			}
+			if dataRincian == nil {
+				resp.RencanaKinerja = "NOT_FOUND"
+				responses[i] = resp
+				return
+			}
+
+			// === Map hasil dari API ===
+			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
+
+			// tambah disini kebutuhan tambahan
+            //
+			resp.Indikator = dataRincian.RencanaKinerja.Indikator
+
+			resp.SubKegiatan = dataRincian.SubKegiatan
+
+			responses[i] = resp
+		}(i, r)
+	}
+
+	wg.Wait()
+	return responses
 }

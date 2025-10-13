@@ -16,18 +16,6 @@ type PerencanaanClient struct {
 	perencanaanPath string
 }
 
-// DATA HELPER
-type ProgramUnggulanResponse struct {
-	Id                        int    `json:"id"`
-	KodeProgramUnggulan       string `json:"kode_program_unggulan"`
-	NamaTagging               string `json:"nama_program_unggulan"`
-	KeteranganProgramUnggulan string `json:"rencana_implementasi"`
-	Keterangan                string `json:"keterangan"`
-	TahunAwal                 string `json:"tahun_awal"`
-	TahunAkhir                string `json:"tahun_akhir"`
-	IsActive                  bool   `json:"is_active"`
-}
-
 func NewPerencanaanClient(host string, httpClient *http.Client) *PerencanaanClient {
 	return &PerencanaanClient{
 		httpClient:      httpClient,
@@ -98,4 +86,45 @@ func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, idProgramUng
 	}
 
 	return result.Data, nil
+}
+
+func (c *PerencanaanClient) GetDataRincianKerja(
+	ctx context.Context,
+	idRekin string,
+	idPegawai string,
+) (*DataRincianKerja, error) {
+	url := fmt.Sprintf("%s/api/v1/perencanaan/rencana_kinerja/%s/pegawai/%s/input_rincian_kak", c.host, idRekin, idPegawai)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	sessionID := getSessionID(ctx)
+	if sessionID != "" {
+		req.Header.Set("X-Session-Id", sessionID)
+		log.Printf("Session Id diterapkan: %s", sessionID)
+	} else {
+		log.Printf("Session Id ditemukan, mungkin akan 401")
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
+	}
+
+	var wrapper DataRincianKerjaWrapper
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
+		return nil, fmt.Errorf("gagal decode response: %w", err)
+	}
+
+	if len(wrapper.RencanaKinerja) == 0 {
+		return nil, nil
+	}
+
+	return &wrapper.RencanaKinerja[0], nil
 }

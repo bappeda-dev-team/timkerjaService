@@ -456,7 +456,7 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	return web.RencanaKinerjaTimKerjaResponse{
 		Id:              rencanaKinerjaDomain.Id,
 		KodeTim:         rencanaKinerjaDomain.KodeTim,
-		IdRencanKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
+		IdRencanaKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
 		IdPegawai:       rencanaKinerjaDomain.IdPegawai,
 		RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
 		Tahun:           rencanaKinerjaDomain.Tahun,
@@ -480,34 +480,20 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 		return []web.RencanaKinerjaTimKerjaResponse{}, nil
 	}
 
-	// 🔗 Siapkan client eksternal (Perencanaan)
-	// perencanaanHost := os.Getenv("PERENCANAAN_HOST")
-	// if perencanaanHost == "" {
-	// 	log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
-	// 	return helper.ToProgramUnggulanResponses(programUnggulans), nil
-	// }
-
-	// perencanaanClient := internal.NewPerencanaanClient(
-	// 	perencanaanHost,
-	// 	&http.Client{Timeout: 20 * time.Second},
-	// )
-
-	for i := range rencanaKinerjas {
-		p := &rencanaKinerjas[i]
-		// perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
-		// if err != nil {
-		// 	log.Printf("⚠️ Gagal cek program unggulan [%d]: %v", p.IdProgramUnggulan, err)
-		// 	p.NamaProgramUnggulan = "NOT_CHECKED"
-		// 	continue
-		// }
-		// if perencanaanResp != nil {
-		// 	p.NamaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
-		// }
-		// TODO update ke rencana kinerja dari api
-		p.RencanaKinerja = "NOT_CHECKED"
+	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	if perencanaanHost == "" {
+		log.Println("PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+		return helper.ToRencanaKinerjaTimResponses(rencanaKinerjas), nil
 	}
 
-	return helper.ToRencanaKinerjaTimResponses(rencanaKinerjas), nil
+	perencanaanClient := internal.NewPerencanaanClient(
+		perencanaanHost,
+		&http.Client{Timeout: 20 * time.Second},
+	)
+
+	merged := helper.MergeRencanaKinerjaWithRekinParallel(ctx, rencanaKinerjas, perencanaanClient, 5)
+
+	return merged, nil
 }
 
 func (service *TimKerjaServiceImpl) DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error {

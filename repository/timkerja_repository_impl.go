@@ -412,7 +412,7 @@ func (repository *TimKerjaRepositoryImpl) FindRencanaKinerjaByKodeTim(ctx contex
 		)
 	}
 
-	query := "SELECT rekin.id, rekin.kode_tim, rekin.id_rencana_kinerja, rekin.tahun, rekin.kode_opd FROM rencana_kinerja_sekretariat rekin WHERE rekin.kode_tim = ?"
+	query := "SELECT rekin.id, rekin.kode_tim, rekin.id_rencana_kinerja, rekin.id_pegawai, rekin.tahun, rekin.kode_opd FROM rencana_kinerja_sekretariat rekin WHERE rekin.kode_tim = ?"
 	rows, err := tx.QueryContext(ctx, query, kodeTim)
 	if err != nil {
 		return []domain.RencanaKinerjaTimKerja{}, err
@@ -428,6 +428,7 @@ func (repository *TimKerjaRepositoryImpl) FindRencanaKinerjaByKodeTim(ctx contex
 			&rencanaKinerja.Id,
 			&rencanaKinerja.KodeTim,
 			&rencanaKinerja.IdRencanaKinerja,
+			&rencanaKinerja.IdPegawai,
 			&rencanaKinerja.Tahun,
 			&rencanaKinerja.KodeOpd,
 		)

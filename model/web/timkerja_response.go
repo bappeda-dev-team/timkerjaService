@@ -1,6 +1,9 @@
 package web
 
-import "time"
+import (
+	"time"
+	"timkerjaService/internal"
+)
 
 type TimKerjaResponse struct {
 	Id            int       `json:"id"`
@@ -52,13 +55,17 @@ type TargetIndikator struct {
 }
 
 type RencanaKinerjaTimKerjaResponse struct {
-	Id              int    `json:"id"`
-	KodeTim         string `json:"kode_tim"`
-	IdRencanKinerja string `json:"id_rencana_kinerja"`
-	IdPegawai       string `json:"id_pegawai"`
-	RencanaKinerja  string `json:"rencana_kinerja"`
-	Tahun           string `json:"tahun"`
-	KodeOpd         string `json:"kode_opd"`
+	Id               int                            `json:"id"`
+	KodeTim          string                         `json:"kode_tim"`
+	IdRencanaKinerja string                         `json:"id_rencana_kinerja"`
+	IdPegawai        string                         `json:"id_pegawai"`
+	RencanaKinerja   string                         `json:"rencana_kinerja"`
+	Tahun            string                         `json:"tahun"`
+	KodeOpd          string                         `json:"kode_opd"`
+	IdPohon          int                            `json:"id_pohon,omitempty"`
+	NamaPohon        string                         `json:"nama_pohon,omitempty"`
+	Indikator        []internal.IndikatorResponse   `json:"indikators,omitempty"`
+	SubKegiatan      []internal.SubKegiatanResponse `json:"subkegiatan,omitempty"`
 }
 
 type RealisasiResponse struct {
