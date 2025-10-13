@@ -510,3 +510,72 @@ func (repository *TimKerjaRepositoryImpl) UpdateRealisasiPokin(ctx context.Conte
 
 	return realisasi, nil
 }
+
+func (repo *TimKerjaRepositoryImpl) FindAllRealisasiPokinByKodeItemTahun(ctx context.Context, tx *sql.Tx, kodeTim string, tahun string) ([]domain.RealisasiPokin, error) {
+	query := `
+		SELECT
+			id,
+			id_pokin,
+			kode_tim,
+			jenis_pohon,
+			jenis_item,
+			kode_item,
+			nama_item,
+			pagu,
+			realisasi,
+			faktor_pendorong,
+			faktor_penghambat,
+			rtl,
+			url_bukti_dukung,
+			tahun,
+			kode_opd,
+			created_at,
+			updated_at
+		FROM realisasi_pokin
+		WHERE kode_tim = ? AND tahun = ?
+		ORDER BY id ASC
+	`
+
+	rows, err := tx.QueryContext(ctx, query, kodeTim, tahun)
+	if err != nil {
+		return nil, fmt.Errorf("gagal query realisasi_pokin: %w", err)
+	}
+	defer rows.Close()
+
+	var list []domain.RealisasiPokin
+
+	for rows.Next() {
+		var r domain.RealisasiPokin
+
+		err := rows.Scan(
+			&r.Id,
+			&r.IdPokin,
+			&r.KodeTim,
+			&r.JenisPohon,
+			&r.JenisItem,
+			&r.KodeItem,
+			&r.NamaItem,
+			&r.Pagu,
+			&r.Realisasi,
+			&r.FaktorPendorong,
+			&r.FaktorPenghambat,
+			&r.Rtl,
+			&r.UrlBuktiDukung,
+			&r.Tahun,
+			&r.KodeOpd,
+			&r.CreatedAt,
+			&r.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("gagal memindai hasil realisasi_pokin: %w", err)
+		}
+
+		list = append(list, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterasi hasil realisasi_pokin: %w", err)
+	}
+
+	return list, nil
+}
