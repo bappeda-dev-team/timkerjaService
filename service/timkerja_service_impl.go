@@ -489,3 +489,49 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 		KodeOpd:         rencanaKinerjaDomain.KodeOpd,
 	}, nil
 }
+
+func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string) ([]web.RencanaKinerjaTimKerjaResponse, error) {
+	// Ambil data dari DB dulu — jangan tahan TX terlalu lama
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	rencanaKinerjas, err := service.TimKerjaRepository.FindRencanaKinerjaByKodeTim(ctx, tx, kodeTim)
+	helper.CommitOrRollback(tx)
+	if err != nil {
+		return nil, err
+	}
+	if len(rencanaKinerjas) == 0 {
+		return []web.RencanaKinerjaTimKerjaResponse{}, nil
+	}
+
+	// 🔗 Siapkan client eksternal (Perencanaan)
+	// perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	// if perencanaanHost == "" {
+	// 	log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+	// 	return helper.ToProgramUnggulanResponses(programUnggulans), nil
+	// }
+
+	// perencanaanClient := internal.NewPerencanaanClient(
+	// 	perencanaanHost,
+	// 	&http.Client{Timeout: 20 * time.Second},
+	// )
+
+	for i := range rencanaKinerjas {
+		p := &rencanaKinerjas[i]
+		// perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
+		// if err != nil {
+		// 	log.Printf("⚠️ Gagal cek program unggulan [%d]: %v", p.IdProgramUnggulan, err)
+		// 	p.NamaProgramUnggulan = "NOT_CHECKED"
+		// 	continue
+		// }
+		// if perencanaanResp != nil {
+		// 	p.NamaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
+		// }
+		// TODO update ke rencana kinerja dari api
+		p.RencanaKinerja = "NOT_CHECKED"
+	}
+
+	return helper.ToRencanaKinerjaTimResponses(rencanaKinerjas), nil
+}

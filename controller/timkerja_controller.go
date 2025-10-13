@@ -15,4 +15,5 @@ type TimKerjaController interface {
 	FindAllTimSekretariat(c echo.Context) error
 	DeleteProgramUnggulan(c echo.Context) error
 	AddRencanaKinerja(c echo.Context) error
+	FindAllRencanaKinerjaTim(c echo.Context) error
 }

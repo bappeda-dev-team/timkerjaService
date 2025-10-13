@@ -393,3 +393,50 @@ func (repository *TimKerjaRepositoryImpl) AddRencanaKinerja(ctx context.Context,
 
 	return rencanaKinerja, nil
 }
+
+func (repository *TimKerjaRepositoryImpl) FindRencanaKinerjaByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.RencanaKinerjaTimKerja, error) {
+	// guard biar tidak sembarangan
+	timSekretariat, err := repository.FindAllTimSekretariat(ctx, tx)
+	if err != nil {
+		return []domain.RencanaKinerjaTimKerja{}, fmt.Errorf("gagal ambil tim sekretariat: %w", err)
+	}
+	// Buat lookup map agar pengecekan KodeTim O(1)
+	timMap := make(map[string]struct{}, len(timSekretariat))
+	for _, tim := range timSekretariat {
+		timMap[tim.KodeTim] = struct{}{}
+	}
+
+	if _, ok := timMap[kodeTim]; !ok {
+		return []domain.RencanaKinerjaTimKerja{}, fmt.Errorf(
+			"kode tim '%s' tidak termasuk dalam tim sekretariat", kodeTim,
+		)
+	}
+
+	query := "SELECT rekin.id, rekin.kode_tim, rekin.id_rencana_kinerja, rekin.tahun, rekin.kode_opd FROM rencana_kinerja_sekretariat rekin WHERE rekin.kode_tim = ?"
+	rows, err := tx.QueryContext(ctx, query, kodeTim)
+	if err != nil {
+		return []domain.RencanaKinerjaTimKerja{}, err
+	}
+	defer rows.Close()
+
+	var listRencanaKinerja []domain.RencanaKinerjaTimKerja
+
+	for rows.Next() {
+		var rencanaKinerja domain.RencanaKinerjaTimKerja
+
+		err := rows.Scan(
+			&rencanaKinerja.Id,
+			&rencanaKinerja.KodeTim,
+			&rencanaKinerja.IdRencanaKinerja,
+			&rencanaKinerja.Tahun,
+			&rencanaKinerja.KodeOpd,
+		)
+		if err != nil {
+			return []domain.RencanaKinerjaTimKerja{}, err
+		}
+
+		listRencanaKinerja = append(listRencanaKinerja, rencanaKinerja)
+	}
+
+	return listRencanaKinerja, nil
+}
