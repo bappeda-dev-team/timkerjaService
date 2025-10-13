@@ -25,4 +25,5 @@ type TimKerjaRepository interface {
 	DeleteRencanaKinerja(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
 	SaveRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error)
 	UpdateRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error)
+	FindAllRealisasiPokinByKodeItemTahun(ctx context.Context, tx *sql.Tx, kodeTim string, tahun string) ([]domain.RealisasiPokin, error)
 }

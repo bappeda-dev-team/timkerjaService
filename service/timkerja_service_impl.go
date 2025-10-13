@@ -439,32 +439,10 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	}
 	defer helper.CommitOrRollback(tx)
 
-	// cek external service
-	// perencanaanHost := os.Getenv("PERENCANAAN_HOST")
-	// if perencanaanHost == "" {
-	// 	log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
-	// }
-	// perencanaanClient := internal.NewPerencanaanClient(
-	// 	perencanaanHost,
-	// 	&http.Client{Timeout: 25 * time.Second},
-	// )
-
-	// // ambil kode program unggulan
-	// perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.IdProgramUnggulan)
-	// if err != nil {
-	// 	log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
-	// }
-
-	// var kodeProgramUnggulan string
-	// if perencanaanResp != nil {
-	// 	kodeProgramUnggulan = perencanaanResp.KodeProgramUnggulan
-	// } else {
-	// 	kodeProgramUnggulan = "UNCHECKED"
-	// }
-
 	rencanaKinerjaDomain := domain.RencanaKinerjaTimKerja{
 		KodeTim:          rencanaKinerja.KodeTim,
 		IdRencanaKinerja: rencanaKinerja.IdRencanaKinerja,
+		IdPegawai:        rencanaKinerja.IdPegawai,
 		RencanaKinerja:   "BELUM DICEK",
 		Tahun:            rencanaKinerja.Tahun,
 		KodeOpd:          rencanaKinerja.KodeOpd,
@@ -475,16 +453,11 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 		return web.RencanaKinerjaTimKerjaResponse{}, err
 	}
 
-	// inject namaProgramUnggulan
-	// namaRencanaKinerja := "NOT_CHECKED"
-	// if perencanaanResp != nil {
-	// 	namaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
-	// }
-
 	return web.RencanaKinerjaTimKerjaResponse{
 		Id:              rencanaKinerjaDomain.Id,
 		KodeTim:         rencanaKinerjaDomain.KodeTim,
 		IdRencanKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
+		IdPegawai:       rencanaKinerjaDomain.IdPegawai,
 		RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
 		Tahun:           rencanaKinerjaDomain.Tahun,
 		KodeOpd:         rencanaKinerjaDomain.KodeOpd,
@@ -617,4 +590,22 @@ func (service *TimKerjaServiceImpl) SaveRealisasiPokin(ctx context.Context, real
 	}
 
 	return response, nil
+}
+
+func (service *TimKerjaServiceImpl) GetRealisasiPokin(ctx context.Context, kodeItem string, tahun string) ([]web.RealisasiResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	realisasiPokins, err := service.TimKerjaRepository.FindAllRealisasiPokinByKodeItemTahun(ctx, tx, kodeItem, tahun)
+	helper.CommitOrRollback(tx)
+	if err != nil {
+		return nil, err
+	}
+	if len(realisasiPokins) == 0 {
+		return []web.RealisasiResponse{}, nil
+	}
+
+	return helper.ToRealisasiPokinResponses(realisasiPokins), nil
 }

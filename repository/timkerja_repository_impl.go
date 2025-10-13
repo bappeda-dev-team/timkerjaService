@@ -385,8 +385,8 @@ func (repository *TimKerjaRepositoryImpl) AddRencanaKinerja(ctx context.Context,
 		)
 	}
 
-	query := "INSERT INTO rencana_kinerja_sekretariat(kode_tim, id_rencana_kinerja, tahun, kode_opd) VALUES (?, ?, ?, ?)"
-	_, err = tx.ExecContext(ctx, query, rencanaKinerja.KodeTim, rencanaKinerja.IdRencanaKinerja, rencanaKinerja.Tahun, rencanaKinerja.KodeOpd)
+	query := "INSERT INTO rencana_kinerja_sekretariat(kode_tim, id_rencana_kinerja, id_pegawai, tahun, kode_opd) VALUES (?, ?, ?, ?, ?)"
+	_, err = tx.ExecContext(ctx, query, rencanaKinerja.KodeTim, rencanaKinerja.IdRencanaKinerja, rencanaKinerja.IdPegawai, rencanaKinerja.Tahun, rencanaKinerja.KodeOpd)
 	if err != nil {
 		return domain.RencanaKinerjaTimKerja{}, err
 	}

@@ -23,6 +23,7 @@ type ProgramUnggulanTimKerjaRequest struct {
 type RencanaKinerjaRequest struct {
 	KodeTim           string
 	IdRencanaKinerja  string `json:"id_rencana_kinerja" validate:"required"`
+	IdPegawai         string `json:"id_pegawai" validate:"required"`
 	Tahun             string `json:"tahun" validate:"required"`
 	KodeOpd           string `json:"kode_opd" validate:"required"`
 	RealisasiAnggaran int    `json:"realisasi_anggaran"`

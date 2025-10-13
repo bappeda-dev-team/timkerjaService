@@ -28,6 +28,7 @@ type RencanaKinerjaTimKerja struct {
 	Id               int
 	KodeTim          string
 	IdRencanaKinerja string
+	IdPegawai        string
 	RencanaKinerja   string
 	Tahun            string
 	KodeOpd          string

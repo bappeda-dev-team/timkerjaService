@@ -77,6 +77,7 @@ func ToRencanaKinerjaTimResponses(rencanaKinerjas []domain.RencanaKinerjaTimKerj
 			Id:              rencanaKinerjaDomain.Id,
 			KodeTim:         rencanaKinerjaDomain.KodeTim,
 			IdRencanKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
+			IdPegawai:       rencanaKinerjaDomain.IdPegawai,
 			RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
 			Tahun:           rencanaKinerjaDomain.Tahun,
 			KodeOpd:         rencanaKinerjaDomain.KodeOpd,

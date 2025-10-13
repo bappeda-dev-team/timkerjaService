@@ -28,6 +28,7 @@ type ProgramUnggulanFullResponse struct {
 	KodeTim           string `json:"kode_tim"`
 	IdProgramUnggulan int    `json:"id_program_unggulan"`
 	ProgramUnggulan   string `json:"program_unggulan"`
+	IdPokin           string `json:"id_pokin"`
 	PohonKinerja      string `json:"pohon_kinerja"`
 	LevelPohon        string `json:"level_pohon"`
 	Tahun             string `json:"tahun"`
@@ -54,6 +55,7 @@ type RencanaKinerjaTimKerjaResponse struct {
 	Id              int    `json:"id"`
 	KodeTim         string `json:"kode_tim"`
 	IdRencanKinerja string `json:"id_rencana_kinerja"`
+	IdPegawai       string `json:"id_pegawai"`
 	RencanaKinerja  string `json:"rencana_kinerja"`
 	Tahun           string `json:"tahun"`
 	KodeOpd         string `json:"kode_opd"`
