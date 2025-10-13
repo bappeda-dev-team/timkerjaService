@@ -368,8 +368,25 @@ func (repository *TimKerjaRepositoryImpl) DeleteProgramUnggulan(ctx context.Cont
 }
 
 func (repository *TimKerjaRepositoryImpl) AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error) {
+	// guard biar tidak sembarangan
+	timSekretariat, err := repository.FindAllTimSekretariat(ctx, tx)
+	if err != nil {
+		return domain.RencanaKinerjaTimKerja{}, fmt.Errorf("gagal ambil tim sekretariat: %w", err)
+	}
+	// Buat lookup map agar pengecekan KodeTim O(1)
+	timMap := make(map[string]struct{}, len(timSekretariat))
+	for _, tim := range timSekretariat {
+		timMap[tim.KodeTim] = struct{}{}
+	}
+
+	if _, ok := timMap[rencanaKinerja.KodeTim]; !ok {
+		return domain.RencanaKinerjaTimKerja{}, fmt.Errorf(
+			"kode tim '%s' tidak termasuk dalam tim sekretariat", rencanaKinerja.KodeTim,
+		)
+	}
+
 	query := "INSERT INTO rencana_kinerja_sekretariat(kode_tim, id_rencana_kinerja, tahun, kode_opd) VALUES (?, ?, ?, ?)"
-	_, err := tx.ExecContext(ctx, query, rencanaKinerja.KodeTim, rencanaKinerja.IdRencanaKinerja, rencanaKinerja.Tahun, rencanaKinerja.KodeOpd)
+	_, err = tx.ExecContext(ctx, query, rencanaKinerja.KodeTim, rencanaKinerja.IdRencanaKinerja, rencanaKinerja.Tahun, rencanaKinerja.KodeOpd)
 	if err != nil {
 		return domain.RencanaKinerjaTimKerja{}, err
 	}
