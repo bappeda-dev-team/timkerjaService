@@ -481,3 +481,48 @@ func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Contex
 		Data:   RencanaKinerjaTimResponse,
 	})
 }
+
+// @Summary Delete Rencana Kinerja
+// @Description Delete Rencana Kinerja dari timkerja sekretariat
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Param id path int true "RencanaKinerjaTim ID"
+// @Success 200 {object} web.WebResponse "OK"
+// @Failure 400 {object} web.WebResponse "Bad Request"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /timkerja/{kodetim}/program_unggulan [post]
+func (controller *TimKerjaControllerImpl) DeleteRencanaKinerjaTim(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+		})
+	}
+
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	kodeTim := c.Param("kodetim")
+
+	err = controller.TimKerjaService.DeleteRencanaKinerjaTim(c.Request().Context(), idInt, kodeTim)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+	})
+}

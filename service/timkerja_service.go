@@ -19,4 +19,5 @@ type TimKerjaService interface {
 	DeleteProgramUnggulan(ctx context.Context, id int, kodeTim string) error
 	AddRencanaKinerja(ctx context.Context, timkerja web.RencanaKinerjaRequest) (web.RencanaKinerjaTimKerjaResponse, error)
 	FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string) ([]web.RencanaKinerjaTimKerjaResponse, error)
+	DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error
 }

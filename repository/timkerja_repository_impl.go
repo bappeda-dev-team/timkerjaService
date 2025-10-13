@@ -440,3 +440,12 @@ func (repository *TimKerjaRepositoryImpl) FindRencanaKinerjaByKodeTim(ctx contex
 
 	return listRencanaKinerja, nil
 }
+
+func (repository *TimKerjaRepositoryImpl) DeleteRencanaKinerja(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error {
+	query := "DELETE FROM rencana_kinerja_sekretariat WHERE id = ? AND kode_tim = ?"
+	_, err := tx.ExecContext(ctx, query, id, kodeTim)
+	if err != nil {
+		return err
+	}
+	return nil
+}

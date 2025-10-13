@@ -535,3 +535,18 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 
 	return helper.ToRencanaKinerjaTimResponses(rencanaKinerjas), nil
 }
+
+func (service *TimKerjaServiceImpl) DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	err = service.TimKerjaRepository.DeleteRencanaKinerja(ctx, tx, id, kodeTim)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
