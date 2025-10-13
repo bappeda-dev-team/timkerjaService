@@ -85,3 +85,27 @@ func ToRencanaKinerjaTimResponses(rencanaKinerjas []domain.RencanaKinerjaTimKerj
 	}
 	return rencanaKinerjaReponses
 }
+
+func ToRealisasiPokinResponses(realisasis []domain.RealisasiPokin) []web.RealisasiResponse {
+	realisasiResponses := make([]web.RealisasiResponse, len(realisasis))
+	for i, realisasi := range realisasis {
+		realisasiResponses[i] = web.RealisasiResponse{
+			Id:               realisasi.Id,
+			IdPokin:          realisasi.IdPokin,
+			KodeTim:          realisasi.KodeTim,
+			JenisPohon:       realisasi.JenisPohon,
+			JenisItem:        realisasi.JenisItem,
+			KodeItem:         realisasi.KodeItem,
+			NamaItem:         realisasi.NamaItem,
+			Pagu:             realisasi.Pagu,
+			Realisasi:        realisasi.Realisasi,
+			FaktorPendorong:  realisasi.FaktorPendorong,
+			FaktorPenghambat: realisasi.FaktorPenghambat,
+			Rtl:              realisasi.Rtl,
+			UrlBuktiDukung:   realisasi.UrlBuktiDukung,
+			Tahun:            realisasi.Tahun,
+			KodeOpd:          realisasi.KodeOpd,
+		}
+	}
+	return realisasiResponses
+}
