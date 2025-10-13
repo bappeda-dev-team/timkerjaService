@@ -366,3 +366,13 @@ func (repository *TimKerjaRepositoryImpl) DeleteProgramUnggulan(ctx context.Cont
 	}
 	return nil
 }
+
+func (repository *TimKerjaRepositoryImpl) AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error) {
+	query := "INSERT INTO rencana_kinerja_sekretariat(kode_tim, id_rencana_kinerja, tahun, kode_opd) VALUES (?, ?, ?, ?)"
+	_, err := tx.ExecContext(ctx, query, rencanaKinerja.KodeTim, rencanaKinerja.IdRencanaKinerja, rencanaKinerja.Tahun, rencanaKinerja.KodeOpd)
+	if err != nil {
+		return domain.RencanaKinerjaTimKerja{}, err
+	}
+
+	return rencanaKinerja, nil
+}

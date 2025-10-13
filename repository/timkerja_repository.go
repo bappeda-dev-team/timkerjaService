@@ -20,4 +20,5 @@ type TimKerjaRepository interface {
 	FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimSekretariat(ctx context.Context, tx *sql.Tx) ([]domain.TimKerja, error)
 	DeleteProgramUnggulan(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
+	AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error)
 }

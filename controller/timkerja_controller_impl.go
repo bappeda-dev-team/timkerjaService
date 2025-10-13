@@ -417,3 +417,33 @@ func (controller *TimKerjaControllerImpl) DeleteProgramUnggulan(c echo.Context) 
 		Status: "OK",
 	})
 }
+
+func (cont *TimKerjaControllerImpl) AddRencanaKinerja(c echo.Context) error {
+	RencanaKinerjaRequest := web.RencanaKinerjaRequest{}
+	err := c.Bind(&RencanaKinerjaRequest)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	RencanaKinerjaRequest.KodeTim = c.Param("kodetim")
+
+	RencanaKinerjaTimKerjaResponse, err := cont.TimKerjaService.AddRencanaKinerja(c.Request().Context(), RencanaKinerjaRequest)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "SERVER ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   RencanaKinerjaTimKerjaResponse,
+	})
+}

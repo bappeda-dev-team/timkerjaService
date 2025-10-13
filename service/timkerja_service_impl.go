@@ -425,3 +425,67 @@ func (service *TimKerjaServiceImpl) DeleteProgramUnggulan(ctx context.Context, i
 
 	return nil
 }
+
+func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, rencanaKinerja web.RencanaKinerjaRequest) (web.RencanaKinerjaTimKerjaResponse, error) {
+	err := service.Validator.Struct(rencanaKinerja)
+	if err != nil {
+		return web.RencanaKinerjaTimKerjaResponse{}, err
+	}
+
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return web.RencanaKinerjaTimKerjaResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	// cek external service
+	// perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	// if perencanaanHost == "" {
+	// 	log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+	// }
+	// perencanaanClient := internal.NewPerencanaanClient(
+	// 	perencanaanHost,
+	// 	&http.Client{Timeout: 25 * time.Second},
+	// )
+
+	// // ambil kode program unggulan
+	// perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.IdProgramUnggulan)
+	// if err != nil {
+	// 	log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
+	// }
+
+	// var kodeProgramUnggulan string
+	// if perencanaanResp != nil {
+	// 	kodeProgramUnggulan = perencanaanResp.KodeProgramUnggulan
+	// } else {
+	// 	kodeProgramUnggulan = "UNCHECKED"
+	// }
+
+	rencanaKinerjaDomain := domain.RencanaKinerjaTimKerja{
+		KodeTim:          rencanaKinerja.KodeTim,
+		IdRencanaKinerja: rencanaKinerja.IdRencanaKinerja,
+		RencanaKinerja:   "BELUM DICEK",
+		Tahun:            rencanaKinerja.Tahun,
+		KodeOpd:          rencanaKinerja.KodeOpd,
+	}
+
+	rencanaKinerjaDomain, err = service.TimKerjaRepository.AddRencanaKinerja(ctx, tx, rencanaKinerjaDomain)
+	if err != nil {
+		return web.RencanaKinerjaTimKerjaResponse{}, err
+	}
+
+	// inject namaProgramUnggulan
+	// namaRencanaKinerja := "NOT_CHECKED"
+	// if perencanaanResp != nil {
+	// 	namaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
+	// }
+
+	return web.RencanaKinerjaTimKerjaResponse{
+		Id:              rencanaKinerjaDomain.Id,
+		KodeTim:         rencanaKinerjaDomain.KodeTim,
+		IdRencanKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
+		RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
+		Tahun:           rencanaKinerjaDomain.Tahun,
+		KodeOpd:         rencanaKinerjaDomain.KodeOpd,
+	}, nil
+}

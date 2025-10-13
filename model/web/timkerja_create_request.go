@@ -19,3 +19,14 @@ type ProgramUnggulanTimKerjaRequest struct {
 	FaktorPenghambat    string `json:"faktor_penghambat"`
 	FileUrl             string `json:"file_url"`
 }
+
+type RencanaKinerjaRequest struct {
+	KodeTim           string
+	IdRencanaKinerja  string `json:"id_rencana_kinerja" validate:"required"`
+	Tahun             string `json:"tahun" validate:"required"`
+	KodeOpd           string `json:"kode_opd" validate:"required"`
+	RealisasiAnggaran int    `json:"realisasi_anggaran"`
+	FaktorPendorong   string `json:"faktor_pendorong"`
+	FaktorPenghambat  string `json:"faktor_penghambat"`
+	FileUrl           string `json:"file_url"`
+}

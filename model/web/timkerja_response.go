@@ -49,3 +49,12 @@ type TargetIndikator struct {
 	Satuan      string `json:"satuan"`
 	Tahun       int    `json:"tahun,omitempty"`
 }
+
+type RencanaKinerjaTimKerjaResponse struct {
+	Id              int    `json:"id"`
+	KodeTim         string `json:"kode_tim"`
+	IdRencanKinerja string    `json:"id_rencana_kinerja"`
+	RencanaKinerja  string `json:"rencana_kinerja"`
+	Tahun           string `json:"tahun"`
+	KodeOpd         string `json:"kode_opd"`
+}

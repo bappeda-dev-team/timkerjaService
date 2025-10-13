@@ -1,6 +1,6 @@
 APP_NAME=timkerja-service
 
-.PHONY: all build run myenv clean
+.PHONY: all build run env clean
 
 # DEFAULT TARGET
 all: build
@@ -12,11 +12,11 @@ $(APP_NAME): *.go
 	@go build -o $(APP_NAME) .
 	@echo ">>> SUCCESS..."
 
-run: build myenv
+run: build env
 	@echo ">>> Running $(APP_NAME)..."
 	./$(APP_NAME)
 
-myenv:
+env:
 	@echo "REQUIRED ENV"
 	@echo "DB_HOST: $(DB_HOST)"
 	@echo "DB_PORT: $(DB_PORT)"

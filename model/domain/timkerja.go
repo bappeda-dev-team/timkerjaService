@@ -23,3 +23,12 @@ type ProgramUnggulanTimKerja struct {
 	Tahun               string
 	KodeOpd             string
 }
+
+type RencanaKinerjaTimKerja struct {
+	Id               int
+	KodeTim          string
+	IdRencanaKinerja string
+	RencanaKinerja   string
+	Tahun            string
+	KodeOpd          string
+}
