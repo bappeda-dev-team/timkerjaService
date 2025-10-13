@@ -35,6 +35,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// TODO
 	// POST simpan realisasi anggaran by subkegiatan
 	// post simpan faktor pendrong, penghambat, rtl, bukti dukung
+    e.POST("/timkerja/:kodetim/realisasi_pokin", timKerjaController.SaveRealisasiPokin)
 	// patch simpan url bukti dukung
 	// post simpan rencana kinerja dari sekret
 	e.POST("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.AddRencanaKinerja)

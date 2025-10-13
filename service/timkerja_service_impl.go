@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -549,4 +550,71 @@ func (service *TimKerjaServiceImpl) DeleteRencanaKinerjaTim(ctx context.Context,
 	}
 
 	return nil
+}
+
+// tanpa response
+// kode error http, error
+func (service *TimKerjaServiceImpl) SaveRealisasiPokin(ctx context.Context, realisasi web.RealisasiRequest) (web.RealisasiResponse, error) {
+	// Validasi input menggunakan validator bawaan service
+	err := service.Validator.Struct(realisasi)
+	if err != nil {
+		return web.RealisasiResponse{}, fmt.Errorf("struktur tidak valid: %w", err)
+	}
+
+	// Mulai transaksi
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return web.RealisasiResponse{}, fmt.Errorf("[ERROR] database error: %w", err)
+	}
+	defer helper.CommitOrRollback(tx)
+
+	// Konversi dari request ke domain model
+	realisasiDomain := domain.RealisasiPokin{
+		IdPokin:          realisasi.IdPokin,
+		KodeTim:          realisasi.KodeTim,
+		JenisPohon:       realisasi.JenisPohon,
+		JenisItem:        realisasi.JenisItem,
+		KodeItem:         realisasi.KodeItem,
+		NamaItem:         realisasi.NamaItem,
+		Pagu:             realisasi.Pagu,
+		Realisasi:        realisasi.Realisasi,
+		FaktorPendorong:  realisasi.FaktorPendorong,
+		FaktorPenghambat: realisasi.FaktorPenghambat,
+		Rtl:              realisasi.Rtl,
+		UrlBuktiDukung:   realisasi.UrlBuktiDukung,
+		Tahun:            realisasi.Tahun,
+		KodeOpd:          realisasi.KodeOpd,
+	}
+
+	// Simpan ke repository
+	realisasiDomain, err = service.TimKerjaRepository.SaveRealisasiPokin(ctx, tx, realisasiDomain)
+	if err != nil {
+		return web.RealisasiResponse{}, fmt.Errorf("gagal menyimpan realisasi pokin: %w", err)
+	}
+
+	savedRealisasi, err := service.TimKerjaRepository.SaveRealisasiPokin(ctx, tx, realisasiDomain)
+	if err != nil {
+		return web.RealisasiResponse{}, fmt.Errorf("gagal menyimpan realisasi pokin: %w", err)
+	}
+
+	// Mapping hasil ke response
+	response := web.RealisasiResponse{
+		Id:               savedRealisasi.Id,
+		IdPokin:          savedRealisasi.IdPokin,
+		KodeTim:          savedRealisasi.KodeTim,
+		JenisPohon:       savedRealisasi.JenisPohon,
+		JenisItem:        savedRealisasi.JenisItem,
+		KodeItem:         savedRealisasi.KodeItem,
+		NamaItem:         savedRealisasi.NamaItem,
+		Pagu:             savedRealisasi.Pagu,
+		Realisasi:        savedRealisasi.Realisasi,
+		FaktorPendorong:  savedRealisasi.FaktorPendorong,
+		FaktorPenghambat: savedRealisasi.FaktorPenghambat,
+		Rtl:              savedRealisasi.Rtl,
+		UrlBuktiDukung:   savedRealisasi.UrlBuktiDukung,
+		Tahun:            savedRealisasi.Tahun,
+		KodeOpd:          savedRealisasi.KodeOpd,
+	}
+
+	return response, nil
 }

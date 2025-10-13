@@ -32,3 +32,23 @@ type RencanaKinerjaTimKerja struct {
 	Tahun            string
 	KodeOpd          string
 }
+
+type RealisasiPokin struct {
+	Id               int
+	IdPokin          int
+	KodeTim          string
+	JenisPohon       string
+	JenisItem        string
+	KodeItem         string
+	NamaItem         string
+	Pagu             int
+	Realisasi        int
+	FaktorPendorong  string
+	FaktorPenghambat string
+	Rtl              string
+	UrlBuktiDukung   string
+	Tahun            string
+	KodeOpd          string
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}

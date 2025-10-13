@@ -53,8 +53,26 @@ type TargetIndikator struct {
 type RencanaKinerjaTimKerjaResponse struct {
 	Id              int    `json:"id"`
 	KodeTim         string `json:"kode_tim"`
-	IdRencanKinerja string    `json:"id_rencana_kinerja"`
+	IdRencanKinerja string `json:"id_rencana_kinerja"`
 	RencanaKinerja  string `json:"rencana_kinerja"`
 	Tahun           string `json:"tahun"`
 	KodeOpd         string `json:"kode_opd"`
+}
+
+type RealisasiResponse struct {
+	Id               int    `json:"id"`
+	IdPokin          int    `json:"id_pokin"`
+	KodeTim          string `json:"kode_tim"`
+	JenisPohon       string `json:"jenis_pohon"`
+	JenisItem        string `json:"jenis_item"`
+	KodeItem         string `json:"kode_item"`
+	NamaItem         string `json:"nama_item"`
+	Pagu             int    `json:"pagu"`
+	Realisasi        int    `json:"realisasi"`
+	FaktorPendorong  string `json:"faktor_pendorong"`
+	FaktorPenghambat string `json:"faktor_penghambat"`
+	Rtl              string `json:"rtl"`
+	UrlBuktiDukung   string `json:"url_bukti_dukung"`
+	Tahun            string `json:"tahun"`
+	KodeOpd          string `json:"kode_opd"`
 }

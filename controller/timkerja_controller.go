@@ -17,4 +17,5 @@ type TimKerjaController interface {
 	AddRencanaKinerja(c echo.Context) error
 	FindAllRencanaKinerjaTim(c echo.Context) error
 	DeleteRencanaKinerjaTim(c echo.Context) error
+	SaveRealisasiPokin(c echo.Context) error
 }

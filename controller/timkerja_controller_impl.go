@@ -526,3 +526,41 @@ func (controller *TimKerjaControllerImpl) DeleteRencanaKinerjaTim(c echo.Context
 		Status: "OK",
 	})
 }
+
+// @Summary Save Realisasi Pokin
+// @Description Save realisasi pokin in Tim Kerja
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Param data body web.RealisasiRequest true "Realisasi Pokin Create Request"
+// @Success 201 {object} web.WebResponse{data=web.TimKerjaResponse} "Created"
+// @Failure 400 {object} web.WebResponse "Bad Request"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /timkerja [post]
+func (controller *TimKerjaControllerImpl) SaveRealisasiPokin(c echo.Context) error {
+	realisasiCreate := web.RealisasiRequest{}
+	err := c.Bind(&realisasiCreate)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	realisasiResp, err := controller.TimKerjaService.SaveRealisasiPokin(c.Request().Context(), realisasiCreate)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   realisasiResp,
+	})
+
+}

@@ -449,3 +449,64 @@ func (repository *TimKerjaRepositoryImpl) DeleteRencanaKinerja(ctx context.Conte
 	}
 	return nil
 }
+
+func (repository *TimKerjaRepositoryImpl) SaveRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error) {
+	query := `INSERT INTO realisasi_pokin(
+                id_pokin, kode_tim, jenis_pohon,
+				jenis_item, kode_item, nama_item, pagu, realisasi,
+                faktor_pendorong, faktor_penghambat, rtl, url_bukti_dukung,
+                tahun, kode_opd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := tx.ExecContext(ctx, query, realisasi.IdPokin, realisasi.KodeItem, realisasi.JenisPohon,
+		realisasi.JenisItem, realisasi.KodeItem, realisasi.NamaItem, realisasi.Pagu, realisasi.Realisasi,
+		realisasi.FaktorPendorong, realisasi.FaktorPenghambat, realisasi.Rtl, realisasi.UrlBuktiDukung,
+		realisasi.Tahun, realisasi.KodeOpd)
+	if err != nil {
+		return domain.RealisasiPokin{}, err
+	}
+
+	return realisasi, nil
+}
+
+func (repository *TimKerjaRepositoryImpl) UpdateRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error) {
+	query := `
+		UPDATE realisasi_pokin
+		SET
+            kode_item = ?,
+			nama_item = ?,
+			pagu = ?,
+			realisasi = ?,
+			faktor_pendorong = ?,
+			faktor_penghambat = ?,
+			rtl = ?,
+			url_bukti_dukung = ?
+		WHERE id_pokin = ?
+			AND kode_tim = ?
+	`
+
+	result, err := tx.ExecContext(ctx, query,
+		realisasi.KodeItem,
+		realisasi.NamaItem,
+		realisasi.Pagu,
+		realisasi.Realisasi,
+		realisasi.FaktorPendorong,
+		realisasi.FaktorPenghambat,
+		realisasi.Rtl,
+		realisasi.UrlBuktiDukung,
+		realisasi.IdPokin,
+		realisasi.KodeTim,
+	)
+	if err != nil {
+		return domain.RealisasiPokin{}, fmt.Errorf("gagal update realisasi pokin: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return domain.RealisasiPokin{}, fmt.Errorf("gagal membaca hasil update: %w", err)
+	}
+	if rowsAffected == 0 {
+		return domain.RealisasiPokin{}, fmt.Errorf("tidak ada data yang diperbarui (id_pokin=%v, kode_item=%s, kode_tim=%s)",
+			realisasi.IdPokin, realisasi.KodeItem, realisasi.KodeTim)
+	}
+
+	return realisasi, nil
+}

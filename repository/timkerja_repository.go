@@ -23,4 +23,6 @@ type TimKerjaRepository interface {
 	AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error)
 	FindRencanaKinerjaByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.RencanaKinerjaTimKerja, error)
 	DeleteRencanaKinerja(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
+	SaveRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error)
+	UpdateRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error)
 }
