@@ -167,7 +167,7 @@ func (repository *TimKerjaRepositoryImpl) AddProgramUnggulan(ctx context.Context
 }
 
 func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.ProgramUnggulanTimKerja, error) {
-	query := "SELECT pu.id, pu.kode_tim, pu.id_program_unggulan, pu.tahun, pu.kode_opd FROM tb_program_unggulan pu WHERE pu.kode_tim = ?"
+	query := "SELECT pu.id, pu.kode_tim, pu.id_program_unggulan, pu.kode_program_unggulan, pu.tahun, pu.kode_opd FROM tb_program_unggulan pu WHERE pu.kode_tim = ?"
 	rows, err := tx.QueryContext(ctx, query, kodeTim)
 	if err != nil {
 		return []domain.ProgramUnggulanTimKerja{}, err
@@ -183,6 +183,7 @@ func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx conte
 			&programUnggulan.Id,
 			&programUnggulan.KodeTim,
 			&programUnggulan.IdProgramUnggulan,
+			&programUnggulan.KodeProgramUnggulan,
 			&programUnggulan.Tahun,
 			&programUnggulan.KodeOpd,
 		)

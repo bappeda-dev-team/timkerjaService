@@ -159,10 +159,66 @@ func MergeRencanaKinerjaWithRekinParallel(
 			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
 
 			// tambah disini kebutuhan tambahan
-            //
+			//
 			resp.Indikator = dataRincian.RencanaKinerja.Indikator
 
 			resp.SubKegiatan = dataRincian.SubKegiatan
+
+			responses[i] = resp
+		}(i, r)
+	}
+
+	wg.Wait()
+	return responses
+}
+
+func MergeProgramUnggulanFromApiParallel(
+	ctx context.Context,
+	programUnggulans []domain.ProgramUnggulanTimKerja,
+	client *internal.PerencanaanClient,
+	maxConcurrency int,
+) []web.ProgramUnggulanTimKerjaResponse {
+	responses := make([]web.ProgramUnggulanTimKerjaResponse, len(programUnggulans))
+	sem := make(chan struct{}, maxConcurrency)
+	var wg sync.WaitGroup
+
+	for i, r := range programUnggulans {
+		wg.Add(1)
+		go func(i int, r domain.ProgramUnggulanTimKerja) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			resp := web.ProgramUnggulanTimKerjaResponse{
+				Id:                  r.Id,
+				KodeTim:             r.KodeTim,
+				IdProgramUnggulan:   r.IdProgramUnggulan,
+				KodeProgramUnggulan: r.KodeProgramUnggulan,
+				Tahun:               r.Tahun,
+				KodeOpd:             r.KodeOpd,
+			}
+
+			// === Fetch API eksternal ===
+			dataRincian, err := client.GetProgramUnggulan(ctx, r.KodeProgramUnggulan)
+			if err != nil {
+				log.Printf("⚠️ gagal fetch program unggulan [%v]: %v", r.KodeProgramUnggulan, err)
+				resp.ProgramUnggulan = "NOT_CHECKED"
+				responses[i] = resp
+				return
+			}
+
+			if len(dataRincian.Data) == 0 {
+				resp.ProgramUnggulan = "NOT_FOUND"
+				responses[i] = resp
+				return
+			}
+
+			// === Gunakan data pertama sebagai program unggulan utama ===
+			first := dataRincian.Data[0]
+			resp.ProgramUnggulan = first.NamaProgramUnggulan
+
+			// === Simpan seluruh elemen data API ke dalam Pokin ===
+			resp.Pokin = dataRincian.Data
 
 			responses[i] = resp
 		}(i, r)

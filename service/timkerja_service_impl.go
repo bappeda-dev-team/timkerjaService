@@ -235,14 +235,14 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	)
 
 	// ambil kode program unggulan
-	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.IdProgramUnggulan)
+	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.KodeProgramUnggulan)
 	if err != nil {
 		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
 	}
 
 	var kodeProgramUnggulan string
 	if perencanaanResp != nil {
-		kodeProgramUnggulan = perencanaanResp.KodeProgramUnggulan
+		kodeProgramUnggulan = perencanaanResp.Data[0].KodeProgramUnggulan
 	} else {
 		kodeProgramUnggulan = "UNCHECKED"
 	}
@@ -263,7 +263,7 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	// inject namaProgramUnggulan
 	namaProgramUnggulan := "NOT_CHECKED"
 	if perencanaanResp != nil {
-		namaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
+		namaProgramUnggulan = perencanaanResp.Data[0].RencanaImplementasi
 	}
 
 	return web.ProgramUnggulanTimKerjaResponse{
@@ -295,7 +295,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 	// 🔗 Siapkan client eksternal (Perencanaan)
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
 	if perencanaanHost == "" {
-		log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+		log.Println("PERENCANAAN_HOST belum diatur — skip cek program unggulan")
 		return helper.ToProgramUnggulanResponses(programUnggulans), nil
 	}
 
@@ -304,20 +304,9 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 		&http.Client{Timeout: 20 * time.Second},
 	)
 
-	for i := range programUnggulans {
-		p := &programUnggulans[i]
-		perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, p.IdProgramUnggulan)
-		if err != nil {
-			log.Printf("⚠️ Gagal cek program unggulan [%d]: %v", p.IdProgramUnggulan, err)
-			p.NamaProgramUnggulan = "NOT_CHECKED"
-			continue
-		}
-		if perencanaanResp != nil {
-			p.NamaProgramUnggulan = perencanaanResp.KeteranganProgramUnggulan
-		}
-	}
+	merged := helper.MergeProgramUnggulanFromApiParallel(ctx, programUnggulans, perencanaanClient, 5)
 
-	return helper.ToProgramUnggulanResponses(programUnggulans), nil
+	return merged, nil
 }
 
 func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error) {
@@ -454,13 +443,13 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	}
 
 	return web.RencanaKinerjaTimKerjaResponse{
-		Id:              rencanaKinerjaDomain.Id,
-		KodeTim:         rencanaKinerjaDomain.KodeTim,
+		Id:               rencanaKinerjaDomain.Id,
+		KodeTim:          rencanaKinerjaDomain.KodeTim,
 		IdRencanaKinerja: rencanaKinerjaDomain.IdRencanaKinerja,
-		IdPegawai:       rencanaKinerjaDomain.IdPegawai,
-		RencanaKinerja:  rencanaKinerjaDomain.RencanaKinerja,
-		Tahun:           rencanaKinerjaDomain.Tahun,
-		KodeOpd:         rencanaKinerjaDomain.KodeOpd,
+		IdPegawai:        rencanaKinerjaDomain.IdPegawai,
+		RencanaKinerja:   rencanaKinerjaDomain.RencanaKinerja,
+		Tahun:            rencanaKinerjaDomain.Tahun,
+		KodeOpd:          rencanaKinerjaDomain.KodeOpd,
 	}, nil
 }
 
@@ -482,7 +471,7 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
 	if perencanaanHost == "" {
-		log.Println("PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+		log.Println("PERENCANAAN_HOST belum diatur — skip cek rencana-kinerja")
 		return helper.ToRencanaKinerjaTimResponses(rencanaKinerjas), nil
 	}
 

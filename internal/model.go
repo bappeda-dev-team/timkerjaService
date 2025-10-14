@@ -67,15 +67,84 @@ type PaguSubKegiatanResponse struct {
 	Tahun         string `json:"tahun"`
 }
 
+// deprecated
 type ProgramUnggulanResponse struct {
-	Id                        int    `json:"id"`
-	KodeProgramUnggulan       string `json:"kode_program_unggulan"`
-	NamaTagging               string `json:"nama_program_unggulan"`
-	KeteranganProgramUnggulan string `json:"rencana_implementasi"`
-	Keterangan                string `json:"keterangan"`
-	TahunAwal                 string `json:"tahun_awal"`
-	TahunAkhir                string `json:"tahun_akhir"`
-	IsActive                  bool   `json:"is_active"`
+	Id                  int    `json:"id"`
+	KodeProgramUnggulan string `json:"kode_program_unggulan"`
+	NamaProgramUnggulan string `json:"nama_program_unggulan"`
+	RencanaImplementasi string `json:"rencana_implementasi"`
+	Keterangan          string `json:"keterangan"`
+	TahunAwal           string `json:"tahun_awal"`
+	TahunAkhir          string `json:"tahun_akhir"`
+	IsActive            bool   `json:"is_active"`
+}
+
+type LaporanTaggingPohonKinerjaResponse struct {
+	Status  int                       `json:"status"`
+	Message string                    `json:"message"`
+	Data    []TaggingPohonKinerjaItem `json:"data"`
+}
+
+type TaggingPohonKinerjaItem struct {
+	KodeProgramUnggulan string             `json:"kode_program_unggulan"`
+	NamaProgramUnggulan string             `json:"nama_program_unggulan"`
+	RencanaImplementasi string             `json:"rencana_implementasi"`
+	IdTagging           int                `json:"id_tagging"`
+	IdPohon             int                `json:"id_pohon"`
+	Tahun               int                `json:"tahun"`
+	NamaPohon           string             `json:"nama_pohon"`
+	KodeOpd             string             `json:"kode_opd"`
+	NamaOpd             string             `json:"nama_opd"`
+	JenisPohon          string             `json:"jenis_pohon"`
+	KeteranganTagging   string             `json:"keterangan_tagging"`
+	Status              string             `json:"status"`
+	Pelaksanas          []PelaksanaPokin   `json:"pelaksanas"`
+	Keterangan          string             `json:"keterangan"`
+	Indikator           []TaggingIndikator `json:"indikator"`
+}
+
+type PelaksanaPokin struct {
+	NamaPelaksana   string              `json:"nama_pelaksana"`
+	NIPPelaksana    string              `json:"nip_pelaksana"`
+	RencanaKinerjas []RencanaKinerjaAsn `json:"rencana_kinerjas"`
+}
+
+type RencanaKinerjaAsn struct {
+	IdRekin            string           `json:"id_rekin"`
+	RencanaKinerja     string           `json:"rencana_kinerja"`
+	NamaPelaksana      string           `json:"nama_pelaksana"`
+	NIPPelaksana       string           `json:"nip_pelaksana"`
+	KodeBidangUrusan   string           `json:"kode_bidang_urusan,omitempty"`
+	NamaBidangUrusan   string           `json:"nama_bidang_urusan,omitempty"`
+	KodeProgram        string           `json:"kode_program,omitempty"`
+	NamaProgram        string           `json:"nama_program,omitempty"`
+	KodeSubkegiatan    string           `json:"kode_subkegiatan,omitempty"`
+	NamaSubkegiatan    string           `json:"nama_subkegiatan,omitempty"`
+	Pagu               int              `json:"pagu"`
+	Catatan            string           `json:"keterangan"`
+	TahapanPelaksanaan WaktuPelaksanaan `json:"tahapan_pelaksanaan"`
+}
+
+type WaktuPelaksanaan struct {
+	Tw1 int `json:"tw_1"`
+	Tw2 int `json:"tw_2"`
+	Tw3 int `json:"tw_3"`
+	Tw4 int `json:"tw_4"`
+}
+
+type TaggingIndikator struct {
+	IdIndikator   string              `json:"id_indikator"`
+	NamaIndikator string              `json:"nama_indikator"`
+	Kode          string              `json:"kode"`
+	Targets       []TaggingTargetItem `json:"targets"`
+}
+
+type TaggingTargetItem struct {
+	IdTarget    string `json:"id_target"`
+	IndikatorId string `json:"indikator_id"`
+	Target      string `json:"target"`
+	Satuan      string `json:"satuan"`
+	Tahun       int    `json:"tahun"`
 }
 
 type RencanaAksiResponse struct {

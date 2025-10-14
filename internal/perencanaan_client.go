@@ -44,9 +44,9 @@ func getSessionID(ctx context.Context) string {
 	return os.Getenv("DEV_SESSION_ID") // fallback
 }
 
-func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, idProgramUnggulan int) (*ProgramUnggulanResponse, error) {
+func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, kodeProgramUnggulan string) (*LaporanTaggingPohonKinerjaResponse, error) {
 	// url check program unggulan
-	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/detail/%d", c.host, idProgramUnggulan)
+	url := fmt.Sprintf("%s/api/v1/laporan-tagging/tagging/getDetail/%s", c.host, kodeProgramUnggulan)
 	// request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -56,36 +56,34 @@ func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, idProgramUng
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
-		log.Printf("🪪 X-Session-Id diterapkan: %s", sessionID)
 	} else {
-		log.Printf("⚠️ Tidak ada X-Session-Id ditemukan, mungkin akan 401")
+		log.Printf("Tidak ada Session Id ditemukan, mungkin akan 401")
 	}
 
 	// send request
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Request ke perencanaan gagal: %w", err)
+		return nil, fmt.Errorf("Request ke program unggulan gagal: %w", err)
 	}
 	defer res.Body.Close()
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: %d tidak ditemukan. status: %d", idProgramUnggulan, res.StatusCode)
+		return nil, fmt.Errorf("Program unggulan: %s tidak ditemukan. status: %d", kodeProgramUnggulan, res.StatusCode)
 	}
 
-	// safe, response pasti ada
-	type wrapper struct {
-		Code   int                      `json:"code"`
-		Status string                   `json:"status"`
-		Data   *ProgramUnggulanResponse `json:"data"`
-	}
-
-	var result wrapper
+	// Decode JSON response
+	var result LaporanTaggingPohonKinerjaResponse
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("gagal decode response: %w", err)
+		return nil, fmt.Errorf("gagal decode response program unggulan: %w", err)
 	}
 
-	return result.Data, nil
+	// Validasi hasil decode
+	if len(result.Data) == 0 {
+		log.Printf("⚠️ Tidak ada data ditemukan untuk kode program unggulan %s", kodeProgramUnggulan)
+	}
+
+	return &result, nil
 }
 
 func (c *PerencanaanClient) GetDataRincianKerja(
@@ -102,7 +100,6 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
-		log.Printf("Session Id diterapkan: %s", sessionID)
 	} else {
 		log.Printf("Session Id ditemukan, mungkin akan 401")
 	}
