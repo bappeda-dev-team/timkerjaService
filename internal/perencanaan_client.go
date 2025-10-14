@@ -125,3 +125,47 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 
 	return &wrapper.RencanaKinerja[0], nil
 }
+
+func (c *PerencanaanClient) GetNamaProgramUnggulan(ctx context.Context, idProgramUnggulan int) (*ProgramUnggulanResponse, error) {
+	// url check program unggulan
+	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/detail/%d", c.host, idProgramUnggulan)
+	// request
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Gagal membuat request: %w", err)
+	}
+
+	sessionID := getSessionID(ctx)
+	if sessionID != "" {
+		req.Header.Set("X-Session-Id", sessionID)
+		log.Printf("🪪 X-Session-Id diterapkan: %s", sessionID)
+	} else {
+		log.Printf("⚠️ Tidak ada X-Session-Id ditemukan, mungkin akan 401")
+	}
+
+	// send request
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("Request ke perencanaan gagal: %w", err)
+	}
+	defer res.Body.Close()
+
+	// response status
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Program unggulan: %d tidak ditemukan. status: %d", idProgramUnggulan, res.StatusCode)
+	}
+
+	// safe, response pasti ada
+	type wrapper struct {
+		Code   int                      `json:"code"`
+		Status string                   `json:"status"`
+		Data   *ProgramUnggulanResponse `json:"data"`
+	}
+
+	var result wrapper
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("gagal decode response: %w", err)
+	}
+
+	return result.Data, nil
+}
