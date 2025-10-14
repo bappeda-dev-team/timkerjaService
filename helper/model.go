@@ -199,21 +199,6 @@ func MergeProgramUnggulanFromApiParallel(
 			}
 
 			// === Fetch API eksternal ===
-
-			dataRincian, err := client.GetProgramUnggulan(ctx, r.KodeProgramUnggulan)
-			if err != nil {
-				log.Printf("⚠️ gagal fetch rincian program unggulan [%v]: %v", r.KodeProgramUnggulan, err)
-				resp.ProgramUnggulan = "-"
-				responses[i] = resp
-				return
-			}
-
-			if len(dataRincian.Data) == 0 {
-				resp.ProgramUnggulan = "-"
-				responses[i] = resp
-				return
-			}
-
             programUnggulan, err := client.GetNamaProgramUnggulan(ctx, r.IdProgramUnggulan)
 			if err != nil {
 				log.Printf("⚠️ gagal fetch program unggulan [%v]: %v", r.IdProgramUnggulan, err)
@@ -224,6 +209,18 @@ func MergeProgramUnggulanFromApiParallel(
 
 			// === Gunakan data pertama sebagai program unggulan utama ===
 			resp.ProgramUnggulan = programUnggulan.RencanaImplementasi
+
+			dataRincian, err := client.GetProgramUnggulan(ctx, r.KodeProgramUnggulan)
+			if err != nil {
+				log.Printf("⚠️ gagal fetch rincian program unggulan [%v]: %v", r.KodeProgramUnggulan, err)
+				responses[i] = resp
+				return
+			}
+
+			if len(dataRincian.Data) == 0 {
+				responses[i] = resp
+				return
+			}
 
 			// === Simpan seluruh elemen data API ke dalam Pokin ===
 			resp.Pokin = dataRincian.Data
