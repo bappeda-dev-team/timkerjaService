@@ -224,35 +224,13 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	}
 	defer helper.CommitOrRollback(tx)
 
-	// cek external service
-	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
-	if perencanaanHost == "" {
-		log.Println("⚠️ PERENCANAAN_HOST belum diatur — skip cek program unggulan")
-	}
-	perencanaanClient := internal.NewPerencanaanClient(
-		perencanaanHost,
-		&http.Client{Timeout: 25 * time.Second},
-	)
-
-	// ambil kode program unggulan
-	perencanaanResp, err := perencanaanClient.GetProgramUnggulan(ctx, programUnggulan.KodeProgramUnggulan)
-	if err != nil {
-		log.Printf("gagal cek program unggulan ke service eksternal: %v", err)
-	}
-
-	var kodeProgramUnggulan string
-	if perencanaanResp != nil {
-		kodeProgramUnggulan = perencanaanResp.Data[0].KodeProgramUnggulan
-	} else {
-		kodeProgramUnggulan = "UNCHECKED"
-	}
-
 	programUnggulanDomain := domain.ProgramUnggulanTimKerja{
 		KodeTim:             programUnggulan.KodeTim,
-		KodeProgramUnggulan: kodeProgramUnggulan,
+		KodeProgramUnggulan: programUnggulan.KodeProgramUnggulan,
 		IdProgramUnggulan:   programUnggulan.IdProgramUnggulan,
 		Tahun:               programUnggulan.Tahun,
 		KodeOpd:             programUnggulan.KodeOpd,
+		NamaProgramUnggulan: "NOT-CHECKED",
 	}
 
 	programUnggulanDomain, err = service.TimKerjaRepository.AddProgramUnggulan(ctx, tx, programUnggulanDomain)
@@ -260,17 +238,11 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 		return web.ProgramUnggulanTimKerjaResponse{}, err
 	}
 
-	// inject namaProgramUnggulan
-	namaProgramUnggulan := "NOT_CHECKED"
-	if perencanaanResp != nil {
-		namaProgramUnggulan = perencanaanResp.Data[0].RencanaImplementasi
-	}
-
 	return web.ProgramUnggulanTimKerjaResponse{
 		Id:                programUnggulanDomain.Id,
 		KodeTim:           programUnggulanDomain.KodeTim,
 		IdProgramUnggulan: programUnggulanDomain.IdProgramUnggulan,
-		ProgramUnggulan:   namaProgramUnggulan,
+		ProgramUnggulan:   programUnggulanDomain.NamaProgramUnggulan,
 		Tahun:             programUnggulan.Tahun,
 		KodeOpd:           programUnggulan.KodeOpd,
 	}, nil
