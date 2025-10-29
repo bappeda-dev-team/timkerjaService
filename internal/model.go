@@ -181,3 +181,7 @@ type PelaksanaanRencanaAksiResponse struct {
 type FindByIdTerkaitRequest struct {
 	Ids []int `json:"id_prorgramunggulan" validate:"required,min=1"`
 }
+
+type FindByKodeProgramUnggulansRequest struct {
+	KodeProgramUnggulan []string `json:"kode_program_unggulan" validate:"required,min=1"`
+}

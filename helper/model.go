@@ -199,6 +199,25 @@ func MergeProgramUnggulanFromApiParallel(
 		}
 	}
 
+	// rincian program unggulans
+	var kodeBatch []string
+	for _, r := range programUnggulans {
+		if r.IdProgramUnggulan != 0 {
+			kodeBatch = append(kodeBatch, r.KodeProgramUnggulan)
+		}
+	}
+	rincianBatchResp, err := client.GetRincianProgramUnggulans(ctx, kodeBatch)
+	if err != nil {
+		log.Printf("gagal fetch batch program unggulan: %v", err)
+	}
+
+	rincianMap := make(map[string][]internal.TaggingPohonKinerjaItem)
+	for _, item := range rincianBatchResp {
+		kode := item.KodeProgramUnggulan
+		rincianMap[kode] = append(rincianMap[kode], item)
+	}
+
+	// gabung
 	sem := make(chan struct{}, maxConcurrency)
 	var wg sync.WaitGroup
 
@@ -224,21 +243,13 @@ func MergeProgramUnggulanFromApiParallel(
 				resp.ProgramUnggulan = "-"
 			}
 
-			// === Ambil rincian per program unggulan ===
-			dataRincian, err := client.GetProgramUnggulan(ctx, r.KodeProgramUnggulan)
-			if err != nil {
-				log.Printf("⚠️ gagal fetch rincian program unggulan [%v]: %v", r.KodeProgramUnggulan, err)
-				responses[i] = resp
-				return
-			}
+			// === Ambil rincian batch ===
 
-			if len(dataRincian.Data) == 0 {
-				responses[i] = resp
-				return
+			if items, ok := rincianMap[r.KodeProgramUnggulan]; ok {
+				resp.Pokin = items
+			} else {
+				resp.Pokin = []internal.TaggingPohonKinerjaItem{}
 			}
-
-			// === Simpan seluruh elemen data API ke dalam Pokin ===
-			resp.Pokin = dataRincian.Data
 
 			responses[i] = resp
 		}(i, r)

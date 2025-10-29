@@ -45,14 +45,27 @@ func getSessionID(ctx context.Context) string {
 	return os.Getenv("DEV_SESSION_ID") // fallback
 }
 
-func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, kodeProgramUnggulan string) (*LaporanTaggingPohonKinerjaResponse, error) {
+func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kodeProgramUnggulans []string) ([]TaggingPohonKinerjaItem, error) {
 	// url check program unggulan
-	url := fmt.Sprintf("%s/api/v1/laporan-tagging/tagging/getDetail/%s", c.host, kodeProgramUnggulan)
+	url := fmt.Sprintf("%s/api/v1/laporan-tagging/tagging/getDetailBatch", c.host)
+	// body kode program unggulans
+	payload := FindByKodeProgramUnggulansRequest{
+		KodeProgramUnggulan: kodeProgramUnggulans,
+	}
+	jsonBody, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("gagal encode body: %w", err)
+	}
+
 	// request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("Gagal membuat request: %w", err)
 	}
+	req.Header.Set("Content-Type", "application/json")
+
+	log.Printf("➡️  POST %s", url)
+	log.Printf("📦  Headers: %+v", req.Header)
 
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
@@ -70,21 +83,22 @@ func (c *PerencanaanClient) GetProgramUnggulan(ctx context.Context, kodeProgramU
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: %s tidak ditemukan. status: %d", kodeProgramUnggulan, res.StatusCode)
+		return nil, fmt.Errorf("Program unggulan: %w tidak ditemukan. status: %d", kodeProgramUnggulans, res.StatusCode)
 	}
 
-	// Decode JSON response
-	var result LaporanTaggingPohonKinerjaResponse
+	// safe , response pasti ada
+	type wrapper struct {
+		Code   int                       `json:"code"`
+		Status string                    `json:"status"`
+		Data   []TaggingPohonKinerjaItem `json:"data"`
+	}
+
+	var result wrapper
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("gagal decode response program unggulan: %w", err)
+		return nil, fmt.Errorf("gagal decode response: %w", err)
 	}
 
-	// Validasi hasil decode
-	if len(result.Data) == 0 {
-		log.Printf("⚠️ Tidak ada data ditemukan untuk kode program unggulan %s", kodeProgramUnggulan)
-	}
-
-	return &result, nil
+	return result.Data, nil
 }
 
 func (c *PerencanaanClient) GetDataRincianKerja(
