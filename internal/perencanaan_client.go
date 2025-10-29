@@ -64,9 +64,6 @@ func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kode
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	log.Printf("➡️  POST %s", url)
-	log.Printf("📦  Headers: %+v", req.Header)
-
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
@@ -86,19 +83,12 @@ func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kode
 		return nil, fmt.Errorf("Program unggulan: %w tidak ditemukan. status: %d", kodeProgramUnggulans, res.StatusCode)
 	}
 
-	// safe , response pasti ada
-	type wrapper struct {
-		Code   int                       `json:"code"`
-		Status string                    `json:"status"`
-		Data   []TaggingPohonKinerjaItem `json:"data"`
-	}
-
-	var result wrapper
+	var result LaporanTaggingPohonKinerjaResponse
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("gagal decode response: %w", err)
 	}
-
 	return result.Data, nil
+
 }
 
 func (c *PerencanaanClient) GetDataRincianKerja(
