@@ -179,6 +179,26 @@ func MergeProgramUnggulanFromApiParallel(
 	maxConcurrency int,
 ) []web.ProgramUnggulanTimKerjaResponse {
 	responses := make([]web.ProgramUnggulanTimKerjaResponse, len(programUnggulans))
+	var idBatch []int
+	for _, r := range programUnggulans {
+		if r.IdProgramUnggulan != 0 {
+			idBatch = append(idBatch, r.IdProgramUnggulan)
+		}
+	}
+	// nama program unggulans
+	batchResp, err := client.GetNamaProgramUnggulanBatch(ctx, idBatch)
+	if err != nil {
+		log.Printf("gagal fetch batch program unggulan: %v", err)
+	}
+
+	programUnggulanMap := make(map[int]internal.ProgramUnggulanResponse)
+	for _, item := range batchResp {
+		programUnggulanMap[item.Id] = internal.ProgramUnggulanResponse{
+			Id:                  item.Id,
+			RencanaImplementasi: item.RencanaImplementasi,
+		}
+	}
+
 	sem := make(chan struct{}, maxConcurrency)
 	var wg sync.WaitGroup
 
@@ -197,19 +217,14 @@ func MergeProgramUnggulanFromApiParallel(
 				Tahun:               r.Tahun,
 				KodeOpd:             r.KodeOpd,
 			}
-
-			// === Fetch API eksternal ===
-            programUnggulan, err := client.GetNamaProgramUnggulan(ctx, r.IdProgramUnggulan)
-			if err != nil {
-				log.Printf("⚠️ gagal fetch program unggulan [%v]: %v", r.IdProgramUnggulan, err)
+			// === Ambil data dari hasil batch ===
+			if pu, ok := programUnggulanMap[r.IdProgramUnggulan]; ok {
+				resp.ProgramUnggulan = pu.RencanaImplementasi
+			} else {
 				resp.ProgramUnggulan = "-"
-				responses[i] = resp
-				return
 			}
 
-			// === Gunakan data pertama sebagai program unggulan utama ===
-			resp.ProgramUnggulan = programUnggulan.RencanaImplementasi
-
+			// === Ambil rincian per program unggulan ===
 			dataRincian, err := client.GetProgramUnggulan(ctx, r.KodeProgramUnggulan)
 			if err != nil {
 				log.Printf("⚠️ gagal fetch rincian program unggulan [%v]: %v", r.KodeProgramUnggulan, err)

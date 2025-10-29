@@ -2,6 +2,7 @@
 package internal
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -126,21 +127,32 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 	return &wrapper.RencanaKinerja[0], nil
 }
 
-func (c *PerencanaanClient) GetNamaProgramUnggulan(ctx context.Context, idProgramUnggulan int) (*ProgramUnggulanResponse, error) {
+func (c *PerencanaanClient) GetNamaProgramUnggulanBatch(ctx context.Context, idProgramUnggulans []int) ([]ProgramUnggulanResponse, error) {
 	// url check program unggulan
-	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/detail/%d", c.host, idProgramUnggulan)
+	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/findbyidterkait", c.host)
+
+	// body id program unggulans
+	payload := FindByIdTerkaitRequest{
+		Ids: idProgramUnggulans,
+	}
+	jsonBody, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("gagal encode body: %w", err)
+	}
+
 	// request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("Gagal membuat request: %w", err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
-		log.Printf("🪪 X-Session-Id diterapkan: %s", sessionID)
+		log.Printf("X-Session-Id diterapkan: %s", sessionID)
 	} else {
-		log.Printf("⚠️ Tidak ada X-Session-Id ditemukan, mungkin akan 401")
+		log.Printf("Tidak ada X-Session-Id ditemukan, mungkin akan 401")
 	}
 
 	// send request
@@ -152,14 +164,14 @@ func (c *PerencanaanClient) GetNamaProgramUnggulan(ctx context.Context, idProgra
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: %d tidak ditemukan. status: %d", idProgramUnggulan, res.StatusCode)
+		return nil, fmt.Errorf("Program unggulan: tidak ditemukan. status: %d", res.StatusCode)
 	}
 
 	// safe, response pasti ada
 	type wrapper struct {
-		Code   int                      `json:"code"`
-		Status string                   `json:"status"`
-		Data   *ProgramUnggulanResponse `json:"data"`
+		Code   int                       `json:"code"`
+		Status string                    `json:"status"`
+		Data   []ProgramUnggulanResponse `json:"data"`
 	}
 
 	var result wrapper

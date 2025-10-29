@@ -177,3 +177,7 @@ type PelaksanaanRencanaAksiResponse struct {
 	Bobot         int    `json:"bobot"`
 	BobotAvail    int    `json:"bobot_tersedia,omitempty"`
 }
+
+type FindByIdTerkaitRequest struct {
+	Ids []int `json:"id_prorgramunggulan" validate:"required,min=1"`
+}
