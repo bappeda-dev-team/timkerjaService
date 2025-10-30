@@ -1,5 +1,119 @@
 basePath: /
 definitions:
+  internal.PelaksanaPokin:
+    properties:
+      nama_pelaksana:
+        type: string
+      nip_pelaksana:
+        type: string
+      rencana_kinerjas:
+        items:
+          $ref: '#/definitions/internal.RencanaKinerjaAsn'
+        type: array
+    type: object
+  internal.RencanaKinerjaAsn:
+    properties:
+      id_rekin:
+        type: string
+      keterangan:
+        type: string
+      kode_bidang_urusan:
+        type: string
+      kode_program:
+        type: string
+      kode_subkegiatan:
+        type: string
+      nama_bidang_urusan:
+        type: string
+      nama_pelaksana:
+        type: string
+      nama_program:
+        type: string
+      nama_subkegiatan:
+        type: string
+      nip_pelaksana:
+        type: string
+      pagu:
+        type: integer
+      rencana_kinerja:
+        type: string
+      tahapan_pelaksanaan:
+        $ref: '#/definitions/internal.WaktuPelaksanaan'
+    type: object
+  internal.TaggingIndikator:
+    properties:
+      id_indikator:
+        type: string
+      kode:
+        type: string
+      nama_indikator:
+        type: string
+      targets:
+        items:
+          $ref: '#/definitions/internal.TaggingTargetItem'
+        type: array
+    type: object
+  internal.TaggingPohonKinerjaItem:
+    properties:
+      id_pohon:
+        type: integer
+      id_tagging:
+        type: integer
+      indikator:
+        items:
+          $ref: '#/definitions/internal.TaggingIndikator'
+        type: array
+      jenis_pohon:
+        type: string
+      keterangan:
+        type: string
+      keterangan_tagging:
+        type: string
+      kode_opd:
+        type: string
+      kode_program_unggulan:
+        type: string
+      nama_opd:
+        type: string
+      nama_pohon:
+        type: string
+      nama_program_unggulan:
+        type: string
+      pelaksanas:
+        items:
+          $ref: '#/definitions/internal.PelaksanaPokin'
+        type: array
+      rencana_implementasi:
+        type: string
+      status:
+        type: string
+      tahun:
+        type: integer
+    type: object
+  internal.TaggingTargetItem:
+    properties:
+      id_target:
+        type: string
+      indikator_id:
+        type: string
+      satuan:
+        type: string
+      tahun:
+        type: integer
+      target:
+        type: string
+    type: object
+  internal.WaktuPelaksanaan:
+    properties:
+      tw_1:
+        type: integer
+      tw_2:
+        type: integer
+      tw_3:
+        type: integer
+      tw_4:
+        type: integer
+    type: object
   web.JabatanTimCreateRequest:
     properties:
       level_jabatan:
@@ -29,6 +143,159 @@ definitions:
       nama_jabatan:
         type: string
     type: object
+  web.ProgramUnggulanTimKerjaResponse:
+    properties:
+      id:
+        type: integer
+      id_program_unggulan:
+        type: integer
+      kode_opd:
+        type: string
+      kode_program_unggulan:
+        type: string
+      kode_tim:
+        type: string
+      pohon_kinerja:
+        items:
+          $ref: '#/definitions/internal.TaggingPohonKinerjaItem'
+        type: array
+      program_unggulan:
+        type: string
+      tahun:
+        type: string
+    type: object
+  web.RealisasiAnggaranCreateRequest:
+    properties:
+      bukti_dukung:
+        type: string
+      bulan:
+        type: string
+      faktor_pendorong:
+        type: string
+      faktor_penghambat:
+        type: string
+      kode_opd:
+        type: string
+      kode_subkegiatan:
+        type: string
+      realisasi_anggaran:
+        type: integer
+      rekomendasi_tl:
+        type: string
+      rencana_aksi:
+        type: string
+      tahun:
+        type: string
+    required:
+    - bulan
+    - kode_opd
+    - kode_subkegiatan
+    - realisasi_anggaran
+    - tahun
+    type: object
+  web.RealisasiAnggaranResponse:
+    properties:
+      bukti_dukung:
+        type: string
+      bulan:
+        type: string
+      created_at:
+        type: string
+      faktor_pendorong:
+        type: string
+      faktor_penghambat:
+        type: string
+      id:
+        type: integer
+      kode_opd:
+        type: string
+      kode_subkegiatan:
+        type: string
+      realisasi_anggaran:
+        type: integer
+      rekomendasi_tl:
+        type: string
+      rencana_aksi:
+        type: string
+      tahun:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  web.RealisasiAnggaranUpdateRequest:
+    properties:
+      bukti_dukung:
+        type: string
+      bulan:
+        type: string
+      faktor_pendorong:
+        type: string
+      faktor_penghambat:
+        type: string
+      id:
+        type: integer
+      kode_opd:
+        type: string
+      kode_subkegiatan:
+        type: string
+      realisasi_anggaran:
+        type: integer
+      rekomendasi_tl:
+        type: string
+      rencana_aksi:
+        type: string
+      tahun:
+        type: string
+    required:
+    - bulan
+    - id
+    - kode_opd
+    - kode_subkegiatan
+    - realisasi_anggaran
+    - tahun
+    type: object
+  web.RealisasiRequest:
+    properties:
+      faktor_pendorong:
+        type: string
+      faktor_penghambat:
+        type: string
+      id_pokin:
+        type: integer
+      jenis_item:
+        type: string
+      jenis_pohon:
+        type: string
+      kode_item:
+        type: string
+      kode_opd:
+        type: string
+      kode_tim:
+        type: string
+      nama_item:
+        type: string
+      pagu:
+        minimum: 0
+        type: integer
+      realisasi:
+        minimum: 0
+        type: integer
+      rtl:
+        type: string
+      tahun:
+        type: string
+      url_bukti_dukung:
+        type: string
+    required:
+    - id_pokin
+    - jenis_item
+    - jenis_pohon
+    - kode_item
+    - kode_opd
+    - kode_tim
+    - nama_item
+    - tahun
+    type: object
   web.SusunanTimCreateRequest:
     properties:
       is_active:
@@ -43,6 +310,11 @@ definitions:
         type: string
       nip:
         type: string
+    required:
+    - kode_tim
+    - nama_jabatan_tim
+    - nama_pegawai
+    - nip
     type: object
   web.SusunanTimDetailResponse:
     properties:
@@ -98,10 +370,17 @@ definitions:
         type: string
       nip:
         type: string
+    required:
+    - kode_tim
+    - nama_jabatan_tim
+    - nama_pegawai
+    - nip
     type: object
   web.TimKerjaCreateRequest:
     properties:
       is_active:
+        type: boolean
+      is_sekretariat:
         type: boolean
       keterangan:
         type: string
@@ -114,6 +393,12 @@ definitions:
     properties:
       id:
         type: integer
+      is_active:
+        type: boolean
+      is_sekretariat:
+        type: boolean
+      keterangan:
+        type: string
       kode_tim:
         type: string
       nama_tim:
@@ -130,6 +415,8 @@ definitions:
       id:
         type: integer
       is_active:
+        type: boolean
+      is_sekretariat:
         type: boolean
       keterangan:
         type: string
@@ -148,6 +435,8 @@ definitions:
         type: integer
       is_active:
         type: boolean
+      is_sekretariat:
+        type: boolean
       keterangan:
         type: string
       nama_tim:
@@ -161,6 +450,8 @@ definitions:
       code:
         type: integer
       data: {}
+      message:
+        type: string
       status:
         type: string
     type: object
@@ -365,6 +656,184 @@ paths:
       summary: Get All Tim Kerja
       tags:
       - Tim Kerja
+  /realisasianggaran:
+    post:
+      consumes:
+      - application/json
+      description: Upsert Realisasi Anggaran
+      parameters:
+      - description: Realisasi Anggaran Create Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.RealisasiAnggaranCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Upsert Realisasi Anggaran
+      tags:
+      - Realisasi Anggaran
+  /realisasianggaran/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Realisasi Anggaran
+      parameters:
+      - description: Realisasi Anggaran ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Delete Realisasi Anggaran
+      tags:
+      - Realisasi Anggaran
+    get:
+      consumes:
+      - application/json
+      description: Get Realisasi Anggaran detail by ID
+      parameters:
+      - description: Realisasi Anggaran ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Get Realisasi Anggaran by ID
+      tags:
+      - Realisasi Anggaran
+    put:
+      consumes:
+      - application/json
+      description: Update Realisasi Anggaran
+      parameters:
+      - description: Realisasi Anggaran ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Realisasi Anggaran Update Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.RealisasiAnggaranUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Update Realisasi Anggaran
+      tags:
+      - Realisasi Anggaran
+  /realisasianggaran/{kode_subkegiatan}/{bulan}/{tahun}:
+    get:
+      consumes:
+      - application/json
+      description: Get All Realisasi Anggaran
+      parameters:
+      - description: Kode Subkegiatan
+        in: path
+        name: kode_subkegiatan
+        required: true
+        type: string
+      - description: Bulan
+        in: path
+        name: bulan
+        required: true
+        type: string
+      - description: Tahun
+        in: path
+        name: tahun
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.RealisasiAnggaranResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Get All Realisasi Anggaran
+      tags:
+      - Realisasi Anggaran
   /susunantim:
     get:
       consumes:
@@ -555,14 +1024,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create new Tim Kerja
+      description: Save realisasi pokin in Tim Kerja
       parameters:
-      - description: Tim Kerja Create Request
+      - description: Realisasi Pokin Create Request
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/web.TimKerjaCreateRequest'
+          $ref: '#/definitions/web.RealisasiRequest'
       produces:
       - application/json
       responses:
@@ -583,7 +1052,33 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebResponse'
-      summary: Create Tim Kerja
+      summary: Save Realisasi Pokin
+      tags:
+      - Tim Kerja
+  /timkerja-sekretariat:
+    get:
+      consumes:
+      - application/json
+      description: Get All Tim Kerja sekretariat with susunan tim
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.TimKerjaDetailResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Get All Tim Kerja Sekretariat with Details
       tags:
       - Tim Kerja
   /timkerja/{id}:
@@ -685,6 +1180,60 @@ paths:
           schema:
             $ref: '#/definitions/web.WebResponse'
       summary: Update Tim Kerja
+      tags:
+      - Tim Kerja
+  /timkerja/{kodetim}/program_unggulan:
+    get:
+      consumes:
+      - application/json
+      description: Find all program unggulan to existing tim kerja, multiple
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.ProgramUnggulanTimKerjaResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Find all program unggulan to tim kerja
+      tags:
+      - Tim Kerja
+    post:
+      consumes:
+      - application/json
+      description: Delete Rencana Kinerja dari timkerja sekretariat
+      parameters:
+      - description: RencanaKinerjaTim ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Delete Rencana Kinerja
       tags:
       - Tim Kerja
 swagger: "2.0"

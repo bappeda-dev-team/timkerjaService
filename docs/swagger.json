@@ -323,6 +323,292 @@
                 }
             }
         },
+        "/realisasianggaran": {
+            "post": {
+                "description": "Upsert Realisasi Anggaran",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Realisasi Anggaran"
+                ],
+                "summary": "Upsert Realisasi Anggaran",
+                "parameters": [
+                    {
+                        "description": "Realisasi Anggaran Create Request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.RealisasiAnggaranCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/web.RealisasiAnggaranResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/realisasianggaran/{id}": {
+            "get": {
+                "description": "Get Realisasi Anggaran detail by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Realisasi Anggaran"
+                ],
+                "summary": "Get Realisasi Anggaran by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Realisasi Anggaran ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/web.RealisasiAnggaranResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update Realisasi Anggaran",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Realisasi Anggaran"
+                ],
+                "summary": "Update Realisasi Anggaran",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Realisasi Anggaran ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Realisasi Anggaran Update Request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.RealisasiAnggaranUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/web.RealisasiAnggaranResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Realisasi Anggaran",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Realisasi Anggaran"
+                ],
+                "summary": "Delete Realisasi Anggaran",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Realisasi Anggaran ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/realisasianggaran/{kode_subkegiatan}/{bulan}/{tahun}": {
+            "get": {
+                "description": "Get All Realisasi Anggaran",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Realisasi Anggaran"
+                ],
+                "summary": "Get All Realisasi Anggaran",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kode Subkegiatan",
+                        "name": "kode_subkegiatan",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bulan",
+                        "name": "bulan",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tahun",
+                        "name": "tahun",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.RealisasiAnggaranResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/susunantim": {
             "get": {
                 "description": "Get All Susunan Tim",
@@ -628,7 +914,7 @@
                 }
             },
             "post": {
-                "description": "Create new Tim Kerja",
+                "description": "Save realisasi pokin in Tim Kerja",
                 "consumes": [
                     "application/json"
                 ],
@@ -638,15 +924,15 @@
                 "tags": [
                     "Tim Kerja"
                 ],
-                "summary": "Create Tim Kerja",
+                "summary": "Save Realisasi Pokin",
                 "parameters": [
                     {
-                        "description": "Tim Kerja Create Request",
+                        "description": "Realisasi Pokin Create Request",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/web.TimKerjaCreateRequest"
+                            "$ref": "#/definitions/web.RealisasiRequest"
                         }
                     }
                 ],
@@ -673,6 +959,50 @@
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/timkerja-sekretariat": {
+            "get": {
+                "description": "Get All Tim Kerja sekretariat with susunan tim",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Get All Tim Kerja Sekretariat with Details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.TimKerjaDetailResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -844,9 +1174,269 @@
                     }
                 }
             }
+        },
+        "/timkerja/{kodetim}/program_unggulan": {
+            "get": {
+                "description": "Find all program unggulan to existing tim kerja, multiple",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Find all program unggulan to tim kerja",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.ProgramUnggulanTimKerjaResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Delete Rencana Kinerja dari timkerja sekretariat",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Delete Rencana Kinerja",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "RencanaKinerjaTim ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "internal.PelaksanaPokin": {
+            "type": "object",
+            "properties": {
+                "nama_pelaksana": {
+                    "type": "string"
+                },
+                "nip_pelaksana": {
+                    "type": "string"
+                },
+                "rencana_kinerjas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal.RencanaKinerjaAsn"
+                    }
+                }
+            }
+        },
+        "internal.RencanaKinerjaAsn": {
+            "type": "object",
+            "properties": {
+                "id_rekin": {
+                    "type": "string"
+                },
+                "keterangan": {
+                    "type": "string"
+                },
+                "kode_bidang_urusan": {
+                    "type": "string"
+                },
+                "kode_program": {
+                    "type": "string"
+                },
+                "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "nama_bidang_urusan": {
+                    "type": "string"
+                },
+                "nama_pelaksana": {
+                    "type": "string"
+                },
+                "nama_program": {
+                    "type": "string"
+                },
+                "nama_subkegiatan": {
+                    "type": "string"
+                },
+                "nip_pelaksana": {
+                    "type": "string"
+                },
+                "pagu": {
+                    "type": "integer"
+                },
+                "rencana_kinerja": {
+                    "type": "string"
+                },
+                "tahapan_pelaksanaan": {
+                    "$ref": "#/definitions/internal.WaktuPelaksanaan"
+                }
+            }
+        },
+        "internal.TaggingIndikator": {
+            "type": "object",
+            "properties": {
+                "id_indikator": {
+                    "type": "string"
+                },
+                "kode": {
+                    "type": "string"
+                },
+                "nama_indikator": {
+                    "type": "string"
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal.TaggingTargetItem"
+                    }
+                }
+            }
+        },
+        "internal.TaggingPohonKinerjaItem": {
+            "type": "object",
+            "properties": {
+                "id_pohon": {
+                    "type": "integer"
+                },
+                "id_tagging": {
+                    "type": "integer"
+                },
+                "indikator": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal.TaggingIndikator"
+                    }
+                },
+                "jenis_pohon": {
+                    "type": "string"
+                },
+                "keterangan": {
+                    "type": "string"
+                },
+                "keterangan_tagging": {
+                    "type": "string"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_program_unggulan": {
+                    "type": "string"
+                },
+                "nama_opd": {
+                    "type": "string"
+                },
+                "nama_pohon": {
+                    "type": "string"
+                },
+                "nama_program_unggulan": {
+                    "type": "string"
+                },
+                "pelaksanas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal.PelaksanaPokin"
+                    }
+                },
+                "rencana_implementasi": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal.TaggingTargetItem": {
+            "type": "object",
+            "properties": {
+                "id_target": {
+                    "type": "string"
+                },
+                "indikator_id": {
+                    "type": "string"
+                },
+                "satuan": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                },
+                "target": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal.WaktuPelaksanaan": {
+            "type": "object",
+            "properties": {
+                "tw_1": {
+                    "type": "integer"
+                },
+                "tw_2": {
+                    "type": "integer"
+                },
+                "tw_3": {
+                    "type": "integer"
+                },
+                "tw_4": {
+                    "type": "integer"
+                }
+            }
+        },
         "web.JabatanTimCreateRequest": {
             "type": "object",
             "properties": {
@@ -892,8 +1482,237 @@
                 }
             }
         },
+        "web.ProgramUnggulanTimKerjaResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "id_program_unggulan": {
+                    "type": "integer"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_program_unggulan": {
+                    "type": "string"
+                },
+                "kode_tim": {
+                    "type": "string"
+                },
+                "pohon_kinerja": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal.TaggingPohonKinerjaItem"
+                    }
+                },
+                "program_unggulan": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                }
+            }
+        },
+        "web.RealisasiAnggaranCreateRequest": {
+            "type": "object",
+            "required": [
+                "bulan",
+                "kode_opd",
+                "kode_subkegiatan",
+                "realisasi_anggaran",
+                "tahun"
+            ],
+            "properties": {
+                "bukti_dukung": {
+                    "type": "string"
+                },
+                "bulan": {
+                    "type": "string"
+                },
+                "faktor_pendorong": {
+                    "type": "string"
+                },
+                "faktor_penghambat": {
+                    "type": "string"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "realisasi_anggaran": {
+                    "type": "integer"
+                },
+                "rekomendasi_tl": {
+                    "type": "string"
+                },
+                "rencana_aksi": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                }
+            }
+        },
+        "web.RealisasiAnggaranResponse": {
+            "type": "object",
+            "properties": {
+                "bukti_dukung": {
+                    "type": "string"
+                },
+                "bulan": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "faktor_pendorong": {
+                    "type": "string"
+                },
+                "faktor_penghambat": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "realisasi_anggaran": {
+                    "type": "integer"
+                },
+                "rekomendasi_tl": {
+                    "type": "string"
+                },
+                "rencana_aksi": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "web.RealisasiAnggaranUpdateRequest": {
+            "type": "object",
+            "required": [
+                "bulan",
+                "id",
+                "kode_opd",
+                "kode_subkegiatan",
+                "realisasi_anggaran",
+                "tahun"
+            ],
+            "properties": {
+                "bukti_dukung": {
+                    "type": "string"
+                },
+                "bulan": {
+                    "type": "string"
+                },
+                "faktor_pendorong": {
+                    "type": "string"
+                },
+                "faktor_penghambat": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "realisasi_anggaran": {
+                    "type": "integer"
+                },
+                "rekomendasi_tl": {
+                    "type": "string"
+                },
+                "rencana_aksi": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                }
+            }
+        },
+        "web.RealisasiRequest": {
+            "type": "object",
+            "required": [
+                "id_pokin",
+                "jenis_item",
+                "jenis_pohon",
+                "kode_item",
+                "kode_opd",
+                "kode_tim",
+                "nama_item",
+                "tahun"
+            ],
+            "properties": {
+                "faktor_pendorong": {
+                    "type": "string"
+                },
+                "faktor_penghambat": {
+                    "type": "string"
+                },
+                "id_pokin": {
+                    "type": "integer"
+                },
+                "jenis_item": {
+                    "type": "string"
+                },
+                "jenis_pohon": {
+                    "type": "string"
+                },
+                "kode_item": {
+                    "type": "string"
+                },
+                "kode_opd": {
+                    "type": "string"
+                },
+                "kode_tim": {
+                    "type": "string"
+                },
+                "nama_item": {
+                    "type": "string"
+                },
+                "pagu": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "realisasi": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "rtl": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                },
+                "url_bukti_dukung": {
+                    "type": "string"
+                }
+            }
+        },
         "web.SusunanTimCreateRequest": {
             "type": "object",
+            "required": [
+                "kode_tim",
+                "nama_jabatan_tim",
+                "nama_pegawai",
+                "nip"
+            ],
             "properties": {
                 "is_active": {
                     "type": "boolean"
@@ -975,6 +1794,12 @@
         },
         "web.SusunanTimUpdateRequest": {
             "type": "object",
+            "required": [
+                "kode_tim",
+                "nama_jabatan_tim",
+                "nama_pegawai",
+                "nip"
+            ],
             "properties": {
                 "id": {
                     "type": "integer"
@@ -1005,6 +1830,9 @@
                 "is_active": {
                     "type": "boolean"
                 },
+                "is_sekretariat": {
+                    "type": "boolean"
+                },
                 "keterangan": {
                     "type": "string"
                 },
@@ -1021,6 +1849,15 @@
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_sekretariat": {
+                    "type": "boolean"
+                },
+                "keterangan": {
+                    "type": "string"
                 },
                 "kode_tim": {
                     "type": "string"
@@ -1046,6 +1883,9 @@
                     "type": "integer"
                 },
                 "is_active": {
+                    "type": "boolean"
+                },
+                "is_sekretariat": {
                     "type": "boolean"
                 },
                 "keterangan": {
@@ -1074,6 +1914,9 @@
                 "is_active": {
                     "type": "boolean"
                 },
+                "is_sekretariat": {
+                    "type": "boolean"
+                },
                 "keterangan": {
                     "type": "string"
                 },
@@ -1093,6 +1936,9 @@
                     "type": "integer"
                 },
                 "data": {},
+                "message": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 }

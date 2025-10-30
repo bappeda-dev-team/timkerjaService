@@ -3,13 +3,14 @@ package app
 import (
 	"timkerjaService/controller"
 
+	myMiddleware "timkerjaService/middleware"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	myMiddleware "timkerjaService/middleware"
 )
 
-func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController) *echo.Echo {
+func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController, realisasiAnggaranController controller.RealisasiAnggaranController) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -35,7 +36,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// TODO
 	// POST simpan realisasi anggaran by subkegiatan
 	// post simpan faktor pendrong, penghambat, rtl, bukti dukung
-    e.POST("/timkerja/:kodetim/realisasi_pokin", timKerjaController.SaveRealisasiPokin)
+	e.POST("/timkerja/:kodetim/realisasi_pokin", timKerjaController.SaveRealisasiPokin)
 	// patch simpan url bukti dukung
 	// post simpan rencana kinerja dari sekret
 	e.POST("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.AddRencanaKinerja)
@@ -57,5 +58,10 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/jabatantim/:id", jabatanTimController.FindById)
 	e.GET("/jabatantim", jabatanTimController.FindAll)
 
+	// Realisasi Anggaran
+	e.DELETE("/realisasianggaran/:id", realisasiAnggaranController.Delete)
+	e.GET("/realisasianggaran/:id", realisasiAnggaranController.FindById)
+	e.GET("/realisasianggaran/:kode_subkegiatan/:bulan/:tahun", realisasiAnggaranController.FindAll)
+	e.POST("/realisasianggaran", realisasiAnggaranController.Upsert)
 	return e
 }

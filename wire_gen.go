@@ -31,7 +31,10 @@ func InitializedServer() *echo.Echo {
 	jabatanTimRepositoryImpl := repository.NewJabatanTimRepositoryImpl()
 	jabatanTimServiceImpl := service.NewJabatanTimServiceImpl(jabatanTimRepositoryImpl, db, validate)
 	jabatanTimControllerImpl := controller.NewJabatanTimControllerImpl(jabatanTimServiceImpl)
-	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl)
+	realisasiAnggaranRepositoryImpl := repository.NewRealisasiAnggaranRepositoryImpl()
+	realisasiAnggaranServiceImpl := service.NewRealisasiAnggaranServiceImpl(db, realisasiAnggaranRepositoryImpl)
+	realisasiAnggaranControllerImpl := controller.NewRealisasiAnggaranControllerImpl(realisasiAnggaranServiceImpl)
+	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl, realisasiAnggaranControllerImpl)
 	return echoEcho
 }
 
@@ -46,3 +49,5 @@ var timKerjaSet = wire.NewSet(repository.NewTimKerjaRepositoryImpl, wire.Bind(ne
 var susunanTimSet = wire.NewSet(repository.NewSusunanTimRepositoryImpl, wire.Bind(new(repository.SusunanTimRepository), new(*repository.SusunanTimRepositoryImpl)), service.NewSusunanTimServiceImpl, wire.Bind(new(service.SusunanTimService), new(*service.SusunanTimServiceImpl)), controller.NewSusunanTimControllerImpl, wire.Bind(new(controller.SusunanTimController), new(*controller.SusunanTimControllerImpl)))
 
 var jabatanTimSet = wire.NewSet(repository.NewJabatanTimRepositoryImpl, wire.Bind(new(repository.JabatanTimRepository), new(*repository.JabatanTimRepositoryImpl)), service.NewJabatanTimServiceImpl, wire.Bind(new(service.JabatanTimService), new(*service.JabatanTimServiceImpl)), controller.NewJabatanTimControllerImpl, wire.Bind(new(controller.JabatanTimController), new(*controller.JabatanTimControllerImpl)))
+
+var realisasiAnggaranSet = wire.NewSet(repository.NewRealisasiAnggaranRepositoryImpl, wire.Bind(new(repository.RealisasiAnggaranRepository), new(*repository.RealisasiAnggaranRepositoryImpl)), service.NewRealisasiAnggaranServiceImpl, wire.Bind(new(service.RealisasiAnggaranService), new(*service.RealisasiAnggaranServiceImpl)), controller.NewRealisasiAnggaranControllerImpl, wire.Bind(new(controller.RealisasiAnggaranController), new(*controller.RealisasiAnggaranControllerImpl)))

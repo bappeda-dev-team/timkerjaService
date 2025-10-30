@@ -258,3 +258,29 @@ func MergeProgramUnggulanFromApiParallel(
 	wg.Wait()
 	return responses
 }
+
+func ToRealisasiAnggaranResponse(d domain.RealisasiAnggaran) web.RealisasiAnggaranResponse {
+	return web.RealisasiAnggaranResponse{
+		Id:                d.Id,
+		KodeSubkegiatan:   d.KodeSubkegiatan,
+		RealisasiAnggaran: d.RealisasiAnggaran,
+		KodeOpd:           d.KodeOpd,
+		RencanaAksi:       d.RencanaAksi,
+		FaktorPendorong:   d.FaktorPendorong,
+		FaktorPenghambat:  d.FaktorPenghambat,
+		RekomendasiTl:     d.RekomendasiTl,
+		BuktiDukung:       d.BuktiDukung,
+		Bulan:             d.Bulan,
+		Tahun:             d.Tahun,
+		CreatedAt:         d.CreatedAt,
+		UpdatedAt:         d.UpdatedAt,
+	}
+}
+
+func ToRealisasiAnggaranResponses(ds []domain.RealisasiAnggaran) []web.RealisasiAnggaranResponse {
+	out := make([]web.RealisasiAnggaranResponse, len(ds))
+	for i, d := range ds {
+		out[i] = ToRealisasiAnggaranResponse(d)
+	}
+	return out
+}
