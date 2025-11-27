@@ -15,7 +15,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
+	// e.Use(middleware.CORS())
 	e.Use(myMiddleware.SessionIDMiddleware)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
