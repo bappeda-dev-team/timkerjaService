@@ -80,7 +80,7 @@ func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kode
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: %w tidak ditemukan. status: %d", kodeProgramUnggulans, res.StatusCode)
+		return nil, fmt.Errorf("Program unggulan: %v tidak ditemukan. status: %d", kodeProgramUnggulans, res.StatusCode)
 	}
 
 	var result LaporanTaggingPohonKinerjaResponse

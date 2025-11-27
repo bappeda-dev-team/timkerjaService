@@ -15,7 +15,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	// e.Use(middleware.CORS())
+	e.Use(middleware.CORS())
 	e.Use(myMiddleware.SessionIDMiddleware)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -31,9 +31,9 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/timkerja-sekretariat", timKerjaController.FindAllTimSekretariat)
 	// Program unggulan
 	e.POST("/timkerja/:kodetim/program_unggulan", timKerjaController.AddProgramUnggulan)
+	// TODO: TARGET PERBAIKAN
 	e.GET("/timkerja/:kodetim/program_unggulan", timKerjaController.FindAllProgramUnggulanTim)
 	e.DELETE("/timkerja/:kodetim/program_unggulan/:id", timKerjaController.DeleteProgramUnggulan)
-	// TODO
 	// POST simpan realisasi anggaran by subkegiatan
 	// post simpan faktor pendrong, penghambat, rtl, bukti dukung
 	e.POST("/timkerja/:kodetim/realisasi_pokin", timKerjaController.SaveRealisasiPokin)
