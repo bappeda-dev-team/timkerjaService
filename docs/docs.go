@@ -387,7 +387,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/realisasianggaran/{id}": {
+        "/realisasianggaran/detail/{id}": {
             "get": {
                 "description": "Get Realisasi Anggaran detail by ID",
                 "consumes": [
@@ -441,70 +441,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "description": "Update Realisasi Anggaran",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Realisasi Anggaran"
-                ],
-                "summary": "Update Realisasi Anggaran",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Realisasi Anggaran ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Realisasi Anggaran Update Request",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/web.RealisasiAnggaranUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/web.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/web.RealisasiAnggaranResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebResponse"
-                        }
-                    }
-                }
-            },
+            }
+        },
+        "/realisasianggaran/{id}": {
             "delete": {
                 "description": "Delete Realisasi Anggaran",
                 "consumes": [
@@ -548,7 +487,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/realisasianggaran/{kode_subkegiatan}/{bulan}/{tahun}": {
+        "/realisasianggaran/{kode_subkegiatan}/{kode_tim}/{id_rencana_kinerja}/{bulan}/{tahun}": {
             "get": {
                 "description": "Get All Realisasi Anggaran",
                 "consumes": [
@@ -562,6 +501,20 @@ const docTemplate = `{
                 ],
                 "summary": "Get All Realisasi Anggaran",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kode Tim",
+                        "name": "kode_tim",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID Rencana Kinerja",
+                        "name": "id_rencana_kinerja",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Kode Subkegiatan",
@@ -920,7 +873,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Save realisasi pokin in Tim Kerja",
+                "description": "Create new Tim Kerja",
                 "consumes": [
                     "application/json"
                 ],
@@ -930,15 +883,15 @@ const docTemplate = `{
                 "tags": [
                     "Tim Kerja"
                 ],
-                "summary": "Save Realisasi Pokin",
+                "summary": "Create Tim Kerja",
                 "parameters": [
                     {
-                        "description": "Realisasi Pokin Create Request",
+                        "description": "Tim Kerja Create Request",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/web.RealisasiRequest"
+                            "$ref": "#/definitions/web.TimKerjaCreateRequest"
                         }
                     }
                 ],
@@ -1266,6 +1219,71 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/timkerja/{kodetim}/realisasi_pokin": {
+            "post": {
+                "description": "Save realisasi pokin in Tim Kerja",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Save Realisasi Pokin",
+                "parameters": [
+                    {
+                        "description": "Realisasi Pokin Create Request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.RealisasiRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Kode Tim",
+                        "name": "kodetim",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/web.TimKerjaResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1524,8 +1542,10 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "bulan",
+                "id_rencana_kinerja",
                 "kode_opd",
                 "kode_subkegiatan",
+                "kode_tim",
                 "realisasi_anggaran",
                 "tahun"
             ],
@@ -1534,7 +1554,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "bulan": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "faktor_pendorong": {
                     "type": "string"
@@ -1542,10 +1562,16 @@ const docTemplate = `{
                 "faktor_penghambat": {
                     "type": "string"
                 },
+                "id_rencana_kinerja": {
+                    "type": "string"
+                },
                 "kode_opd": {
                     "type": "string"
                 },
                 "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "kode_tim": {
                     "type": "string"
                 },
                 "realisasi_anggaran": {
@@ -1569,7 +1595,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "bulan": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "created_at": {
                     "type": "string"
@@ -1583,10 +1609,19 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "id_program_unggulan": {
+                    "type": "integer"
+                },
+                "id_rencana_kinerja": {
+                    "type": "string"
+                },
                 "kode_opd": {
                     "type": "string"
                 },
                 "kode_subkegiatan": {
+                    "type": "string"
+                },
+                "kode_tim": {
                     "type": "string"
                 },
                 "realisasi_anggaran": {
@@ -1602,52 +1637,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "web.RealisasiAnggaranUpdateRequest": {
-            "type": "object",
-            "required": [
-                "bulan",
-                "id",
-                "kode_opd",
-                "kode_subkegiatan",
-                "realisasi_anggaran",
-                "tahun"
-            ],
-            "properties": {
-                "bukti_dukung": {
-                    "type": "string"
-                },
-                "bulan": {
-                    "type": "string"
-                },
-                "faktor_pendorong": {
-                    "type": "string"
-                },
-                "faktor_penghambat": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "kode_opd": {
-                    "type": "string"
-                },
-                "kode_subkegiatan": {
-                    "type": "string"
-                },
-                "realisasi_anggaran": {
-                    "type": "integer"
-                },
-                "rekomendasi_tl": {
-                    "type": "string"
-                },
-                "rencana_aksi": {
-                    "type": "string"
-                },
-                "tahun": {
                     "type": "string"
                 }
             }

@@ -60,8 +60,8 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 
 	// Realisasi Anggaran
 	e.DELETE("/realisasianggaran/:id", realisasiAnggaranController.Delete)
-	e.GET("/realisasianggaran/:id", realisasiAnggaranController.FindById)
-	e.GET("/realisasianggaran/:kode_subkegiatan/:bulan/:tahun", realisasiAnggaranController.FindAll)
+	e.GET("/realisasianggaran/detail/:id", realisasiAnggaranController.FindById)
+	e.GET("/realisasianggaran/:kode_subkegiatan/:kode_tim/:id_rencana_kinerja/:bulan/:tahun", realisasiAnggaranController.FindAll)
 	e.POST("/realisasianggaran", realisasiAnggaranController.Upsert)
 	return e
 }

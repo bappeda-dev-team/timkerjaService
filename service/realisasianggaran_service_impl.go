@@ -47,14 +47,14 @@ func (s *RealisasiAnggaranServiceImpl) FindById(ctx context.Context, id int) (we
 	return helper.ToRealisasiAnggaranResponse(d), nil
 }
 
-func (s *RealisasiAnggaranServiceImpl) FindAll(ctx context.Context, kodeSubkegiatan string, bulan string, tahun string) ([]web.RealisasiAnggaranResponse, error) {
+func (s *RealisasiAnggaranServiceImpl) FindAll(ctx context.Context, kodeSubkegiatan string, kodeTim string, idRencanaKinerja string, bulan string, tahun string) ([]web.RealisasiAnggaranResponse, error) {
 	tx, err := s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	list, err := s.RealisasiAnggaranRepository.FindAll(ctx, tx, kodeSubkegiatan, bulan, tahun)
+	list, err := s.RealisasiAnggaranRepository.FindAll(ctx, tx, kodeSubkegiatan, kodeTim, idRencanaKinerja, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +69,16 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 	}
 	defer helper.CommitOrRollback(tx)
 
+	// rangebulan := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	// for _, bulan := range rangebulan {
+	// 	if req.Bulan == bulan {
+	// 		return web.RealisasiAnggaranResponse{}, errors.New("bulan tidak valid")
+	// 	}
+	// }
+	if req.Bulan < 1 || req.Bulan > 12 {
+		return web.RealisasiAnggaranResponse{}, errors.New("bulan tidak valid")
+	}
+
 	d := domain.RealisasiAnggaran{
 		KodeSubkegiatan:   req.KodeSubkegiatan,
 		RealisasiAnggaran: req.RealisasiAnggaran,
@@ -80,6 +90,8 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 		BuktiDukung:       req.BuktiDukung,
 		Bulan:             req.Bulan,
 		Tahun:             req.Tahun,
+		KodeTim:           req.KodeTim,
+		IdRencanaKinerja:  req.IdRencanaKinerja,
 	}
 
 	ra, err := s.RealisasiAnggaranRepository.Upsert(ctx, tx, d)
