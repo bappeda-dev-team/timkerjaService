@@ -143,6 +143,64 @@ definitions:
       nama_jabatan:
         type: string
     type: object
+  web.PenilaianKinerjaRequest:
+    properties:
+      bulan:
+        type: integer
+      id_pegawai:
+        type: string
+      jenis_nilai:
+        type: string
+      kode_opd:
+        type: string
+      kode_tim:
+        type: string
+      nilai_kinerja:
+        type: integer
+      tahun:
+        type: string
+    required:
+    - bulan
+    - id_pegawai
+    - jenis_nilai
+    - kode_opd
+    - kode_tim
+    - nilai_kinerja
+    - tahun
+    type: object
+  web.PenilaianKinerjaResponse:
+    properties:
+      bulan:
+        type: integer
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: integer
+      id_pegawai:
+        type: string
+      jenis_nilai:
+        type: string
+      kode_opd:
+        type: string
+      kode_tim:
+        type: string
+      nilai_kinerja:
+        type: integer
+      tahun:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - bulan
+    - id_pegawai
+    - jenis_nilai
+    - kode_opd
+    - kode_tim
+    - nilai_kinerja
+    - tahun
+    type: object
   web.ProgramUnggulanTimKerjaResponse:
     properties:
       id:
@@ -636,6 +694,76 @@ paths:
       summary: Get All Tim Kerja
       tags:
       - Tim Kerja
+  /penilaian_kinerja:
+    post:
+      consumes:
+      - application/json
+      description: Add Penilaian to Individu by jenis
+      parameters:
+      - description: Penilaian Tim Kerja Create Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.PenilaianKinerjaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.PenilaianKinerjaResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Add New Penialaian to Individu
+      tags:
+      - Penilaian Kinerja
+  /penilaian_kinerja/:id:
+    put:
+      consumes:
+      - application/json
+      description: Update Penilaian Individu by id
+      parameters:
+      - description: Penilaian Tim Kerja Create Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.PenilaianKinerjaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.PenilaianKinerjaResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Update Penialaian Kinerja Individu
+      tags:
+      - Penilaian Kinerja
   /realisasianggaran:
     post:
       consumes:

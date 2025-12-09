@@ -10,7 +10,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController, realisasiAnggaranController controller.RealisasiAnggaranController) *echo.Echo {
+func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController, realisasiAnggaranController controller.RealisasiAnggaranController, penilaianKinerjaController controller.PenilaianKinerjaController) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -63,5 +63,12 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/realisasianggaran/detail/:id", realisasiAnggaranController.FindById)
 	e.GET("/realisasianggaran/:kode_subkegiatan/:kode_tim/:id_rencana_kinerja/:bulan/:tahun", realisasiAnggaranController.FindAll)
 	e.POST("/realisasianggaran", realisasiAnggaranController.Upsert)
+
+	// Penilaian Kinerja
+	e.GET("/penilaian_kinerja", penilaianKinerjaController.All) // filter by bulan tahun
+	e.POST("/penilaian_kinerja", penilaianKinerjaController.Create)
+	e.PUT("/penilaian_kinerja/:id", penilaianKinerjaController.Update)
+	// e.DELETE("/penilaian_kinerja/:id", penilaianKinerjaController.Delete)
+
 	return e
 }

@@ -1,6 +1,6 @@
 APP_NAME=timkerja-service
 
-.PHONY: all build run env clean
+.PHONY: all build run env clean docs
 
 # DEFAULT TARGET
 all: build
@@ -27,3 +27,8 @@ env:
 clean:
 	@echo "CLEANING UP"
 	rm -f $(APP_NAME)
+
+docs:
+	@echo "GENERATING DOCS"
+	swag init
+	@echo "DOCS GENERATED"
