@@ -215,7 +215,7 @@ func (r *RealisasiAnggaranRepositoryImpl) Upsert(ctx context.Context, tx *sql.Tx
 INSERT INTO realisasi_anggaran (
 	kode_tim, id_rencana_kinerja, id_pohon, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
 	faktor_penghambat, risiko_hukum, rekomendasi_tl, bukti_dukung, bulan, tahun
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
 	realisasi_anggaran = VALUES(realisasi_anggaran),
 	kode_opd           = VALUES(kode_opd),
