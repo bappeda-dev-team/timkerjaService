@@ -22,7 +22,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) Create(
 ) (domain.PenilaianKinerja, error) {
 
 	query := `
-	INSERT INTO tim_kerja_service.penilaian_kinerja
+	INSERT INTO penilaian_kinerja
 		(id_pegawai, kode_tim, jenis_nilai, nilai_kinerja, tahun, bulan, kode_opd)
 	VALUES (?, ?, ?, ?, ?, ?, ?);
 	`
@@ -60,7 +60,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) Update(
 ) (domain.PenilaianKinerja, error) {
 
 	query := `
-	UPDATE tim_kerja_service.penilaian_kinerja
+	UPDATE penilaian_kinerja
 	SET
 		id_pegawai    = ?,
 		kode_tim      = ?,
@@ -102,7 +102,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) ExistById(
 
 	query := `
 	SELECT 1
-	FROM tim_kerja_service.penilaian_kinerja
+	FROM penilaian_kinerja
 	WHERE id = ?
 	LIMIT 1;
 	`
@@ -141,11 +141,11 @@ SELECT
   p.updated_at,
   p.created_by,
   tk.nama_tim
-FROM tim_kerja_service.penilaian_kinerja p
-LEFT JOIN tim_kerja_service.susunan_tim st
+FROM penilaian_kinerja p
+LEFT JOIN susunan_tim st
   ON st.pegawai_id = p.id_pegawai
   AND st.kode_tim = p.kode_tim
-LEFT JOIN tim_kerja_service.tim_kerja tk
+LEFT JOIN tim_kerja tk
   ON tk.kode_tim = p.kode_tim
 WHERE p.tahun = ? AND p.bulan = ?
 ORDER BY tk.nama_tim, p.kode_tim, p.id;
