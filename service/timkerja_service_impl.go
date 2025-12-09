@@ -249,7 +249,7 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 }
 
 func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
-	// Ambil data dari DB dulu — jangan tahan TX terlalu lama
+	// --- 1) Ambil data program unggulan dari DB (TANPA realisasi) ---
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -264,21 +264,74 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 		return []web.ProgramUnggulanTimKerjaResponse{}, nil
 	}
 
-	// 🔗 Siapkan client eksternal (Perencanaan)
+	// --- 2) Merge dengan API eksternal (baru dapat IdPohon) ---
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
 	if perencanaanHost == "" {
-		log.Println("PERENCANAAN_HOST belum diatur — skip cek program unggulan")
+		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
 		return helper.ToProgramUnggulanResponses(programUnggulans), nil
 	}
 
 	perencanaanClient := internal.NewPerencanaanClient(
 		perencanaanHost,
-		&http.Client{Timeout: 20 * time.Second},
+		&http.Client{Timeout: 15 * time.Second},
 	)
 
 	merged := helper.MergeProgramUnggulanFromApiParallel(ctx, programUnggulans, perencanaanClient, 5)
 
+	// --- 3) Kumpulkan semua IdPohon dari hasil merged ---
+	pohonIDSet := map[int]struct{}{}
+	for _, r := range merged {
+		for _, item := range r.Pokin {
+			if item.IdPohon > 0 {
+				pohonIDSet[item.IdPohon] = struct{}{}
+			}
+		}
+	}
+
+	// jika tidak ada IdPohon, return apa adanya
+	if len(pohonIDSet) == 0 {
+		return merged, nil
+	}
+
+	pohonIDs := make([]int, 0, len(pohonIDSet))
+	for id := range pohonIDSet {
+		pohonIDs = append(pohonIDs, id)
+	}
+
+	// --- 4) Query realisasi berdasarkan IdPohon (sudah diketahui) ---
+	tx2, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndPohonIDs(ctx, tx2, kodeTim, pohonIDs)
+	helper.CommitOrRollback(tx2)
+	if err != nil {
+		return nil, err
+	}
+
+	// --- 5) Inject realisasi ke hasil merged ---
+	addRealisasiToResponses(merged, realisasiMap)
+
 	return merged, nil
+}
+
+func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, realisasiMap map[int]domain.RealisasiAnggaranRecord) {
+	for i := range responses {
+		for j := range responses[i].Pokin {
+			pohon := &responses[i].Pokin[j]
+			if rec, ok := realisasiMap[pohon.IdPohon]; ok {
+				pohon.RealisasiAnggaran = rec.RealisasiAnggaran
+				pohon.RencanaAksi = rec.RencanaAksi
+				pohon.FaktorPendorong = rec.FaktorPendorong
+				pohon.FaktorPenghambat = rec.FaktorPenghambat
+				pohon.RisikoHukum = rec.RisikoHukum
+				pohon.Rekomendasi = rec.RekomendasiTindakLanjut
+			} else {
+				// default / zero values — opsional: log atau biarkan kosong
+			}
+		}
+	}
 }
 
 func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error) {

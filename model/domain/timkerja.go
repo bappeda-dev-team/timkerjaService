@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"time"
+	"timkerjaService/internal"
+)
 
 type TimKerja struct {
 	Id            int
@@ -22,6 +25,7 @@ type ProgramUnggulanTimKerja struct {
 	NamaProgramUnggulan string
 	Tahun               string
 	KodeOpd             string
+	Pokin               []internal.TaggingPohonKinerjaItem
 }
 
 type RencanaKinerjaTimKerja struct {

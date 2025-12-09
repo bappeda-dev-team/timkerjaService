@@ -6,6 +6,7 @@ type RealisasiAnggaranResponse struct {
 	Id                int       `json:"id"`
 	IdProgramUnggulan int       `json:"id_program_unggulan"`
 	KodeTim           string    `json:"kode_tim"`
+	IdPohon           int       `json:"id_pohon" validate:"required"`
 	IdRencanaKinerja  string    `json:"id_rencana_kinerja"`
 	KodeSubkegiatan   string    `json:"kode_subkegiatan"`
 	RealisasiAnggaran int       `json:"realisasi_anggaran"`
@@ -14,6 +15,7 @@ type RealisasiAnggaranResponse struct {
 	FaktorPendorong   string    `json:"faktor_pendorong"`
 	FaktorPenghambat  string    `json:"faktor_penghambat"`
 	RekomendasiTl     string    `json:"rekomendasi_tl"`
+	RisikoHukum       string    `json:"risko_hukum"`
 	BuktiDukung       string    `json:"bukti_dukung"`
 	Bulan             int       `json:"bulan"`
 	Tahun             string    `json:"tahun"`

@@ -107,6 +107,7 @@ func (s *PenilaianKinerjaServiceImpl) All(
 		responses = append(responses, web.LaporanPenilaianKinerjaResponse{
 			NamaTim:           laporan.NamaTim,
 			KodeTim:           laporan.KodeTim,
+			IsSekretariat:     laporan.IsSekretariat,
 			PenilaianKinerjas: groupedList,
 		})
 	}
