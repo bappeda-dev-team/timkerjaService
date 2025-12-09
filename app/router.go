@@ -65,7 +65,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.POST("/realisasianggaran", realisasiAnggaranController.Upsert)
 
 	// Penilaian Kinerja
-	// e.GET("/penilaian_kinerja/:kode_tim/:bulan/:tahun", penilaianKinerjaController.FindByKodeTim) // filter by bulan tahun
+	e.GET("/penilaian_kinerja", penilaianKinerjaController.All) // filter by bulan tahun
 	e.POST("/penilaian_kinerja", penilaianKinerjaController.Create)
 	e.PUT("/penilaian_kinerja/:id", penilaianKinerjaController.Update)
 	// e.DELETE("/penilaian_kinerja/:id", penilaianKinerjaController.Delete)

@@ -19,6 +19,67 @@ func NewPenilaianKinerjaControllerImpl(penilaianKinerjaService service.Penilaian
 	}
 }
 
+// @Summary Penilaian kinerja by bulan tahun
+// @Description Penilaian Kinerja berdasarkan bulan & tahun, dikelompokkan per kode tim dan individu
+// @Tags Penilaian Kinerja
+// @Accept json
+// @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 12)"
+// @Success 200 {object} web.WebResponse{data=[]web.LaporanPenilaianKinerjaResponse} "OK"
+// @Failure 400 {object} web.WebResponse "Bad Request"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /penilaian_kinerja [get]
+func (controller *PenilaianKinerjaControllerImpl) All(c echo.Context) error {
+	// Ambil query param
+	tahunStr := c.QueryParam("tahun")
+	bulanStr := c.QueryParam("bulan")
+
+	if tahunStr == "" || bulanStr == "" {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "Bad Request",
+			Data:   "tahun dan bulan wajib diisi",
+		})
+	}
+
+	// Convert ke int
+	tahun, err := strconv.Atoi(tahunStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "Bad Request",
+			Data:   "tahun harus berupa angka",
+		})
+	}
+
+	bulan, err := strconv.Atoi(bulanStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "Bad Request",
+			Data:   "bulan harus berupa angka",
+		})
+	}
+
+	// Panggil service
+	result, err := controller.PenilaianKinerjaService.All(c.Request().Context(), tahun, bulan)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "Internal Server Error",
+			Data:   err.Error(),
+		})
+	}
+
+	// Response sukses
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   result, // []LaporanPenilaianKinerjaResponse
+	})
+}
+
 // @Summary Add New Penialaian to Individu
 // @Description Add Penilaian to Individu by jenis
 // @Tags Penilaian Kinerja

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strconv"
 	"timkerjaService/helper"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
@@ -24,6 +25,93 @@ func NewPenilaianKinerjaServiceImpl(db *sql.DB, penilaianRepo repository.Penilai
 		PenilaianKinerjaRepository: penilaianRepo,
 		Validator:                  validator,
 	}
+}
+
+func (s *PenilaianKinerjaServiceImpl) All(
+	ctx context.Context,
+	tahun int,
+	bulan int,
+) ([]web.LaporanPenilaianKinerjaResponse, error) {
+
+	if tahun <= 0 || bulan <= 0 || bulan > 12 {
+		return nil, errors.New("tahun atau bulan tidak valid")
+	}
+
+	tx, err := s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// Ambil data RAW dari repository (belum grouped jenis nilai)
+	result, err := s.PenilaianKinerjaRepository.FindByTahunBulan(ctx, tx, tahun, bulan)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	// ==========================
+	// GROUPING JENIS NILAI
+	// ==========================
+
+	responses := make([]web.LaporanPenilaianKinerjaResponse, 0)
+
+	for _, laporan := range result {
+
+		groupMap := make(map[string]*web.PenilaianGroupedResponse)
+
+		for _, p := range laporan.Penilaians {
+
+			// unique key per pegawai per bulan
+			key := p.IdPegawai + "_" + p.Tahun + "_" + strconv.Itoa(p.Bulan)
+
+			item, exists := groupMap[key]
+			if !exists {
+				item = &web.PenilaianGroupedResponse{
+					IdPegawai:      p.IdPegawai,
+					NamaPegawai:    p.NamaPegawai,
+					NamaJabatanTim: p.NamaJabatanTim,
+					KodeTim:        p.KodeTim,
+					Tahun:          p.Tahun,
+					Bulan:          p.Bulan,
+				}
+				groupMap[key] = item
+			}
+
+			// Masukkan ke field sesuai jenis nilai
+			switch p.JenisNilai {
+			case "KINERJA_BAPPEDA":
+				item.KinerjaBappeda = p.NilaiKinerja
+			case "KINERJA_TIM":
+				item.KinerjaTim = p.NilaiKinerja
+			case "KINERJA_PERSON":
+				item.KinerjaPerson = p.NilaiKinerja
+			}
+		}
+
+		// convert map → slice
+		groupedList := make([]web.PenilaianGroupedResponse, 0, len(groupMap))
+		for _, v := range groupMap {
+			groupedList = append(groupedList, *v)
+		}
+
+		responses = append(responses, web.LaporanPenilaianKinerjaResponse{
+			NamaTim:           laporan.NamaTim,
+			KodeTim:           laporan.KodeTim,
+			PenilaianKinerjas: groupedList,
+		})
+	}
+
+	return responses, nil
 }
 
 func (s *PenilaianKinerjaServiceImpl) Create(ctx context.Context, req web.PenilaianKinerjaRequest) (web.PenilaianKinerjaResponse, error) {
