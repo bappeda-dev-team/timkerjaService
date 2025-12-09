@@ -81,8 +81,11 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 	}
 	defer helper.CommitOrRollback(tx)
 
-	checkId, err := s.PenilaianKinerjaRepositroy.ExistById(ctx, tx, id)
+	exist, err := s.PenilaianKinerjaRepository.ExistById(ctx, tx, id)
 	if err != nil {
+		return web.PenilaianKinerjaResponse{}, err
+	}
+	if exist == false {
 		return web.PenilaianKinerjaResponse{}, errors.New("id penilaian tidak ditemukan")
 	}
 
@@ -97,7 +100,7 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 		CreatedBy:    "admin_test", // TODO: get from context
 	}
 
-	res, err := s.PenilaianKinerjaRepository.Create(ctx, tx, domain)
+	res, err := s.PenilaianKinerjaRepository.Update(ctx, tx, domain, id)
 	if err != nil {
 		return web.PenilaianKinerjaResponse{}, err
 	}

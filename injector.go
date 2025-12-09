@@ -51,6 +51,15 @@ var realisasiAnggaranSet = wire.NewSet(
 	wire.Bind(new(controller.RealisasiAnggaranController), new(*controller.RealisasiAnggaranControllerImpl)),
 )
 
+var penilaianKinerjaSet = wire.NewSet(
+	repository.NewPenilaianKinerjaRepositoryImpl,
+	wire.Bind(new(repository.PenilaianKinerjaRepository), new(*repository.PenilaianKinerjaRepositoryImpl)),
+	service.NewPenilaianKinerjaServiceImpl,
+	wire.Bind(new(service.PenilaianKinerjaService), new(*service.PenilaianKinerjaServiceImpl)),
+	controller.NewPenilaianKinerjaControllerImpl,
+	wire.Bind(new(controller.PenilaianKinerjaController), new(*controller.PenilaianKinerjaControllerImpl)),
+)
+
 func InitializedServer() *echo.Echo {
 	wire.Build(
 		app.GetConnection,
@@ -60,6 +69,7 @@ func InitializedServer() *echo.Echo {
 		susunanTimSet,
 		jabatanTimSet,
 		realisasiAnggaranSet,
+		penilaianKinerjaSet,
 		app.NewRouter,
 	)
 	return nil

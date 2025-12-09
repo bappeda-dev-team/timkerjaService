@@ -34,7 +34,10 @@ func InitializedServer() *echo.Echo {
 	realisasiAnggaranRepositoryImpl := repository.NewRealisasiAnggaranRepositoryImpl()
 	realisasiAnggaranServiceImpl := service.NewRealisasiAnggaranServiceImpl(db, realisasiAnggaranRepositoryImpl)
 	realisasiAnggaranControllerImpl := controller.NewRealisasiAnggaranControllerImpl(realisasiAnggaranServiceImpl)
-	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl, realisasiAnggaranControllerImpl)
+	penilaianKinerjaRepositoryImpl := repository.NewPenilaianKinerjaRepositoryImpl()
+	penilaianKinerjaServiceImpl := service.NewPenilaianKinerjaServiceImpl(db, penilaianKinerjaRepositoryImpl, validate)
+	penilaianKinerjaControllerImpl := controller.NewPenilaianKinerjaControllerImpl(penilaianKinerjaServiceImpl)
+	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl, realisasiAnggaranControllerImpl, penilaianKinerjaControllerImpl)
 	return echoEcho
 }
 
@@ -51,3 +54,5 @@ var susunanTimSet = wire.NewSet(repository.NewSusunanTimRepositoryImpl, wire.Bin
 var jabatanTimSet = wire.NewSet(repository.NewJabatanTimRepositoryImpl, wire.Bind(new(repository.JabatanTimRepository), new(*repository.JabatanTimRepositoryImpl)), service.NewJabatanTimServiceImpl, wire.Bind(new(service.JabatanTimService), new(*service.JabatanTimServiceImpl)), controller.NewJabatanTimControllerImpl, wire.Bind(new(controller.JabatanTimController), new(*controller.JabatanTimControllerImpl)))
 
 var realisasiAnggaranSet = wire.NewSet(repository.NewRealisasiAnggaranRepositoryImpl, wire.Bind(new(repository.RealisasiAnggaranRepository), new(*repository.RealisasiAnggaranRepositoryImpl)), service.NewRealisasiAnggaranServiceImpl, wire.Bind(new(service.RealisasiAnggaranService), new(*service.RealisasiAnggaranServiceImpl)), controller.NewRealisasiAnggaranControllerImpl, wire.Bind(new(controller.RealisasiAnggaranController), new(*controller.RealisasiAnggaranControllerImpl)))
+
+var penilaianKinerjaSet = wire.NewSet(repository.NewPenilaianKinerjaRepositoryImpl, wire.Bind(new(repository.PenilaianKinerjaRepository), new(*repository.PenilaianKinerjaRepositoryImpl)), service.NewPenilaianKinerjaServiceImpl, wire.Bind(new(service.PenilaianKinerjaService), new(*service.PenilaianKinerjaServiceImpl)), controller.NewPenilaianKinerjaControllerImpl, wire.Bind(new(controller.PenilaianKinerjaController), new(*controller.PenilaianKinerjaControllerImpl)))
