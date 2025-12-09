@@ -1,0 +1,102 @@
+package controller
+
+import (
+	"net/http"
+	"strconv"
+	"timkerjaService/model/web"
+	"timkerjaService/service"
+
+	"github.com/labstack/echo/v4"
+)
+
+type PenilaianKinerjaControllerImpl struct {
+	PenilaianKinerjaService service.PenilaianKinerjaService
+}
+
+func NewPenilaianKinerjaControllerImpl(penilaianKinerjaService service.PenilaianKinerjaService) *PenilaianKinerjaControllerImpl {
+	return &PenilaianKinerjaControllerImpl{
+		PenilaianKinerjaService: penilaianKinerjaService,
+	}
+}
+
+// @Summary Add New Penialaian to Individu
+// @Description Add Penilaian to Individu by jenis
+// @Tags Penilaian Kinerja
+// @Accept json
+// @Produce json
+// @Param data body web.PenilaianKinerjaRequest true "Penilaian Tim Kerja Create Request"
+// @Success 201 {object} web.WebResponse{data=web.PenilaianKinerjaResponse} "Created"
+// @Failure 400 {object} web.WebResponse "Bad Request"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /penilaian_kinerja [post]
+func (ctrl *PenilaianKinerjaControllerImpl) Create(c echo.Context) error {
+	PenilaianCreateRequest := web.PenilaianKinerjaRequest{}
+	err := c.Bind(&PenilaianCreateRequest)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	PenilaianKinerjaResponse, err := ctrl.PenilaianKinerjaService.Create(c.Request().Context(), PenilaianCreateRequest)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusCreated, web.WebResponse{
+		Code:   http.StatusCreated,
+		Status: "CREATED",
+		Data:   PenilaianKinerjaResponse,
+	})
+}
+
+// @Summary Update Penialaian Kinerja Individu
+// @Description Update Penilaian Individu by id
+// @Tags Penilaian Kinerja
+// @Accept json
+// @Produce json
+// @Param data body web.PenilaianKinerjaRequest true "Penilaian Tim Kerja Create Request"
+// @Success 201 {object} web.WebResponse{data=web.PenilaianKinerjaResponse} "Created"
+// @Failure 400 {object} web.WebResponse "Bad Request"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /penilaian_kinerja/:id [put]
+func (ctrl *PenilaianKinerjaControllerImpl) Update(c echo.Context) error {
+	penilaianId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+		})
+	}
+
+	PenilaianRequest := web.PenilaianKinerjaRequest{}
+	err = c.Bind(&PenilaianRequest)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   err.Error(),
+		})
+	}
+
+	response, err := ctrl.PenilaianKinerjaService.Update(c.Request().Context(), PenilaianRequest, penilaianId)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusCreated, web.WebResponse{
+		Code:   http.StatusCreated,
+		Status: "CREATED",
+		Data:   response,
+	})
+}
