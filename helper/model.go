@@ -262,6 +262,8 @@ func MergeProgramUnggulanFromApiParallel(
 func ToRealisasiAnggaranResponse(d domain.RealisasiAnggaran) web.RealisasiAnggaranResponse {
 	return web.RealisasiAnggaranResponse{
 		Id:                d.Id,
+		KodeTim:           d.KodeTim,
+		IdRencanaKinerja:  d.IdRencanaKinerja,
 		KodeSubkegiatan:   d.KodeSubkegiatan,
 		RealisasiAnggaran: d.RealisasiAnggaran,
 		KodeOpd:           d.KodeOpd,

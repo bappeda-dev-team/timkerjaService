@@ -533,12 +533,14 @@ func (controller *TimKerjaControllerImpl) DeleteRencanaKinerjaTim(c echo.Context
 // @Accept json
 // @Produce json
 // @Param data body web.RealisasiRequest true "Realisasi Pokin Create Request"
+// @Param kodetim path string true "Kode Tim"
 // @Success 201 {object} web.WebResponse{data=web.TimKerjaResponse} "Created"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
-// @Router /timkerja [post]
+// @Router /timkerja/{kodetim}/realisasi_pokin [post]
 func (controller *TimKerjaControllerImpl) SaveRealisasiPokin(c echo.Context) error {
 	realisasiCreate := web.RealisasiRequest{}
+	realisasiCreate.KodeTim = c.Param("kodetim")
 	err := c.Bind(&realisasiCreate)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{

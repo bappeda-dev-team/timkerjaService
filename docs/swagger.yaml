@@ -169,14 +169,18 @@ definitions:
       bukti_dukung:
         type: string
       bulan:
-        type: string
+        type: integer
       faktor_pendorong:
         type: string
       faktor_penghambat:
         type: string
+      id_rencana_kinerja:
+        type: string
       kode_opd:
         type: string
       kode_subkegiatan:
+        type: string
+      kode_tim:
         type: string
       realisasi_anggaran:
         type: integer
@@ -188,8 +192,10 @@ definitions:
         type: string
     required:
     - bulan
+    - id_rencana_kinerja
     - kode_opd
     - kode_subkegiatan
+    - kode_tim
     - realisasi_anggaran
     - tahun
     type: object
@@ -198,7 +204,7 @@ definitions:
       bukti_dukung:
         type: string
       bulan:
-        type: string
+        type: integer
       created_at:
         type: string
       faktor_pendorong:
@@ -207,9 +213,15 @@ definitions:
         type: string
       id:
         type: integer
+      id_program_unggulan:
+        type: integer
+      id_rencana_kinerja:
+        type: string
       kode_opd:
         type: string
       kode_subkegiatan:
+        type: string
+      kode_tim:
         type: string
       realisasi_anggaran:
         type: integer
@@ -221,38 +233,6 @@ definitions:
         type: string
       updated_at:
         type: string
-    type: object
-  web.RealisasiAnggaranUpdateRequest:
-    properties:
-      bukti_dukung:
-        type: string
-      bulan:
-        type: string
-      faktor_pendorong:
-        type: string
-      faktor_penghambat:
-        type: string
-      id:
-        type: integer
-      kode_opd:
-        type: string
-      kode_subkegiatan:
-        type: string
-      realisasi_anggaran:
-        type: integer
-      rekomendasi_tl:
-        type: string
-      rencana_aksi:
-        type: string
-      tahun:
-        type: string
-    required:
-    - bulan
-    - id
-    - kode_opd
-    - kode_subkegiatan
-    - realisasi_anggaran
-    - tahun
     type: object
   web.RealisasiRequest:
     properties:
@@ -720,84 +700,22 @@ paths:
       summary: Delete Realisasi Anggaran
       tags:
       - Realisasi Anggaran
-    get:
-      consumes:
-      - application/json
-      description: Get Realisasi Anggaran detail by ID
-      parameters:
-      - description: Realisasi Anggaran ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/web.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/web.WebResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebResponse'
-      summary: Get Realisasi Anggaran by ID
-      tags:
-      - Realisasi Anggaran
-    put:
-      consumes:
-      - application/json
-      description: Update Realisasi Anggaran
-      parameters:
-      - description: Realisasi Anggaran ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Realisasi Anggaran Update Request
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/web.RealisasiAnggaranUpdateRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/web.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/web.WebResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebResponse'
-      summary: Update Realisasi Anggaran
-      tags:
-      - Realisasi Anggaran
-  /realisasianggaran/{kode_subkegiatan}/{bulan}/{tahun}:
+  /realisasianggaran/{kode_subkegiatan}/{kode_tim}/{id_rencana_kinerja}/{bulan}/{tahun}:
     get:
       consumes:
       - application/json
       description: Get All Realisasi Anggaran
       parameters:
+      - description: Kode Tim
+        in: path
+        name: kode_tim
+        required: true
+        type: string
+      - description: ID Rencana Kinerja
+        in: path
+        name: id_rencana_kinerja
+        required: true
+        type: string
       - description: Kode Subkegiatan
         in: path
         name: kode_subkegiatan
@@ -832,6 +750,40 @@ paths:
           schema:
             $ref: '#/definitions/web.WebResponse'
       summary: Get All Realisasi Anggaran
+      tags:
+      - Realisasi Anggaran
+  /realisasianggaran/detail/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Realisasi Anggaran detail by ID
+      parameters:
+      - description: Realisasi Anggaran ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.RealisasiAnggaranResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Get Realisasi Anggaran by ID
       tags:
       - Realisasi Anggaran
   /susunantim:
@@ -1024,14 +976,14 @@ paths:
     post:
       consumes:
       - application/json
-      description: Save realisasi pokin in Tim Kerja
+      description: Create new Tim Kerja
       parameters:
-      - description: Realisasi Pokin Create Request
+      - description: Tim Kerja Create Request
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/web.RealisasiRequest'
+          $ref: '#/definitions/web.TimKerjaCreateRequest'
       produces:
       - application/json
       responses:
@@ -1052,7 +1004,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebResponse'
-      summary: Save Realisasi Pokin
+      summary: Create Tim Kerja
       tags:
       - Tim Kerja
   /timkerja-sekretariat:
@@ -1234,6 +1186,46 @@ paths:
           schema:
             $ref: '#/definitions/web.WebResponse'
       summary: Delete Rencana Kinerja
+      tags:
+      - Tim Kerja
+  /timkerja/{kodetim}/realisasi_pokin:
+    post:
+      consumes:
+      - application/json
+      description: Save realisasi pokin in Tim Kerja
+      parameters:
+      - description: Realisasi Pokin Create Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.RealisasiRequest'
+      - description: Kode Tim
+        in: path
+        name: kodetim
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.TimKerjaResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Save Realisasi Pokin
       tags:
       - Tim Kerja
 swagger: "2.0"

@@ -507,11 +507,6 @@ func (service *TimKerjaServiceImpl) SaveRealisasiPokin(ctx context.Context, real
 	}
 
 	// Simpan ke repository
-	realisasiDomain, err = service.TimKerjaRepository.SaveRealisasiPokin(ctx, tx, realisasiDomain)
-	if err != nil {
-		return web.RealisasiResponse{}, fmt.Errorf("gagal menyimpan realisasi pokin: %w", err)
-	}
-
 	savedRealisasi, err := service.TimKerjaRepository.SaveRealisasiPokin(ctx, tx, realisasiDomain)
 	if err != nil {
 		return web.RealisasiResponse{}, fmt.Errorf("gagal menyimpan realisasi pokin: %w", err)

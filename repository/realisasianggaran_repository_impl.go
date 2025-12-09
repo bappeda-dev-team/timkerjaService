@@ -105,6 +105,9 @@ func (r *RealisasiAnggaranRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	query := `
 		SELECT
 			id,
+			id_program_unggulan,
+			kode_tim,
+			id_rencana_kinerja,
 			kode_subkegiatan,
 			realisasi_anggaran,
 			kode_opd,
@@ -125,6 +128,9 @@ func (r *RealisasiAnggaranRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	var ra domain.RealisasiAnggaran
 	if err := row.Scan(
 		&ra.Id,
+		&ra.IdProgramUnggulan,
+		&ra.KodeTim,
+		&ra.IdRencanaKinerja,
 		&ra.KodeSubkegiatan,
 		&ra.RealisasiAnggaran,
 		&ra.KodeOpd,
@@ -144,10 +150,12 @@ func (r *RealisasiAnggaranRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return ra, nil
 }
 
-func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, kodeSubkegiatan string, bulan string, tahun string) ([]domain.RealisasiAnggaran, error) {
+func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, kodeSubkegiatan string, kodeTim string, idRencanaKinerja string, bulan string, tahun string) ([]domain.RealisasiAnggaran, error) {
 	query := `
 		SELECT
 			id,
+			kode_tim,
+			id_rencana_kinerja,
 			kode_subkegiatan,
 			realisasi_anggaran,
 			kode_opd,
@@ -161,11 +169,11 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 			created_at,
 			updated_at
 		FROM realisasi_anggaran
-		WHERE kode_subkegiatan = ? AND bulan = ? AND tahun = ?
+		WHERE kode_subkegiatan = ? AND kode_tim = ? AND id_rencana_kinerja = ? AND bulan = ? AND tahun = ?
 		ORDER BY id ASC
 	`
 
-	rows, err := tx.QueryContext(ctx, query, kodeSubkegiatan, bulan, tahun)
+	rows, err := tx.QueryContext(ctx, query, kodeSubkegiatan, kodeTim, idRencanaKinerja, bulan, tahun)
 	if err != nil {
 		return nil, fmt.Errorf("gagal query realisasi_anggaran: %w", err)
 	}
@@ -176,6 +184,8 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 		var ra domain.RealisasiAnggaran
 		if err := rows.Scan(
 			&ra.Id,
+			&ra.KodeTim,
+			&ra.IdRencanaKinerja,
 			&ra.KodeSubkegiatan,
 			&ra.RealisasiAnggaran,
 			&ra.KodeOpd,
@@ -203,9 +213,9 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 func (r *RealisasiAnggaranRepositoryImpl) Upsert(ctx context.Context, tx *sql.Tx, ra domain.RealisasiAnggaran) (domain.RealisasiAnggaran, error) {
 	query := `
 INSERT INTO realisasi_anggaran (
-	kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
+	kode_tim, id_rencana_kinerja, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
 	faktor_penghambat, rekomendasi_tl, bukti_dukung, bulan, tahun
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
 	realisasi_anggaran = VALUES(realisasi_anggaran),
 	kode_opd           = VALUES(kode_opd),
@@ -217,7 +227,7 @@ ON DUPLICATE KEY UPDATE
 	updated_at         = NOW()
 `
 	_, err := tx.ExecContext(ctx, query,
-		ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
+		ra.KodeTim, ra.IdRencanaKinerja, ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
 		ra.FaktorPenghambat, ra.RekomendasiTl, ra.BuktiDukung, ra.Bulan, ra.Tahun,
 	)
 	if err != nil {
