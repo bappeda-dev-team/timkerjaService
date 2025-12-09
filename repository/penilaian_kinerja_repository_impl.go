@@ -22,7 +22,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) Create(
 ) (domain.PenilaianKinerja, error) {
 
 	query := `
-	INSERT INTO tim_kerja_service.penilaian_kinerja
+	INSERT INTO penilaian_kinerja
 		(id_pegawai, kode_tim, jenis_nilai, nilai_kinerja, tahun, bulan, kode_opd)
 	VALUES (?, ?, ?, ?, ?, ?, ?);
 	`
@@ -60,7 +60,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) Update(
 ) (domain.PenilaianKinerja, error) {
 
 	query := `
-	UPDATE tim_kerja_service.penilaian_kinerja
+	UPDATE penilaian_kinerja
 	SET
 		id_pegawai    = ?,
 		kode_tim      = ?,
@@ -102,7 +102,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) ExistById(
 
 	query := `
 	SELECT 1
-	FROM tim_kerja_service.penilaian_kinerja
+	FROM penilaian_kinerja
 	WHERE id = ?
 	LIMIT 1;
 	`
@@ -118,6 +118,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) ExistById(
 
 	return true, nil
 }
+
 func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 	ctx context.Context,
 	tx *sql.Tx,
@@ -127,11 +128,14 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 
 	query := `
 SELECT
-  p.id,
-  p.id_pegawai,
+  st.pegawai_id,
   st.nama_pegawai,
   st.nama_jabatan_tim,
-  p.kode_tim,
+  st.kode_tim,
+  tk.nama_tim,
+  tk.is_sekretariat,
+
+  p.id,
   p.jenis_nilai,
   p.nilai_kinerja,
   p.tahun,
@@ -139,16 +143,16 @@ SELECT
   p.kode_opd,
   p.created_at,
   p.updated_at,
-  p.created_by,
-  tk.nama_tim
-FROM tim_kerja_service.penilaian_kinerja p
-LEFT JOIN tim_kerja_service.susunan_tim st
-  ON st.pegawai_id = p.id_pegawai
-  AND st.kode_tim = p.kode_tim
-LEFT JOIN tim_kerja_service.tim_kerja tk
-  ON tk.kode_tim = p.kode_tim
-WHERE p.tahun = ? AND p.bulan = ?
-ORDER BY tk.nama_tim, p.kode_tim, p.id;
+  p.created_by
+
+FROM susunan_tim st
+LEFT JOIN tim_kerja tk
+  ON tk.kode_tim = st.kode_tim
+LEFT JOIN penilaian_kinerja p
+  ON p.id_pegawai = st.pegawai_id
+  AND p.tahun = ?
+  AND p.bulan = ?
+ORDER BY st.kode_tim, st.nama_pegawai, p.id;
 `
 
 	rows, err := tx.QueryContext(ctx, query, tahun, bulan)
@@ -157,146 +161,115 @@ ORDER BY tk.nama_tim, p.kode_tim, p.id;
 	}
 	defer rows.Close()
 
-	// map untuk grouping, dan slice untuk menjaga urutan tim sesuai first-seen
 	groupMap := make(map[string]*domain.LaporanPenilaian)
-	order := make([]string, 0, 16)
+	order := []string{}
 
 	for rows.Next() {
 		var (
-			id              int
-			idPegawai       string
+			pegawaiID       string
 			namaPegawaiNS   sql.NullString
 			namaJabatanNS   sql.NullString
 			kodeTim         string
-			jenisNilai      string
-			nilaiKinerjaInt sql.NullInt64
-			tahunStr        sql.NullString
-			bulanInt        sql.NullInt64
-			kodeOpdNS       sql.NullString
-			createdAtNS     sql.NullTime
-			updatedAtNS     sql.NullTime
-			createdByNS     sql.NullString
 			namaTimNS       sql.NullString
+			isSekretariatNS sql.NullBool
+
+			idNS           sql.NullInt64
+			jenisNilaiNS   sql.NullString
+			nilaiKinerjaNS sql.NullInt64
+			tahunNS        sql.NullInt64
+			bulanNS        sql.NullInt64
+			kodeOpdNS      sql.NullString
+			createdAtNS    sql.NullTime
+			updatedAtNS    sql.NullTime
+			createdByNS    sql.NullString
 		)
 
 		if err := rows.Scan(
-			&id,
-			&idPegawai,
+			&pegawaiID,
 			&namaPegawaiNS,
 			&namaJabatanNS,
 			&kodeTim,
-			&jenisNilai,
-			&nilaiKinerjaInt,
-			&tahunStr,
-			&bulanInt,
+			&namaTimNS,
+			&isSekretariatNS,
+			&idNS,
+			&jenisNilaiNS,
+			&nilaiKinerjaNS,
+			&tahunNS,
+			&bulanNS,
 			&kodeOpdNS,
 			&createdAtNS,
 			&updatedAtNS,
 			&createdByNS,
-			&namaTimNS,
 		); err != nil {
 			return nil, err
 		}
 
-		// konversi sql.Null* ke tipe domain
-		nilaiKinerja := 0
-		if nilaiKinerjaInt.Valid {
-			nilaiKinerja = int(nilaiKinerjaInt.Int64)
-		}
-
-		tahunVal := ""
-		if tahunStr.Valid {
-			tahunVal = tahunStr.String
-		} else {
-			// jika di DB disimpan sebagai int, bisa juga konversi dari param tahun
-			tahunVal = strconv.Itoa(tahun)
-		}
-
-		bulanVal := 0
-		if bulanInt.Valid {
-			bulanVal = int(bulanInt.Int64)
-		} else {
-			bulanVal = bulan
-		}
-
-		kodeOpd := ""
-		if kodeOpdNS.Valid {
-			kodeOpd = kodeOpdNS.String
-		}
-
-		namaPegawai := ""
-		if namaPegawaiNS.Valid {
-			namaPegawai = namaPegawaiNS.String
-		}
-
-		namaJabatanTim := ""
-		if namaJabatanNS.Valid {
-			namaJabatanTim = namaJabatanNS.String
-		}
-
-		createdAt := time.Time{}
-		if createdAtNS.Valid {
-			createdAt = createdAtNS.Time
-		}
-
-		updatedAt := time.Time{}
-		if updatedAtNS.Valid {
-			updatedAt = updatedAtNS.Time
-		}
-
-		createdBy := ""
-		if createdByNS.Valid {
-			createdBy = createdByNS.String
-		}
-
-		namaTim := ""
-		if namaTimNS.Valid {
-			namaTim = namaTimNS.String
-		}
-
-		pen := domain.PenilaianKinerja{
-			Id:              id,
-			IdPegawai:       idPegawai,
-			NamaPegawai:     namaPegawai,
-			NamaJabatanTim:  namaJabatanTim,
-			KodeTim:         kodeTim,
-			JenisNilai:      jenisNilai,
-			NilaiKinerja:    nilaiKinerja,
-			Tahun:           tahunVal,
-			Bulan:           bulanVal,
-			KodeOpd:         kodeOpd,
-			CreatedAt:       createdAt,
-			UpdatedAt:       updatedAt,
-			CreatedBy:       createdBy,
-		}
-
-		// grouping by kode_tim
-		group, ok := groupMap[kodeTim]
-		if !ok {
-			// buat new group
+		// init group
+		group, exists := groupMap[kodeTim]
+		if !exists {
 			group = &domain.LaporanPenilaian{
-				NamaTim:    namaTim,
-				KodeTim:    kodeTim,
-				Penilaians: make([]domain.PenilaianKinerja, 0, 8),
+				NamaTim:       stringOrEmpty(namaTimNS),
+				KodeTim:       kodeTim,
+				IsSekretariat: boolOrFalse(isSekretariatNS),
+				Penilaians:    []domain.PenilaianKinerja{},
 			}
 			groupMap[kodeTim] = group
 			order = append(order, kodeTim)
 		}
 
+		// Bentuk objek penilaian (bisa kosong/default)
+		pen := domain.PenilaianKinerja{
+			Id:             intOrZero(idNS),
+			IdPegawai:      pegawaiID,
+			NamaPegawai:    stringOrEmpty(namaPegawaiNS),
+			NamaJabatanTim: stringOrEmpty(namaJabatanNS),
+			KodeTim:        kodeTim,
+			JenisNilai:     stringOrEmpty(jenisNilaiNS),
+			NilaiKinerja:   intOrZero(nilaiKinerjaNS),
+			Tahun:          strconv.Itoa(intOrZero(tahunNS)),
+			Bulan:          intOrZero(bulanNS),
+			KodeOpd:        stringOrEmpty(kodeOpdNS),
+			CreatedAt:      timeOrZero(createdAtNS),
+			UpdatedAt:      timeOrZero(updatedAtNS),
+			CreatedBy:      stringOrEmpty(createdByNS),
+		}
+
 		group.Penilaians = append(group.Penilaians, pen)
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	// convert map -> slice mengikuti order
+	// convert ke slice sesuai order
 	result := make([]domain.LaporanPenilaian, 0, len(order))
-	for _, kode := range order {
-		if g, ok := groupMap[kode]; ok {
-			result = append(result, *g)
-		}
+	for _, k := range order {
+		result = append(result, *groupMap[k])
 	}
 
 	return result, nil
+}
+
+func stringOrEmpty(ns sql.NullString) string {
+	if ns.Valid {
+		return ns.String
+	}
+	return ""
+}
+
+func intOrZero(ns sql.NullInt64) int {
+	if ns.Valid {
+		return int(ns.Int64)
+	}
+	return 0
+}
+
+func boolOrFalse(nb sql.NullBool) bool {
+	if nb.Valid {
+		return nb.Bool
+	}
+	return false
+}
+
+func timeOrZero(nt sql.NullTime) time.Time {
+	if nt.Valid {
+		return nt.Time
+	}
+	return time.Time{}
 }
