@@ -55,6 +55,10 @@ definitions:
     type: object
   internal.TaggingPohonKinerjaItem:
     properties:
+      faktor_pendorong:
+        type: string
+      faktor_penghambat:
+        type: string
       id_pohon:
         type: integer
       id_tagging:
@@ -83,7 +87,15 @@ definitions:
         items:
           $ref: '#/definitions/internal.PelaksanaPokin'
         type: array
+      realisasi_anggaran:
+        type: integer
+      rekomendasi_tl:
+        type: string
+      rencana_aksi:
+        type: string
       rencana_implementasi:
+        type: string
+      risiko_hukum:
         type: string
       status:
         type: string
@@ -143,6 +155,41 @@ definitions:
       nama_jabatan:
         type: string
     type: object
+  web.LaporanPenilaianKinerjaResponse:
+    properties:
+      kode_tim:
+        type: string
+      nama_tim:
+        type: string
+      penilaian_kinerjas:
+        items:
+          $ref: '#/definitions/web.PenilaianGroupedResponse'
+        type: array
+    required:
+    - kode_tim
+    - nama_tim
+    type: object
+  web.PenilaianGroupedResponse:
+    properties:
+      bulan:
+        type: integer
+      id_pegawai:
+        type: string
+      kinerja_bappeda:
+        type: integer
+      kinerja_person:
+        type: integer
+      kinerja_tim:
+        type: integer
+      kode_tim:
+        type: string
+      nama_jabatan_tim:
+        type: string
+      nama_pegawai:
+        type: string
+      tahun:
+        type: string
+    type: object
   web.PenilaianKinerjaRequest:
     properties:
       bulan:
@@ -185,6 +232,10 @@ definitions:
       kode_opd:
         type: string
       kode_tim:
+        type: string
+      nama_jabatan_tim:
+        type: string
+      nama_pegawai:
         type: string
       nilai_kinerja:
         type: integer
@@ -232,6 +283,8 @@ definitions:
         type: string
       faktor_penghambat:
         type: string
+      id_pohon:
+        type: integer
       id_rencana_kinerja:
         type: string
       kode_opd:
@@ -246,10 +299,13 @@ definitions:
         type: string
       rencana_aksi:
         type: string
+      risko_hukum:
+        type: string
       tahun:
         type: string
     required:
     - bulan
+    - id_pohon
     - id_rencana_kinerja
     - kode_opd
     - kode_subkegiatan
@@ -271,6 +327,8 @@ definitions:
         type: string
       id:
         type: integer
+      id_pohon:
+        type: integer
       id_program_unggulan:
         type: integer
       id_rencana_kinerja:
@@ -287,10 +345,14 @@ definitions:
         type: string
       rencana_aksi:
         type: string
+      risko_hukum:
+        type: string
       tahun:
         type: string
       updated_at:
         type: string
+    required:
+    - id_pohon
     type: object
   web.RealisasiRequest:
     properties:
@@ -695,6 +757,47 @@ paths:
       tags:
       - Tim Kerja
   /penilaian_kinerja:
+    get:
+      consumes:
+      - application/json
+      description: Penilaian Kinerja berdasarkan bulan & tahun, dikelompokkan per
+        kode tim dan individu
+      parameters:
+      - description: 'Tahun penilaian (ex: 2025)'
+        in: query
+        name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 12)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.LaporanPenilaianKinerjaResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Penilaian kinerja by bulan tahun
+      tags:
+      - Penilaian Kinerja
     post:
       consumes:
       - application/json

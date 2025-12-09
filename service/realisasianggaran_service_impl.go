@@ -87,10 +87,12 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 		FaktorPendorong:   req.FaktorPendorong,
 		FaktorPenghambat:  req.FaktorPenghambat,
 		RekomendasiTl:     req.RekomendasiTl,
+		RisikoHukum:       req.RisikoHukum,
 		BuktiDukung:       req.BuktiDukung,
 		Bulan:             req.Bulan,
 		Tahun:             req.Tahun,
 		KodeTim:           req.KodeTim,
+		IdPohon:           req.IdPohon,
 		IdRencanaKinerja:  req.IdRencanaKinerja,
 	}
 

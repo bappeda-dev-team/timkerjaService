@@ -330,6 +330,70 @@ const docTemplate = `{
             }
         },
         "/penilaian_kinerja": {
+            "get": {
+                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun, dikelompokkan per kode tim dan individu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Penilaian Kinerja"
+                ],
+                "summary": "Penilaian kinerja by bulan tahun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 12)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.LaporanPenilaianKinerjaResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Add Penilaian to Individu by jenis",
                 "consumes": [
@@ -1487,6 +1551,12 @@ const docTemplate = `{
         "internal.TaggingPohonKinerjaItem": {
             "type": "object",
             "properties": {
+                "faktor_pendorong": {
+                    "type": "string"
+                },
+                "faktor_penghambat": {
+                    "type": "string"
+                },
                 "id_pohon": {
                     "type": "integer"
                 },
@@ -1529,7 +1599,19 @@ const docTemplate = `{
                         "$ref": "#/definitions/internal.PelaksanaPokin"
                     }
                 },
+                "realisasi_anggaran": {
+                    "type": "integer"
+                },
+                "rekomendasi_tl": {
+                    "type": "string"
+                },
+                "rencana_aksi": {
+                    "type": "string"
+                },
                 "rencana_implementasi": {
+                    "type": "string"
+                },
+                "risiko_hukum": {
                     "type": "string"
                 },
                 "status": {
@@ -1622,6 +1704,59 @@ const docTemplate = `{
                 }
             }
         },
+        "web.LaporanPenilaianKinerjaResponse": {
+            "type": "object",
+            "required": [
+                "kode_tim",
+                "nama_tim"
+            ],
+            "properties": {
+                "kode_tim": {
+                    "type": "string"
+                },
+                "nama_tim": {
+                    "type": "string"
+                },
+                "penilaian_kinerjas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/web.PenilaianGroupedResponse"
+                    }
+                }
+            }
+        },
+        "web.PenilaianGroupedResponse": {
+            "type": "object",
+            "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "id_pegawai": {
+                    "type": "string"
+                },
+                "kinerja_bappeda": {
+                    "type": "integer"
+                },
+                "kinerja_person": {
+                    "type": "integer"
+                },
+                "kinerja_tim": {
+                    "type": "integer"
+                },
+                "kode_tim": {
+                    "type": "string"
+                },
+                "nama_jabatan_tim": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "string"
+                }
+            }
+        },
         "web.PenilaianKinerjaRequest": {
             "type": "object",
             "required": [
@@ -1693,6 +1828,12 @@ const docTemplate = `{
                 "kode_tim": {
                     "type": "string"
                 },
+                "nama_jabatan_tim": {
+                    "type": "string"
+                },
+                "nama_pegawai": {
+                    "type": "string"
+                },
                 "nilai_kinerja": {
                     "type": "integer"
                 },
@@ -1740,6 +1881,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "bulan",
+                "id_pohon",
                 "id_rencana_kinerja",
                 "kode_opd",
                 "kode_subkegiatan",
@@ -1759,6 +1901,9 @@ const docTemplate = `{
                 },
                 "faktor_penghambat": {
                     "type": "string"
+                },
+                "id_pohon": {
+                    "type": "integer"
                 },
                 "id_rencana_kinerja": {
                     "type": "string"
@@ -1781,6 +1926,9 @@ const docTemplate = `{
                 "rencana_aksi": {
                     "type": "string"
                 },
+                "risko_hukum": {
+                    "type": "string"
+                },
                 "tahun": {
                     "type": "string"
                 }
@@ -1788,6 +1936,9 @@ const docTemplate = `{
         },
         "web.RealisasiAnggaranResponse": {
             "type": "object",
+            "required": [
+                "id_pohon"
+            ],
             "properties": {
                 "bukti_dukung": {
                     "type": "string"
@@ -1805,6 +1956,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "id_pohon": {
                     "type": "integer"
                 },
                 "id_program_unggulan": {
@@ -1829,6 +1983,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rencana_aksi": {
+                    "type": "string"
+                },
+                "risko_hukum": {
                     "type": "string"
                 },
                 "tahun": {

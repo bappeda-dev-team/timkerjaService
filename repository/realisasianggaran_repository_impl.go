@@ -213,22 +213,23 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 func (r *RealisasiAnggaranRepositoryImpl) Upsert(ctx context.Context, tx *sql.Tx, ra domain.RealisasiAnggaran) (domain.RealisasiAnggaran, error) {
 	query := `
 INSERT INTO realisasi_anggaran (
-	kode_tim, id_rencana_kinerja, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
-	faktor_penghambat, rekomendasi_tl, bukti_dukung, bulan, tahun
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	kode_tim, id_rencana_kinerja, id_pohon, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
+	faktor_penghambat, risiko_hukum, rekomendasi_tl, bukti_dukung, bulan, tahun
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
 	realisasi_anggaran = VALUES(realisasi_anggaran),
 	kode_opd           = VALUES(kode_opd),
 	rencana_aksi       = VALUES(rencana_aksi),
 	faktor_pendorong   = VALUES(faktor_pendorong),
 	faktor_penghambat  = VALUES(faktor_penghambat),
+	risiko_hukum       = VALUES(risiko_hukum),
 	rekomendasi_tl     = VALUES(rekomendasi_tl),
 	bukti_dukung       = VALUES(bukti_dukung),
 	updated_at         = NOW()
 `
 	_, err := tx.ExecContext(ctx, query,
-		ra.KodeTim, ra.IdRencanaKinerja, ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
-		ra.FaktorPenghambat, ra.RekomendasiTl, ra.BuktiDukung, ra.Bulan, ra.Tahun,
+		ra.KodeTim, ra.IdRencanaKinerja, ra.IdPohon, ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
+		ra.FaktorPenghambat, ra.RisikoHukum, ra.RekomendasiTl, ra.BuktiDukung, ra.Bulan, ra.Tahun,
 	)
 	if err != nil {
 		return domain.RealisasiAnggaran{}, fmt.Errorf("upsert realisasi_anggaran: %w", err)
