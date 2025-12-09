@@ -225,6 +225,9 @@ ON DUPLICATE KEY UPDATE
 	risiko_hukum       = VALUES(risiko_hukum),
 	rekomendasi_tl     = VALUES(rekomendasi_tl),
 	bukti_dukung       = VALUES(bukti_dukung),
+    id_rencana_kinerja = VALUES(id_rencana_kinerja),
+    id_pohon           = VALUES(id_pohon),
+    kode_tim           = VALUES(kode_tim),
 	updated_at         = NOW()
 `
 	_, err := tx.ExecContext(ctx, query,
