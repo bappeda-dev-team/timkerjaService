@@ -7,17 +7,17 @@ import (
 )
 
 type BaseClient struct {
-	httpClient *http.Client
 	host       string
 	path       string
+	httpClient *http.Client
 }
 
 // constructor
 func newBaseClient(host, path string, httpClient *http.Client) BaseClient {
 	return BaseClient{
-		httpClient: httpClient,
 		host:       host,
 		path:       path,
+		httpClient: httpClient,
 	}
 }
 

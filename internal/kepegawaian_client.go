@@ -22,7 +22,7 @@ func NewKepegawaianClient(host string, httpClient *http.Client) *KepegawaianClie
 
 func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawais []string) ([]DetailPegawaiResponse, error) {
 	// url check program unggulan
-	url := fmt.Sprintf("%s/api/v1/perencanaan/program_unggulan/findbyidterkait", c.host)
+	url := fmt.Sprintf("%s/%s/jabatan/detail/by-nip-batch", c.host, c.path)
 
 	// body id program unggulans
 	payload := DetailPegawaiBatchRequest{
