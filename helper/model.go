@@ -160,6 +160,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
 			resp.NamaPegawai = dataRincian.RencanaKinerja.NamaPegawai
 			resp.PaguAnggaran = dataRincian.RencanaKinerja.Pagu
+			resp.RencanaAksi = dataRincian.RencanaAksi.RencanaAksi
 
 			// tambah disini kebutuhan tambahan
 			//
