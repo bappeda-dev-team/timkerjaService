@@ -18,13 +18,13 @@ type TimKerjaResponse struct {
 }
 
 type ProgramUnggulanTimKerjaResponse struct {
-	Id                  int                               `json:"id"`
-	KodeTim             string                            `json:"kode_tim"`
-	IdProgramUnggulan   int                               `json:"id_program_unggulan"`
-	KodeProgramUnggulan string                            `json:"kode_program_unggulan"`
-	ProgramUnggulan     string                            `json:"program_unggulan"`
-	Tahun               string                            `json:"tahun"`
-	KodeOpd             string                            `json:"kode_opd"`
+	Id                  int                                `json:"id"`
+	KodeTim             string                             `json:"kode_tim"`
+	IdProgramUnggulan   int                                `json:"id_program_unggulan"`
+	KodeProgramUnggulan string                             `json:"kode_program_unggulan"`
+	ProgramUnggulan     string                             `json:"program_unggulan"`
+	Tahun               string                             `json:"tahun"`
+	KodeOpd             string                             `json:"kode_opd"`
 	Pokin               []internal.TaggingPohonKinerjaItem `json:"pohon_kinerja"`
 }
 
@@ -61,7 +61,9 @@ type RencanaKinerjaTimKerjaResponse struct {
 	KodeTim          string                         `json:"kode_tim"`
 	IdRencanaKinerja string                         `json:"id_rencana_kinerja"`
 	IdPegawai        string                         `json:"id_pegawai"`
+	NamaPegawai      string                         `json:"nama_pegawai"`
 	RencanaKinerja   string                         `json:"rencana_kinerja"`
+	PaguAnggaran     int                            `json:"pagu_anggaran"`
 	Tahun            string                         `json:"tahun"`
 	KodeOpd          string                         `json:"kode_opd"`
 	IdPohon          int                            `json:"id_pohon,omitempty"`
