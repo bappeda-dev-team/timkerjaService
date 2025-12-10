@@ -139,6 +139,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 				IdPegawai:        r.IdPegawai,
 				Tahun:            r.Tahun,
 				KodeOpd:          r.KodeOpd,
+				PaguAnggaran:     0,
 			}
 
 			// === Fetch API eksternal ===
@@ -157,6 +158,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 
 			// === Map hasil dari API ===
 			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
+			resp.NamaPegawai = dataRincian.RencanaKinerja.NamaPegawai
 
 			// tambah disini kebutuhan tambahan
 			//
