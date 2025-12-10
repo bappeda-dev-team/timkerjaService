@@ -16,13 +16,15 @@ type KepegawaianClient struct {
 
 func NewKepegawaianClient(host string, httpClient *http.Client) *KepegawaianClient {
 	return &KepegawaianClient{
-		BaseClient: newBaseClient(host, "/api/v1/tpp/%s", httpClient),
+		BaseClient: newBaseClient(host, "api/v1/tpp", httpClient),
 	}
 }
 
 func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawais []string) ([]DetailPegawaiResponse, error) {
 	// url check program unggulan
 	url := fmt.Sprintf("%s/%s/jabatan/detail/by-nip-batch", c.host, c.path)
+
+	log.Printf("URL: %s", url)
 
 	// body id program unggulans
 	payload := DetailPegawaiBatchRequest{
@@ -54,10 +56,11 @@ func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawa
 		return nil, fmt.Errorf("Request ke perencanaan gagal: %w", err)
 	}
 	defer res.Body.Close()
+	log.Printf("Request: %v", req)
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: tidak ditemukan. status: %d", res.StatusCode)
+		return nil, fmt.Errorf("Detail Pegawai: tidak ditemukan. status: %d", res.StatusCode)
 	}
 
 	var result []DetailPegawaiResponse

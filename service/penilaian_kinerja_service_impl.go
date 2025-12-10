@@ -4,8 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
+	"net/http"
+	"os"
 	"strconv"
+	"time"
 	"timkerjaService/helper"
+	"timkerjaService/internal"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
 	"timkerjaService/repository"
@@ -111,6 +116,37 @@ func (s *PenilaianKinerjaServiceImpl) All(
 			PenilaianKinerjas: groupedList,
 		})
 	}
+
+	// buat list id pegawai dipakai di detail pegawai external
+	idPegawaiSet := map[string]struct{}{}
+	for _, lap := range result {
+		for _, p := range lap.Penilaians {
+			if p.IdPegawai != "" {
+				idPegawaiSet[p.IdPegawai] = struct{}{}
+			}
+		}
+	}
+	listIdPegawais := make([]string, 0, len(idPegawaiSet))
+	for id := range idPegawaiSet {
+		listIdPegawais = append(listIdPegawais, id)
+	}
+	log.Printf("LIST PEGAWAIS: %v\n", listIdPegawais)
+
+	kepegawaianHost := os.Getenv("PERENCANAAN_HOST")
+	if kepegawaianHost == "" {
+		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
+	}
+
+	kepegawaianClient := internal.NewKepegawaianClient(
+		kepegawaianHost,
+		&http.Client{Timeout: 15 * time.Second},
+	)
+
+	detailPegawais, err := kepegawaianClient.GetDetailPegawaiBatch(ctx, listIdPegawais)
+	if err != nil {
+		log.Printf("ERROR KEPEGAWAIAN HOST: %v\n", err)
+	}
+	log.Printf("DETAIL: %v", detailPegawais)
 
 	return responses, nil
 }
