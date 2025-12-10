@@ -28,9 +28,10 @@ type PenilaianGroupedResponse struct {
 	Tahun          string `json:"tahun"`
 	Bulan          int    `json:"bulan"`
 
-	KinerjaBappeda int `json:"kinerja_bappeda"`
-	KinerjaTim     int `json:"kinerja_tim"`
-	KinerjaPerson  int `json:"kinerja_person"`
+	KinerjaBappeda int     `json:"kinerja_bappeda"`
+	KinerjaTim     int     `json:"kinerja_tim"`
+	KinerjaPerson  int     `json:"kinerja_person"`
+	NilaiAkhir     float32 `json:"nilai_akhir"`
 }
 
 type LaporanPenilaianKinerjaResponse struct {
