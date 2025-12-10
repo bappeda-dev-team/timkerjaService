@@ -7,8 +7,9 @@ type DataRincianKerjaWrapper struct {
 }
 
 type DataRincianKerja struct {
-	RencanaKinerja RencanaKinerjaResponse `json:"rencana_kinerja"`
-	SubKegiatan    []SubKegiatanResponse  `json:"subkegiatan"`
+	RencanaKinerja RencanaKinerjaResponse   `json:"rencana_kinerja"`
+	RencanaAksi    RencanaAksiTableResponse `json:"rencana_aksis"`
+	SubKegiatan    []SubKegiatanResponse    `json:"subkegiatan"`
 }
 
 type RencanaKinerjaResponse struct {
@@ -21,6 +22,7 @@ type RencanaKinerjaResponse struct {
 	OperasionalDaerah    OperasionalDaerah   `json:"operasional_daerah"`
 	PegawaiId            string              `json:"pegawai_id"`
 	NamaPegawai          string              `json:"nama_pegawai"`
+	Pagu                 int                 `json:"pagu"`
 	Indikator            []IndikatorResponse `json:"indikator"`
 }
 
