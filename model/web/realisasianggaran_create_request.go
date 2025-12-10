@@ -3,6 +3,7 @@ package web
 type RealisasiAnggaranCreateRequest struct {
 	KodeSubkegiatan   string `json:"kode_subkegiatan" validate:"required"`
 	KodeTim           string `json:"kode_tim" validate:"required"`
+	IdProgramUnggulan int    `json:"id_program_unggulan"`
 	IdPohon           int    `json:"id_pohon" validate:"required"`
 	IdRencanaKinerja  string `json:"id_rencana_kinerja" validate:"required"`
 	RealisasiAnggaran int    `json:"realisasi_anggaran" validate:"required"`

@@ -4,7 +4,7 @@ import "time"
 
 type RealisasiAnggaran struct {
 	Id                int
-	IdProgramUnggulan *int
+	IdProgramUnggulan int
 	KodeSubkegiatan   string
 	RealisasiAnggaran int
 	KodeTim           string

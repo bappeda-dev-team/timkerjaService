@@ -211,11 +211,12 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 }
 
 func (r *RealisasiAnggaranRepositoryImpl) Upsert(ctx context.Context, tx *sql.Tx, ra domain.RealisasiAnggaran) (domain.RealisasiAnggaran, error) {
+	// duplicate key : id_pohon, bulan, tahun
 	query := `
 INSERT INTO realisasi_anggaran (
-	kode_tim, id_rencana_kinerja, id_pohon, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
+	kode_tim, id_rencana_kinerja, id_pohon, id_program_unggulan, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
 	faktor_penghambat, risiko_hukum, rekomendasi_tl, bukti_dukung, bulan, tahun
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
 	realisasi_anggaran = VALUES(realisasi_anggaran),
 	kode_opd           = VALUES(kode_opd),
@@ -226,12 +227,12 @@ ON DUPLICATE KEY UPDATE
 	rekomendasi_tl     = VALUES(rekomendasi_tl),
 	bukti_dukung       = VALUES(bukti_dukung),
     id_rencana_kinerja = VALUES(id_rencana_kinerja),
-    id_pohon           = VALUES(id_pohon),
+    id_program_unggulan = VALUES(id_program_unggulan),
     kode_tim           = VALUES(kode_tim),
 	updated_at         = NOW()
 `
 	_, err := tx.ExecContext(ctx, query,
-		ra.KodeTim, ra.IdRencanaKinerja, ra.IdPohon, ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
+		ra.KodeTim, ra.IdRencanaKinerja, ra.IdPohon, ra.IdProgramUnggulan, ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
 		ra.FaktorPenghambat, ra.RisikoHukum, ra.RekomendasiTl, ra.BuktiDukung, ra.Bulan, ra.Tahun,
 	)
 	if err != nil {
