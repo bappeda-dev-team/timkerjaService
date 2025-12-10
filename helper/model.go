@@ -263,6 +263,7 @@ func ToRealisasiAnggaranResponse(d domain.RealisasiAnggaran) web.RealisasiAnggar
 	return web.RealisasiAnggaranResponse{
 		Id:                d.Id,
 		KodeTim:           d.KodeTim,
+		IdProgramUnggulan: d.IdProgramUnggulan,
 		IdPohon:           d.IdPohon,
 		IdRencanaKinerja:  d.IdRencanaKinerja,
 		KodeSubkegiatan:   d.KodeSubkegiatan,
