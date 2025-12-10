@@ -21,6 +21,7 @@ type RencanaKinerjaResponse struct {
 	OperasionalDaerah    OperasionalDaerah   `json:"operasional_daerah"`
 	PegawaiId            string              `json:"pegawai_id"`
 	NamaPegawai          string              `json:"nama_pegawai"`
+	Pagu                 int                 `json:"pagu"`
 	Indikator            []IndikatorResponse `json:"indikator"`
 }
 
