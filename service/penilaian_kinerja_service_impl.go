@@ -101,6 +101,7 @@ func (s *PenilaianKinerjaServiceImpl) All(
 		// convert map → slice
 		groupedList := make([]web.PenilaianGroupedResponse, 0, len(groupMap))
 		for _, v := range groupMap {
+			v.NilaiAkhir = hitungNilaiAkhir(*v)
 			groupedList = append(groupedList, *v)
 		}
 
@@ -207,4 +208,32 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 		UpdatedAt:    res.UpdatedAt,
 		CreatedBy:    res.CreatedBy,
 	}, nil
+}
+
+func hitungNilaiAkhir(item web.PenilaianGroupedResponse) float32 {
+	xs := []float32{}
+
+	if item.KinerjaBappeda > 0 {
+		xs = append(xs, float32(item.KinerjaBappeda))
+	}
+	if item.KinerjaTim > 0 {
+		xs = append(xs, float32(item.KinerjaTim))
+	}
+	if item.KinerjaPerson > 0 {
+		xs = append(xs, float32(item.KinerjaPerson))
+	}
+
+	if len(xs) == 0 {
+		return 0
+	}
+
+	return average(xs)
+}
+
+func average(xs []float32) float32 {
+	var total float32
+	for _, v := range xs {
+		total += v
+	}
+	return total / float32(len(xs))
 }
