@@ -193,3 +193,23 @@ type FindByIdTerkaitRequest struct {
 type FindByKodeProgramUnggulansRequest struct {
 	KodeProgramUnggulan []string `json:"kode_program_unggulan" validate:"required,min=1"`
 }
+
+type DetailPegawaiBatchRequest struct {
+	NipPegawais []string `json:"nipPegawais" validate:"required"`
+}
+
+type DetailPegawaiResponse struct {
+	ID            int     `json:"id"`
+	NIP           string  `json:"nip"`
+	NamaPegawai   string  `json:"namaPegawai"`
+	NamaJabatan   string  `json:"namaJabatan"`
+	KodeOpd       string  `json:"kodeOpd"`
+	StatusJabatan string  `json:"statusJabatan"`
+	JenisJabatan  string  `json:"jenisJabatan"`
+	Eselon        string  `json:"eselon"`
+	Pangkat       string  `json:"pangkat"`
+	Golongan      string  `json:"golongan"`
+	TanggalMulai  string  `json:"tanggalMulai"`
+	TanggalAkhir  *string `json:"tanggalAkhir"` // null -> pointer
+	Tpp           float64 `json:"basicTpp"`
+}

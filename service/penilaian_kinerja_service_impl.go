@@ -4,8 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"strconv"
+	"log"
+	"net/http"
+	"os"
+	"time"
 	"timkerjaService/helper"
+	"timkerjaService/internal"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
 	"timkerjaService/repository"
@@ -49,7 +53,7 @@ func (s *PenilaianKinerjaServiceImpl) All(
 	}()
 
 	// Ambil data RAW dari repository (belum grouped jenis nilai)
-	result, err := s.PenilaianKinerjaRepository.FindByTahunBulan(ctx, tx, tahun, bulan)
+	penilaianKinerja, err := s.PenilaianKinerjaRepository.FindByTahunBulan(ctx, tx, tahun, bulan)
 	if err != nil {
 		_ = tx.Rollback()
 		return nil, err
@@ -59,61 +63,23 @@ func (s *PenilaianKinerjaServiceImpl) All(
 		return nil, err
 	}
 
-	// ==========================
-	// GROUPING JENIS NILAI
-	// ==========================
-
-	responses := make([]web.LaporanPenilaianKinerjaResponse, 0)
-
-	for _, laporan := range result {
-
-		groupMap := make(map[string]*web.PenilaianGroupedResponse)
-
-		for _, p := range laporan.Penilaians {
-
-			// unique key per pegawai per bulan
-			key := p.IdPegawai + "_" + p.Tahun + "_" + strconv.Itoa(p.Bulan)
-
-			item, exists := groupMap[key]
-			if !exists {
-				item = &web.PenilaianGroupedResponse{
-					IdPegawai:      p.IdPegawai,
-					NamaPegawai:    p.NamaPegawai,
-					NamaJabatanTim: p.NamaJabatanTim,
-					KodeTim:        p.KodeTim,
-					Tahun:          p.Tahun,
-					Bulan:          p.Bulan,
-				}
-				groupMap[key] = item
-			}
-
-			// Masukkan ke field sesuai jenis nilai
-			switch p.JenisNilai {
-			case "KINERJA_BAPPEDA":
-				item.KinerjaBappeda = p.NilaiKinerja
-			case "KINERJA_TIM":
-				item.KinerjaTim = p.NilaiKinerja
-			case "KINERJA_PERSON":
-				item.KinerjaPerson = p.NilaiKinerja
-			}
-		}
-
-		// convert map → slice
-		groupedList := make([]web.PenilaianGroupedResponse, 0, len(groupMap))
-		for _, v := range groupMap {
-			v.NilaiAkhir = hitungNilaiAkhir(*v)
-			groupedList = append(groupedList, *v)
-		}
-
-		responses = append(responses, web.LaporanPenilaianKinerjaResponse{
-			NamaTim:           laporan.NamaTim,
-			KodeTim:           laporan.KodeTim,
-			IsSekretariat:     laporan.IsSekretariat,
-			PenilaianKinerjas: groupedList,
-		})
+	kepegawaianHost := os.Getenv("PERENCANAAN_HOST")
+	if kepegawaianHost == "" {
+		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
 	}
 
-	return responses, nil
+	kepegawaianClient := internal.NewKepegawaianClient(
+		kepegawaianHost,
+		&http.Client{Timeout: 25 * time.Second},
+	)
+
+	// gabung dengan api internal tim
+	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	return merged, nil
 }
 
 func (s *PenilaianKinerjaServiceImpl) Create(ctx context.Context, req web.PenilaianKinerjaRequest) (web.PenilaianKinerjaResponse, error) {
@@ -208,32 +174,4 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 		UpdatedAt:    res.UpdatedAt,
 		CreatedBy:    res.CreatedBy,
 	}, nil
-}
-
-func hitungNilaiAkhir(item web.PenilaianGroupedResponse) float32 {
-	xs := []float32{}
-
-	if item.KinerjaBappeda > 0 {
-		xs = append(xs, float32(item.KinerjaBappeda))
-	}
-	if item.KinerjaTim > 0 {
-		xs = append(xs, float32(item.KinerjaTim))
-	}
-	if item.KinerjaPerson > 0 {
-		xs = append(xs, float32(item.KinerjaPerson))
-	}
-
-	if len(xs) == 0 {
-		return 0
-	}
-
-	return average(xs)
-}
-
-func average(xs []float32) float32 {
-	var total float32
-	for _, v := range xs {
-		total += v
-	}
-	return total / float32(len(xs))
 }

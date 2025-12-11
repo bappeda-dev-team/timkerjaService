@@ -128,8 +128,10 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 
 	query := `
 SELECT
+  st.id AS susunan_tim_id,
   st.pegawai_id,
   st.nama_pegawai,
+  jt.level_jabatan,
   st.nama_jabatan_tim,
   st.kode_tim,
   tk.nama_tim,
@@ -146,13 +148,15 @@ SELECT
   p.created_by
 
 FROM susunan_tim st
+LEFT JOIN jabatan_tim jt
+  ON jt.id = st.jabatan_tim_id
 LEFT JOIN tim_kerja tk
   ON tk.kode_tim = st.kode_tim
 LEFT JOIN penilaian_kinerja p
   ON p.id_pegawai = st.pegawai_id
   AND p.tahun = ?
   AND p.bulan = ?
-ORDER BY st.kode_tim, st.nama_pegawai, p.id;
+ORDER BY st.kode_tim, st.id;
 `
 
 	rows, err := tx.QueryContext(ctx, query, tahun, bulan)
@@ -166,8 +170,10 @@ ORDER BY st.kode_tim, st.nama_pegawai, p.id;
 
 	for rows.Next() {
 		var (
+			susunanTimID    int
 			pegawaiID       string
 			namaPegawaiNS   sql.NullString
+			levelJabatanNS  sql.NullInt64
 			namaJabatanNS   sql.NullString
 			kodeTim         string
 			namaTimNS       sql.NullString
@@ -185,8 +191,10 @@ ORDER BY st.kode_tim, st.nama_pegawai, p.id;
 		)
 
 		if err := rows.Scan(
+			&susunanTimID,
 			&pegawaiID,
 			&namaPegawaiNS,
+			&levelJabatanNS,
 			&namaJabatanNS,
 			&kodeTim,
 			&namaTimNS,
@@ -219,19 +227,21 @@ ORDER BY st.kode_tim, st.nama_pegawai, p.id;
 
 		// Bentuk objek penilaian (bisa kosong/default)
 		pen := domain.PenilaianKinerja{
-			Id:             intOrZero(idNS),
-			IdPegawai:      pegawaiID,
-			NamaPegawai:    stringOrEmpty(namaPegawaiNS),
-			NamaJabatanTim: stringOrEmpty(namaJabatanNS),
-			KodeTim:        kodeTim,
-			JenisNilai:     stringOrEmpty(jenisNilaiNS),
-			NilaiKinerja:   intOrZero(nilaiKinerjaNS),
-			Tahun:          strconv.Itoa(intOrZero(tahunNS)),
-			Bulan:          intOrZero(bulanNS),
-			KodeOpd:        stringOrEmpty(kodeOpdNS),
-			CreatedAt:      timeOrZero(createdAtNS),
-			UpdatedAt:      timeOrZero(updatedAtNS),
-			CreatedBy:      stringOrEmpty(createdByNS),
+			Id:              intOrZero(idNS),
+			IdPegawai:       pegawaiID,
+			NamaPegawai:     stringOrEmpty(namaPegawaiNS),
+			SusunanTimId:    susunanTimID,
+			LevelJabatanTim: intOrZero(levelJabatanNS),
+			NamaJabatanTim:  stringOrEmpty(namaJabatanNS),
+			KodeTim:         kodeTim,
+			JenisNilai:      stringOrEmpty(jenisNilaiNS),
+			NilaiKinerja:    intOrZero(nilaiKinerjaNS),
+			Tahun:           strconv.Itoa(intOrZero(tahunNS)),
+			Bulan:           intOrZero(bulanNS),
+			KodeOpd:         stringOrEmpty(kodeOpdNS),
+			CreatedAt:       timeOrZero(createdAtNS),
+			UpdatedAt:       timeOrZero(updatedAtNS),
+			CreatedBy:       stringOrEmpty(createdByNS),
 		}
 
 		group.Penilaians = append(group.Penilaians, pen)
