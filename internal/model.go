@@ -211,4 +211,5 @@ type DetailPegawaiResponse struct {
 	Golongan      string  `json:"golongan"`
 	TanggalMulai  string  `json:"tanggalMulai"`
 	TanggalAkhir  *string `json:"tanggalAkhir"` // null -> pointer
+	Tpp           float64 `json:"basicTpp"`
 }
