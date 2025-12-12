@@ -71,5 +71,8 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.PUT("/penilaian_kinerja/:id", penilaianKinerjaController.Update)
 	// e.DELETE("/penilaian_kinerja/:id", penilaianKinerjaController.Delete)
 
+	// TPP KONKER
+	e.GET("/laporan_tpp", penilaianKinerjaController.LaporanTpp) // filter by bulan tahun
+
 	return e
 }

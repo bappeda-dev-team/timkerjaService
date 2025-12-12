@@ -175,3 +175,57 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 		CreatedBy:    res.CreatedBy,
 	}, nil
 }
+
+func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
+	ctx context.Context,
+	tahun int,
+	bulan int,
+) ([]web.LaporanPenilaianKinerjaResponse, error) {
+
+	if tahun <= 0 || bulan <= 0 || bulan > 12 {
+		return nil, errors.New("tahun atau bulan tidak valid")
+	}
+
+	tx, err := s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// Ambil data RAW dari repository (belum grouped jenis nilai)
+	penilaianKinerja, err := s.PenilaianKinerjaRepository.FindByTahunBulan(ctx, tx, tahun, bulan)
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	kepegawaianHost := os.Getenv("PERENCANAAN_HOST")
+	if kepegawaianHost == "" {
+		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
+	}
+
+	kepegawaianClient := internal.NewKepegawaianClient(
+		kepegawaianHost,
+		&http.Client{Timeout: 25 * time.Second},
+	)
+
+	// gabung dengan api internal tim
+	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	// convert tambah tpp dan perhitungan
+	result := helper.ConvertToTppPegawaiResponse(merged)
+
+	return result, nil
+}

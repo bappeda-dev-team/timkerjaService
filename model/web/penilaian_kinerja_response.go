@@ -20,7 +20,7 @@ type PenilaianKinerjaResponse struct {
 	CreatedBy      string    `json:"created_by"`
 }
 
-type PenilaianGroupedResponse struct {
+type PenilaianGroupedBase struct {
 	IdPegawai       string `json:"id_pegawai"`
 	NamaPegawai     string `json:"nama_pegawai"`
 	SusunanTimId    int    `json:"-"`
@@ -37,6 +37,21 @@ type PenilaianGroupedResponse struct {
 	KinerjaTim     int `json:"kinerja_tim"`
 	KinerjaPerson  int `json:"kinerja_person"`
 	NilaiAkhir     int `json:"nilai_akhir"`
+}
+
+type PenilaianTppExtension struct {
+	TppBasic             int     `json:"tpp_basic"`
+	PersentasePenerimaan string  `json:"persentase_penerimaan"`
+	JumlahKotor          int     `json:"jumlah_kotor"`
+	Pajak                float64 `json:"pajak"`
+	JumlahPajak          int     `json:"jumlah_pajak"`
+	PotonganBPJS         float64 `json:"potongan_bpjs"`
+	JumlahBersih         int     `json:"jumlah_bersih"`
+}
+
+type PenilaianGroupedResponse struct {
+	PenilaianGroupedBase
+	Tpp *PenilaianTppExtension `json:"tpp_pegawai,omitempty"`
 }
 
 type LaporanPenilaianKinerjaResponse struct {
