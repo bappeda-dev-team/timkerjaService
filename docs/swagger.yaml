@@ -157,6 +157,8 @@ definitions:
     type: object
   web.LaporanPenilaianKinerjaResponse:
     properties:
+      is_sekretariat:
+        type: boolean
       kode_tim:
         type: string
       nama_tim:
@@ -173,7 +175,11 @@ definitions:
     properties:
       bulan:
         type: integer
+      golongan:
+        type: string
       id_pegawai:
+        type: string
+      jenis_jabatan:
         type: string
       kinerja_bappeda:
         type: integer
@@ -183,9 +189,15 @@ definitions:
         type: integer
       kode_tim:
         type: string
+      level_jabatan_tim:
+        type: integer
       nama_jabatan_tim:
         type: string
       nama_pegawai:
+        type: string
+      nilai_akhir:
+        type: integer
+      pangkat:
         type: string
       tahun:
         type: string
@@ -284,6 +296,8 @@ definitions:
       faktor_penghambat:
         type: string
       id_pohon:
+        type: integer
+      id_program_unggulan:
         type: integer
       id_rencana_kinerja:
         type: string
@@ -1176,6 +1190,32 @@ paths:
           schema:
             $ref: '#/definitions/web.WebResponse'
       summary: Update Susunan Tim
+      tags:
+      - Susunan Tim
+  /susunantim/{kodeTim}/pelaksana:
+    get:
+      consumes:
+      - application/json
+      description: Get Pelaksana Tim by Kode Tim
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.SusunanTimResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Susunan Tim by Kode Tim
       tags:
       - Susunan Tim
   /timkerja:

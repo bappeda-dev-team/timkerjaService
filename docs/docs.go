@@ -1009,6 +1009,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/susunantim/{kodeTim}/pelaksana": {
+            "get": {
+                "description": "Get Pelaksana Tim by Kode Tim",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Susunan Tim"
+                ],
+                "summary": "Susunan Tim by Kode Tim",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.SusunanTimResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timkerja": {
             "get": {
                 "description": "Get All Tim Kerja with their Susunan Tim details",
@@ -1711,6 +1755,9 @@ const docTemplate = `{
                 "nama_tim"
             ],
             "properties": {
+                "is_sekretariat": {
+                    "type": "boolean"
+                },
                 "kode_tim": {
                     "type": "string"
                 },
@@ -1731,7 +1778,13 @@ const docTemplate = `{
                 "bulan": {
                     "type": "integer"
                 },
+                "golongan": {
+                    "type": "string"
+                },
                 "id_pegawai": {
+                    "type": "string"
+                },
+                "jenis_jabatan": {
                     "type": "string"
                 },
                 "kinerja_bappeda": {
@@ -1746,10 +1799,19 @@ const docTemplate = `{
                 "kode_tim": {
                     "type": "string"
                 },
+                "level_jabatan_tim": {
+                    "type": "integer"
+                },
                 "nama_jabatan_tim": {
                     "type": "string"
                 },
                 "nama_pegawai": {
+                    "type": "string"
+                },
+                "nilai_akhir": {
+                    "type": "integer"
+                },
+                "pangkat": {
                     "type": "string"
                 },
                 "tahun": {
@@ -1903,6 +1965,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_pohon": {
+                    "type": "integer"
+                },
+                "id_program_unggulan": {
                     "type": "integer"
                 },
                 "id_rencana_kinerja": {

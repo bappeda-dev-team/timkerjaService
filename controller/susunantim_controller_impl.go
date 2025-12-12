@@ -214,8 +214,8 @@ func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
 	})
 }
 
-// @Summary Get All Susunan Tim
-// @Description Get All Susunan Tim
+// @Summary Susunan Tim by Kode Tim
+// @Description Get Pelaksana Tim by Kode Tim
 // @Tags Susunan Tim
 // @Accept json
 // @Produce json
