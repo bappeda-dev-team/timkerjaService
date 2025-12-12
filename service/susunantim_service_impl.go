@@ -152,3 +152,18 @@ func (service *SusunanTimServiceImpl) FindAll(ctx context.Context) ([]web.Susuna
 
 	return helper.ToSusunanTimResponses(susunanTimDomains), nil
 }
+
+func (service *SusunanTimServiceImpl) FindByKodeTim(ctx context.Context, kodeTim string) ([]web.SusunanTimResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return []web.SusunanTimResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	susunanTimDomains, err := service.SusunanTimRepository.FindByKodeTim(ctx, tx, kodeTim)
+	if err != nil {
+		return []web.SusunanTimResponse{}, err
+	}
+
+	return helper.ToSusunanTimResponses(susunanTimDomains), nil
+}

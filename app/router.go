@@ -51,6 +51,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.DELETE("/susunantim/:id", susunanTimController.Delete)
 	e.GET("/susunantim/:id", susunanTimController.FindById)
 	e.GET("/susunantim", susunanTimController.FindAll)
+	e.GET("/susunantim/:kodeTim/pelaksana", susunanTimController.FindByKodeTim)
 
 	e.POST("/jabatantim", jabatanTimController.Create)
 	e.PUT("/jabatantim/:id", jabatanTimController.Update)

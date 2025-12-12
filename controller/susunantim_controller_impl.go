@@ -213,3 +213,37 @@ func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
 		Data:   SusunanTimResponses,
 	})
 }
+
+// @Summary Get All Susunan Tim
+// @Description Get All Susunan Tim
+// @Tags Susunan Tim
+// @Accept json
+// @Produce json
+// @Success 200 {object} web.WebResponse{data=[]web.SusunanTimResponse} "OK"
+// @Failure 500 {object} web.WebResponse "Internal Server Error"
+// @Router /susunantim/{kodeTim}/pelaksana [get]
+func (controller *SusunanTimControllerImpl) FindByKodeTim(c echo.Context) error {
+	kodeTim := c.Param("kodeTim")
+	if kodeTim == "" {
+		return c.JSON(http.StatusBadRequest, web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD_REQUEST",
+			Data:   "KODE TIM TIDAK BOLEH KOSONG",
+		})
+	}
+
+	SusunanTimResponses, err := controller.SusunanTimService.FindByKodeTim(c.Request().Context(), kodeTim)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   SusunanTimResponses,
+	})
+}
