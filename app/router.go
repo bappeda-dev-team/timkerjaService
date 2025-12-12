@@ -51,6 +51,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.DELETE("/susunantim/:id", susunanTimController.Delete)
 	e.GET("/susunantim/:id", susunanTimController.FindById)
 	e.GET("/susunantim", susunanTimController.FindAll)
+	e.GET("/susunantim/:kodeTim/pelaksana", susunanTimController.FindByKodeTim)
 
 	e.POST("/jabatantim", jabatanTimController.Create)
 	e.PUT("/jabatantim/:id", jabatanTimController.Update)
@@ -69,6 +70,9 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.POST("/penilaian_kinerja", penilaianKinerjaController.Create)
 	e.PUT("/penilaian_kinerja/:id", penilaianKinerjaController.Update)
 	// e.DELETE("/penilaian_kinerja/:id", penilaianKinerjaController.Delete)
+
+	// TPP KONKER
+	e.GET("/laporan_tpp", penilaianKinerjaController.LaporanTpp) // filter by bulan tahun
 
 	return e
 }

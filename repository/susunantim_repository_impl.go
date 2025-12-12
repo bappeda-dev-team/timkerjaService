@@ -91,3 +91,25 @@ func (repository *SusunanTimRepositoryImpl) FindAll(ctx context.Context, tx *sql
 
 	return susunanTimList, nil
 }
+
+func (repository *SusunanTimRepositoryImpl) FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.SusunanTim, error) {
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim , is_active, keterangan FROM susunan_tim WHERE kode_tim = ? ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query, kodeTim)
+	if err != nil {
+		return []domain.SusunanTim{}, err
+	}
+	defer rows.Close()
+
+	var susunanTimList []domain.SusunanTim
+	for rows.Next() {
+		var susunanTim domain.SusunanTim
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
+		if err != nil {
+			return []domain.SusunanTim{}, err
+		}
+
+		susunanTimList = append(susunanTimList, susunanTim)
+	}
+
+	return susunanTimList, nil
+}

@@ -8,4 +8,5 @@ type SusunanTimController interface {
 	Delete(c echo.Context) error
 	FindById(c echo.Context) error
 	FindAll(c echo.Context) error
+	FindByKodeTim(c echo.Context) error
 }

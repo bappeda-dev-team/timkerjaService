@@ -2,6 +2,7 @@ package helper
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 	"sort"
@@ -45,20 +46,23 @@ func MergePenilaianKinerjaParallel(
 				item, exists := groupMap[key]
 				if !exists {
 					item = &web.PenilaianGroupedResponse{
-						IdPegawai:       p.IdPegawai,
-						NamaPegawai:     p.NamaPegawai,
-						SusunanTimId:    p.SusunanTimId,
-						LevelJabatanTim: p.LevelJabatanTim,
-						NamaJabatanTim:  p.NamaJabatanTim,
+						PenilaianGroupedBase: web.PenilaianGroupedBase{
+							IdPegawai:       p.IdPegawai,
+							NamaPegawai:     p.NamaPegawai,
+							SusunanTimId:    p.SusunanTimId,
+							LevelJabatanTim: p.LevelJabatanTim,
+							NamaJabatanTim:  p.NamaJabatanTim,
 
-						// Akan diisi dari API eksternal
-						Pangkat:      "",
-						Golongan:     "",
-						JenisJabatan: "",
+							// Akan diisi dari API eksternal
+							Pangkat:      "",
+							Golongan:     "",
+							JenisJabatan: "",
 
-						KodeTim: p.KodeTim,
-						Tahun:   p.Tahun,
-						Bulan:   p.Bulan,
+							KodeTim: p.KodeTim,
+							Tahun:   p.Tahun,
+							Bulan:   p.Bulan,
+						},
+						Tpp: &web.PenilaianTppExtension{},
 					}
 					groupMap[key] = item
 				}
@@ -76,7 +80,7 @@ func MergePenilaianKinerjaParallel(
 			// Convert map → slice dan hitung nilai akhir
 			grouped := make([]web.PenilaianGroupedResponse, 0, len(groupMap))
 			for _, v := range groupMap {
-				v.NilaiAkhir = hitungNilaiAkhir(*v)
+				v.NilaiAkhir = hitungNilaiAkhir(v.PenilaianGroupedBase)
 				grouped = append(grouped, *v)
 			}
 
@@ -129,13 +133,27 @@ func MergePenilaianKinerjaParallel(
 	for i := range responses {
 		for j := range responses[i].PenilaianKinerjas {
 
-			idPegawai := responses[i].PenilaianKinerjas[j].IdPegawai
-			if dp, ok := dpMap[idPegawai]; ok {
-
-				responses[i].PenilaianKinerjas[j].Pangkat = dp.Pangkat
-				responses[i].PenilaianKinerjas[j].Golongan = dp.Golongan
-				responses[i].PenilaianKinerjas[j].JenisJabatan = dp.JenisJabatan
+			item := &responses[i].PenilaianKinerjas[j]
+			dp, ok := dpMap[item.IdPegawai]
+			if !ok {
+				continue
 			}
+
+			// Basic biodata
+			item.Pangkat = dp.Pangkat
+			item.Golongan = dp.Golongan
+			item.JenisJabatan = dp.JenisJabatan
+
+			// TPP extension selalu aman
+			if item.Tpp == nil {
+				item.Tpp = &web.PenilaianTppExtension{}
+			}
+
+			// TPP BASIC — gunakan round, bukan ceil
+			item.Tpp.TppBasic = int(math.Round(dp.Tpp))
+
+			// Pajak
+			item.Tpp.Pajak = dp.Pajak
 		}
 	}
 
@@ -159,7 +177,7 @@ func MergePenilaianKinerjaParallel(
 	return responses, nil
 }
 
-func hitungNilaiAkhir(item web.PenilaianGroupedResponse) int {
+func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
 	xs := []float64{}
 
 	if item.KinerjaBappeda > 0 {
@@ -185,4 +203,67 @@ func average(xs []float64) float64 {
 		total += v
 	}
 	return total / float64(len(xs))
+}
+
+func ConvertToTppPegawaiResponse(
+	src []web.LaporanPenilaianKinerjaResponse,
+) []web.LaporanPenilaianKinerjaResponse {
+
+	out := make([]web.LaporanPenilaianKinerjaResponse, len(src))
+
+	for i, lap := range src {
+		target := web.LaporanPenilaianKinerjaResponse{
+			NamaTim:           lap.NamaTim,
+			KodeTim:           lap.KodeTim,
+			IsSekretariat:     lap.IsSekretariat,
+			PenilaianKinerjas: make([]web.PenilaianGroupedResponse, len(lap.PenilaianKinerjas)),
+		}
+
+		for j, p := range lap.PenilaianKinerjas {
+
+			// copy original including TPP from API
+			item := p // copy struct
+
+			// Pastikan extension TPP tidak nil
+			if item.Tpp == nil {
+				item.Tpp = &web.PenilaianTppExtension{}
+			}
+
+			// Set konfigurasi tambahan di sini
+			item.Tpp.PotonganBPJS = 0.01
+
+			// Hitung TPP dengan pointer, agar perubahan tersimpan
+			HitungTPP(&item)
+
+			target.PenilaianKinerjas[j] = item
+		}
+
+		out[i] = target
+	}
+
+	return out
+}
+
+func HitungTPP(p *web.PenilaianGroupedResponse) {
+	if p.Tpp == nil {
+		p.Tpp = &web.PenilaianTppExtension{}
+	}
+
+	tpp := p.Tpp
+
+	tpp.PersentasePenerimaan = fmt.Sprintf("%d%%", p.NilaiAkhir)
+
+	// 1. Hitung TPP Kotor = TppBasic * (NilaiAkhir / 100)
+	tpp.JumlahKotor = int(float64(tpp.TppBasic) * (float64(p.NilaiAkhir) / 100.0))
+
+	// 2. Pajak = persen pajak * jumlah kotor
+	tpp.JumlahPajak = int(float64(tpp.JumlahKotor) * tpp.Pajak)
+
+	// 3. BPJS = persen BPJS * jumlah kotor
+	tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
+
+	bpjsAmount := int(tpp.PotonganBPJS)
+
+	// 4. Jumlah Bersih
+	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjsAmount
 }

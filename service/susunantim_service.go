@@ -11,4 +11,5 @@ type SusunanTimService interface {
 	Delete(ctx context.Context, id int) error
 	FindById(ctx context.Context, id int) (web.SusunanTimResponse, error)
 	FindAll(ctx context.Context) ([]web.SusunanTimResponse, error)
+	FindByKodeTim(ctx context.Context, kodeTim string) ([]web.SusunanTimResponse, error)
 }
