@@ -15,8 +15,8 @@ func NewSusunanTimRepositoryImpl() *SusunanTimRepositoryImpl {
 }
 
 func (repository *SusunanTimRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, susunanTim domain.SusunanTim) (domain.SusunanTim, error) {
-	query := "INSERT INTO susunan_tim (kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim, is_active, keterangan) VALUES (?, ?, ?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan)
+	query := "INSERT INTO susunan_tim (kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan)
 	if err != nil {
 		return domain.SusunanTim{}, err
 	}
@@ -32,8 +32,8 @@ func (repository *SusunanTimRepositoryImpl) Create(ctx context.Context, tx *sql.
 }
 
 func (repository *SusunanTimRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, susunanTim domain.SusunanTim) (domain.SusunanTim, error) {
-	query := "UPDATE susunan_tim SET kode_tim = ?, pegawai_id = ?, nama_pegawai = ?, nama_jabatan_tim = ?, is_active = ?, keterangan = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan, susunanTim.Id)
+	query := "UPDATE susunan_tim SET kode_tim = ?, pegawai_id = ?, nama_pegawai = ?, jabatan_tim_id = ?, nama_jabatan_tim = ?, is_active = ?, keterangan = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan, susunanTim.Id)
 	if err != nil {
 		return domain.SusunanTim{}, err
 	}
@@ -51,7 +51,7 @@ func (repository *SusunanTimRepositoryImpl) Delete(ctx context.Context, tx *sql.
 }
 
 func (repository *SusunanTimRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (domain.SusunanTim, error) {
-	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim, is_active, keterangan FROM susunan_tim WHERE id = ?"
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan FROM susunan_tim WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, query, id)
 	if err != nil {
 		return domain.SusunanTim{}, err
@@ -60,7 +60,7 @@ func (repository *SusunanTimRepositoryImpl) FindById(ctx context.Context, tx *sq
 
 	if rows.Next() {
 		var susunanTim domain.SusunanTim
-		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.IdJabatanTim, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
 		if err != nil {
 			return domain.SusunanTim{}, err
 		}
@@ -71,7 +71,7 @@ func (repository *SusunanTimRepositoryImpl) FindById(ctx context.Context, tx *sq
 }
 
 func (repository *SusunanTimRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]domain.SusunanTim, error) {
-	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim , is_active, keterangan FROM susunan_tim ORDER BY id ASC"
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim , is_active, keterangan FROM susunan_tim ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return []domain.SusunanTim{}, err
@@ -81,7 +81,7 @@ func (repository *SusunanTimRepositoryImpl) FindAll(ctx context.Context, tx *sql
 	var susunanTimList []domain.SusunanTim
 	for rows.Next() {
 		var susunanTim domain.SusunanTim
-		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.IdJabatanTim, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
 		if err != nil {
 			return []domain.SusunanTim{}, err
 		}
@@ -93,7 +93,7 @@ func (repository *SusunanTimRepositoryImpl) FindAll(ctx context.Context, tx *sql
 }
 
 func (repository *SusunanTimRepositoryImpl) FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.SusunanTim, error) {
-	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, nama_jabatan_tim , is_active, keterangan FROM susunan_tim WHERE kode_tim = ? ORDER BY id ASC"
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim , is_active, keterangan FROM susunan_tim WHERE kode_tim = ? ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, kodeTim)
 	if err != nil {
 		return []domain.SusunanTim{}, err
@@ -103,7 +103,7 @@ func (repository *SusunanTimRepositoryImpl) FindByKodeTim(ctx context.Context, t
 	var susunanTimList []domain.SusunanTim
 	for rows.Next() {
 		var susunanTim domain.SusunanTim
-		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.IdJabatanTim, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
 		if err != nil {
 			return []domain.SusunanTim{}, err
 		}

@@ -6,6 +6,7 @@ type SusunanTim struct {
 	Id             int
 	KodeTim        string
 	PegawaiId      string
+	IdJabatanTim   int
 	NamaJabatanTim string
 	NamaPegawai    string
 	IsActive       bool

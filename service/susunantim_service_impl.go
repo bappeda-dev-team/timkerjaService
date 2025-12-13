@@ -27,21 +27,32 @@ func NewSusunanTimServiceImpl(susunanTimRepository repository.SusunanTimReposito
 }
 
 func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web.SusunanTimCreateRequest) (web.SusunanTimResponse, error) {
-	err := service.Validator.Struct(susunanTim)
-	if err != nil {
-		return web.SusunanTimResponse{}, err
+	if err := service.Validator.Struct(susunanTim); err != nil {
+
+		validationErrors := err.(validator.ValidationErrors)
+
+		fieldErrors := make(map[string]string)
+		for _, fe := range validationErrors {
+			fieldErrors[fe.Field()] = fe.Tag()
+		}
+
+		return web.SusunanTimResponse{}, &web.ValidationError{
+			Message: "INVALID_FIELD",
+			Fields:  fieldErrors,
+		}
 	}
 
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return web.SusunanTimResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer helper.NewCommitOrRollback(tx, &err)
 
 	susunanTimDomain := domain.SusunanTim{
 		KodeTim:        susunanTim.KodeTim,
 		PegawaiId:      susunanTim.PegawaiId,
 		NamaPegawai:    susunanTim.NamaPegawai,
+		IdJabatanTim:   susunanTim.IdJabatanTim,
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
 		Keterangan:     &susunanTim.Keterangan,
@@ -52,15 +63,18 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 		return web.SusunanTimResponse{}, err
 	}
 
-	return web.SusunanTimResponse{
+	res := web.SusunanTimResponse{
 		Id:             susunanTimDomain.Id,
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
+		IdJabatanTim:   susunanTim.IdJabatanTim,
 		NamaPegawai:    susunanTimDomain.NamaPegawai,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
-	}, nil
+	}
+
+	return res, nil
 }
 
 func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web.SusunanTimUpdateRequest) (web.SusunanTimResponse, error) {
@@ -79,6 +93,7 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 		Id:             susunanTim.Id,
 		KodeTim:        susunanTim.KodeTim,
 		PegawaiId:      susunanTim.PegawaiId,
+		IdJabatanTim:   susunanTim.IdJabatanTim,
 		NamaPegawai:    susunanTim.NamaPegawai,
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
@@ -95,6 +110,7 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
 		NamaPegawai:    susunanTimDomain.NamaPegawai,
+		IdJabatanTim:   susunanTim.IdJabatanTim,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
@@ -132,6 +148,7 @@ func (service *SusunanTimServiceImpl) FindById(ctx context.Context, id int) (web
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
 		NamaPegawai:    susunanTimDomain.NamaPegawai,
+		IdJabatanTim:   susunanTimDomain.IdJabatanTim,
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
