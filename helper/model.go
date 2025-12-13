@@ -31,6 +31,7 @@ func ToSusunanTimResponses(susunanTimDomains []domain.SusunanTim) []web.SusunanT
 			KodeTim:        susunanTimDomain.KodeTim,
 			PegawaiId:      susunanTimDomain.PegawaiId,
 			NamaPegawai:    susunanTimDomain.NamaPegawai,
+			IdJabatanTim:   susunanTimDomain.IdJabatanTim,
 			NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 			IsActive:       susunanTimDomain.IsActive,
 			Keterangan:     susunanTimDomain.Keterangan,

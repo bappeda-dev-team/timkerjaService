@@ -42,6 +42,13 @@ func (controller *SusunanTimControllerImpl) Create(c echo.Context) error {
 
 	SusunanTimResponse, err := controller.SusunanTimService.Create(c.Request().Context(), SusunanTimCreateRequest)
 	if err != nil {
+		if ve, ok := err.(*web.ValidationError); ok {
+			return c.JSON(http.StatusBadRequest, web.WebResponse{
+				Code:   http.StatusBadRequest,
+				Status: "BAD_REQUEST",
+				Data:   ve,
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
 			Status: "INTERNAL_SERVER_ERROR",
