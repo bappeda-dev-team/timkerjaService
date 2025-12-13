@@ -114,6 +114,23 @@ func MergePenilaianKinerjaParallel(
 		listIdPegawais = append(listIdPegawais, id)
 	}
 
+	// ======================
+	// 2.5) SORTING: LevelJabatanTim ASC
+	// ======================
+	for i := range responses {
+		sort.Slice(responses[i].PenilaianKinerjas, func(a, b int) bool {
+			A := responses[i].PenilaianKinerjas[a]
+			B := responses[i].PenilaianKinerjas[b]
+
+			// level jabatan tim kecil > level besar
+			if A.LevelJabatanTim != B.LevelJabatanTim {
+				return A.LevelJabatanTim < B.LevelJabatanTim
+			}
+
+			return A.SusunanTimId < B.SusunanTimId
+		})
+	}
+
 	// Ambil detail pegawai batch
 	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, listIdPegawais)
 	if err != nil {
@@ -155,23 +172,6 @@ func MergePenilaianKinerjaParallel(
 			// Pajak
 			item.Tpp.Pajak = dp.Pajak
 		}
-	}
-
-	// ======================
-	// 4) SORTING: LevelJabatanTim DESC
-	// ======================
-	for i := range responses {
-		sort.Slice(responses[i].PenilaianKinerjas, func(a, b int) bool {
-			A := responses[i].PenilaianKinerjas[a]
-			B := responses[i].PenilaianKinerjas[b]
-
-			// level jabatan tim kecil > level besar
-			if A.LevelJabatanTim != B.LevelJabatanTim {
-				return A.LevelJabatanTim < B.LevelJabatanTim
-			}
-
-			return A.SusunanTimId < B.SusunanTimId
-		})
 	}
 
 	return responses, nil
