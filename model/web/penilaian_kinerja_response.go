@@ -58,5 +58,6 @@ type LaporanPenilaianKinerjaResponse struct {
 	NamaTim           string                     `json:"nama_tim" validate:"required"`
 	KodeTim           string                     `json:"kode_tim" validate:"required"`
 	IsSekretariat     bool                       `json:"is_sekretariat"`
+	Keterangan        string                     `json:"keterangan"`
 	PenilaianKinerjas []PenilaianGroupedResponse `json:"penilaian_kinerjas"`
 }

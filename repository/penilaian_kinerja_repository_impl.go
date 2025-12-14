@@ -136,6 +136,7 @@ SELECT
   st.kode_tim,
   tk.nama_tim,
   tk.is_sekretariat,
+  tk.keterangan,
 
   p.id,
   p.jenis_nilai,
@@ -178,6 +179,7 @@ ORDER BY st.kode_tim, st.id;
 			kodeTim         string
 			namaTimNS       sql.NullString
 			isSekretariatNS sql.NullBool
+			keteranganTimNS sql.NullString
 
 			idNS           sql.NullInt64
 			jenisNilaiNS   sql.NullString
@@ -199,6 +201,7 @@ ORDER BY st.kode_tim, st.id;
 			&kodeTim,
 			&namaTimNS,
 			&isSekretariatNS,
+			&keteranganTimNS,
 			&idNS,
 			&jenisNilaiNS,
 			&nilaiKinerjaNS,
@@ -219,6 +222,7 @@ ORDER BY st.kode_tim, st.id;
 				NamaTim:       stringOrEmpty(namaTimNS),
 				KodeTim:       kodeTim,
 				IsSekretariat: boolOrFalse(isSekretariatNS),
+				Keterangan:    stringOrEmpty(keteranganTimNS),
 				Penilaians:    []domain.PenilaianKinerja{},
 			}
 			groupMap[kodeTim] = group

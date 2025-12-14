@@ -88,6 +88,7 @@ func MergePenilaianKinerjaParallel(
 				NamaTim:           laporan.NamaTim,
 				KodeTim:           laporan.KodeTim,
 				IsSekretariat:     laporan.IsSekretariat,
+				Keterangan:        laporan.Keterangan,
 				PenilaianKinerjas: grouped,
 			}
 
@@ -216,6 +217,7 @@ func ConvertToTppPegawaiResponse(
 			NamaTim:           lap.NamaTim,
 			KodeTim:           lap.KodeTim,
 			IsSekretariat:     lap.IsSekretariat,
+			Keterangan:        lap.Keterangan,
 			PenilaianKinerjas: make([]web.PenilaianGroupedResponse, len(lap.PenilaianKinerjas)),
 		}
 

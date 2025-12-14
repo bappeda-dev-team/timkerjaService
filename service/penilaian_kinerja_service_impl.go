@@ -223,6 +223,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 	if err != nil {
 		return nil, err
 	}
+	// TODO: merge baris diatas dengan method All
 
 	// convert tambah tpp dan perhitungan
 	result := helper.ConvertToTppPegawaiResponse(merged)

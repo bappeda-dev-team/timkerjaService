@@ -26,5 +26,6 @@ type LaporanPenilaian struct {
 	NamaTim       string
 	KodeTim       string
 	IsSekretariat bool
+	Keterangan    string
 	Penilaians    []PenilaianKinerja
 }
