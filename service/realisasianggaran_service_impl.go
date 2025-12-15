@@ -80,21 +80,22 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 	}
 
 	d := domain.RealisasiAnggaran{
-		KodeSubkegiatan:   req.KodeSubkegiatan,
-		RealisasiAnggaran: req.RealisasiAnggaran,
-		KodeOpd:           req.KodeOpd,
-		RencanaAksi:       req.RencanaAksi,
-		FaktorPendorong:   req.FaktorPendorong,
-		FaktorPenghambat:  req.FaktorPenghambat,
-		RekomendasiTl:     req.RekomendasiTl,
-		RisikoHukum:       req.RisikoHukum,
-		BuktiDukung:       req.BuktiDukung,
-		Bulan:             req.Bulan,
-		Tahun:             req.Tahun,
-		KodeTim:           req.KodeTim,
-		IdPohon:           req.IdPohon,
-		IdRencanaKinerja:  req.IdRencanaKinerja,
-		IdProgramUnggulan: req.IdProgramUnggulan,
+		KodeSubkegiatan:             req.KodeSubkegiatan,
+		RealisasiAnggaran:           req.RealisasiAnggaran,
+		KodeOpd:                     req.KodeOpd,
+		RencanaAksi:                 req.RencanaAksi,
+		FaktorPendorong:             req.FaktorPendorong,
+		FaktorPenghambat:            req.FaktorPenghambat,
+		RekomendasiTl:               req.RekomendasiTl,
+		RisikoHukum:                 req.RisikoHukum,
+		BuktiDukung:                 req.BuktiDukung,
+		Bulan:                       req.Bulan,
+		Tahun:                       req.Tahun,
+		KodeTim:                     req.KodeTim,
+		IdPohon:                     req.IdPohon,
+		IdRencanaKinerja:            req.IdRencanaKinerja,
+		IdProgramUnggulan:           req.IdProgramUnggulan,
+		IdRencanaKinerjaSekretariat: req.IdRencanaKinerjaSekretariat,
 	}
 
 	ra, err := s.RealisasiAnggaranRepository.Upsert(ctx, tx, d)

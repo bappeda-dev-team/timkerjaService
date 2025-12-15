@@ -1,0 +1,2 @@
+ALTER TABLE realisasi_anggaran
+ADD COLUMN id_rencana_kinerja_sekretariat int AFTER id_program_unggulan;

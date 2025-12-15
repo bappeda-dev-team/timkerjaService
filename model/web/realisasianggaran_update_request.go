@@ -12,7 +12,7 @@ type RealisasiAnggaranUpdateRequest struct {
 	FaktorPendorong   string `json:"faktor_pendorong"`
 	FaktorPenghambat  string `json:"faktor_penghambat"`
 	RekomendasiTl     string `json:"rekomendasi_tl"`
-	RisikoHukum       string `json:"risko_hukum"`
+	RisikoHukum       string `json:"risiko_hukum"`
 	BuktiDukung       string `json:"bukti_dukung"`
 	Bulan             string `json:"bulan" validate:"required"`
 	Tahun             string `json:"tahun" validate:"required"`
