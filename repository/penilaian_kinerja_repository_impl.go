@@ -154,9 +154,14 @@ LEFT JOIN jabatan_tim jt
 LEFT JOIN tim_kerja tk
   ON tk.kode_tim = st.kode_tim
 LEFT JOIN penilaian_kinerja p
-  ON p.id_pegawai = st.pegawai_id
-  AND p.tahun = ?
-  AND p.bulan = ?
+  ON p.id = (
+    SELECT MAX(p2.id)
+    FROM penilaian_kinerja p2
+	WHERE p2.id_pegawai = st.pegawai_id
+	AND p2.tahun = ?
+	AND p2.bulan = ?
+    AND p2.jenis_nilai = p.jenis_nilai
+)
 ORDER BY st.kode_tim, st.id;
 `
 

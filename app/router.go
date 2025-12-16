@@ -41,7 +41,6 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// post simpan rencana kinerja dari sekret
 	e.POST("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.AddRencanaKinerja)
 	// get rekin by tim kerja sekret
-	// TODO: TARGET PERBAIKAN
 	e.GET("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.FindAllRencanaKinerjaTim)
 	// hapus rencana kinerja dari sekret
 	e.DELETE("/timkerja_sekretariat/:kodetim/rencana_kinerja/:id", timKerjaController.DeleteRencanaKinerjaTim)
