@@ -10,7 +10,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController, realisasiAnggaranController controller.RealisasiAnggaranController, penilaianKinerjaController controller.PenilaianKinerjaController) *echo.Echo {
+func NewRouter(timKerjaController controller.TimKerjaController, susunanTimController controller.SusunanTimController, jabatanTimController controller.JabatanTimController, realisasiAnggaranController controller.RealisasiAnggaranController, penilaianKinerjaController controller.PenilaianKinerjaController, petugasTimController controller.PetugasTimController) *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -74,6 +74,10 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 
 	// TPP KONKER
 	e.GET("/laporan_tpp", penilaianKinerjaController.LaporanTpp) // filter by bulan tahun
+
+	// petugs tim
+	e.POST("/petugas_tim", petugasTimController.AddPetugas)
+	e.DELETE("/petugas_tim/:idPetugasTim", petugasTimController.DeletePetugas)
 
 	return e
 }

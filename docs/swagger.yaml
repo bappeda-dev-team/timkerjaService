@@ -159,6 +159,8 @@ definitions:
     properties:
       is_sekretariat:
         type: boolean
+      keterangan:
+        type: string
       kode_tim:
         type: string
       nama_tim:
@@ -201,6 +203,8 @@ definitions:
         type: string
       tahun:
         type: string
+      tpp_pegawai:
+        $ref: '#/definitions/web.PenilaianTppExtension'
     type: object
   web.PenilaianKinerjaRequest:
     properties:
@@ -264,6 +268,51 @@ definitions:
     - nilai_kinerja
     - tahun
     type: object
+  web.PenilaianTppExtension:
+    properties:
+      jumlah_bersih:
+        type: integer
+      jumlah_kotor:
+        type: integer
+      jumlah_pajak:
+        type: integer
+      pajak:
+        type: number
+      persentase_penerimaan:
+        type: string
+      potongan_bpjs:
+        type: number
+      tpp_basic:
+        type: integer
+    type: object
+  web.PetugasTimCreateRequest:
+    properties:
+      bulan:
+        type: integer
+      id_program_unggulan:
+        type: integer
+      kode_tim:
+        type: string
+      pegawai_id:
+        type: string
+      tahun:
+        type: integer
+    required:
+    - id_program_unggulan
+    - kode_tim
+    - pegawai_id
+    - tahun
+    type: object
+  web.PetugasTimResponse:
+    properties:
+      id:
+        type: integer
+      nama_pegawai:
+        type: string
+      pegawai_id:
+        description: nip
+        type: string
+    type: object
   web.ProgramUnggulanTimKerjaResponse:
     properties:
       id:
@@ -301,6 +350,8 @@ definitions:
         type: integer
       id_rencana_kinerja:
         type: string
+      id_rencana_kinerja_sekretariat:
+        type: integer
       kode_opd:
         type: string
       kode_subkegiatan:
@@ -313,7 +364,7 @@ definitions:
         type: string
       rencana_aksi:
         type: string
-      risko_hukum:
+      risiko_hukum:
         type: string
       tahun:
         type: string
@@ -347,6 +398,8 @@ definitions:
         type: integer
       id_rencana_kinerja:
         type: string
+      id_rencana_kinerja_sekretariat:
+        type: integer
       kode_opd:
         type: string
       kode_subkegiatan:
@@ -359,7 +412,7 @@ definitions:
         type: string
       rencana_aksi:
         type: string
-      risko_hukum:
+      risiko_hukum:
         type: string
       tahun:
         type: string
@@ -412,6 +465,8 @@ definitions:
     type: object
   web.SusunanTimCreateRequest:
     properties:
+      id_jabatan_tim:
+        type: integer
       is_active:
         type: boolean
       keterangan:
@@ -425,6 +480,7 @@ definitions:
       nip:
         type: string
     required:
+    - id_jabatan_tim
     - kode_tim
     - nama_jabatan_tim
     - nama_pegawai
@@ -453,6 +509,8 @@ definitions:
         type: string
       id:
         type: integer
+      id_jabatan_tim:
+        type: integer
       is_active:
         type: boolean
       keterangan:
@@ -472,6 +530,8 @@ definitions:
     properties:
       id:
         type: integer
+      id_jabatan_tim:
+        type: integer
       is_active:
         type: boolean
       keterangan:
@@ -485,6 +545,7 @@ definitions:
       nip:
         type: string
     required:
+    - id_jabatan_tim
     - kode_tim
     - nama_jabatan_tim
     - nama_pegawai
@@ -744,6 +805,47 @@ paths:
       summary: Update Jabatan Tim
       tags:
       - Jabatan Tim
+  /laporan_tpp:
+    get:
+      consumes:
+      - application/json
+      description: Penilaian Kinerja berdasarkan bulan & tahun plus nilai tpp individu
+      parameters:
+      - description: 'Tahun penilaian (ex: 2025)'
+        in: query
+        name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 12)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.LaporanPenilaianKinerjaResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Laporan TPP Konker by bulan tahun
+      tags:
+      - TPP
   /only_timkerja:
     get:
       consumes:
@@ -881,6 +983,70 @@ paths:
       summary: Update Penialaian Kinerja Individu
       tags:
       - Penilaian Kinerja
+  /petugas_tim:
+    post:
+      consumes:
+      - application/json
+      description: Add petugas to the program unggulan
+      parameters:
+      - description: Petugas Tim Create Request
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/web.PetugasTimCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/web.PetugasTimResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Add Petugas
+      tags:
+      - Petugas
+  /petugas_tim/:idPetugasTim:
+    delete:
+      consumes:
+      - application/json
+      description: Remove petugas from the program unggulan assigned
+      parameters:
+      - description: Petugas Tim ID
+        in: path
+        name: idPetugasTim
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DELETED
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Delete Petugas
+      tags:
+      - Petugas
   /realisasianggaran:
     post:
       consumes:

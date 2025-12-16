@@ -68,6 +68,14 @@ func (m *MockSusunanTimRepository) FindByKodeTim(
 	panic("FindByKodeTim not implemented")
 }
 
+func (m *MockSusunanTimRepository) FindByIdPegawai(
+	ctx context.Context,
+	tx *sql.Tx,
+	idPegawai string,
+) (domain.SusunanTim, error) {
+	panic("FindById not implemented")
+}
+
 func TestSusunanTimServiceImpl_Create(t *testing.T) {
 	ctx := context.Background()
 

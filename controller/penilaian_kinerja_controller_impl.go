@@ -169,7 +169,7 @@ func (ctrl *PenilaianKinerjaControllerImpl) Update(c echo.Context) error {
 // @Produce json
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Param bulan query int true "Bulan penilaian (ex: 12)"
-// @Success 200 {object} web.WebResponse{data=[]web.LaporanTppPegawaiResponse} "OK"
+// @Success 200 {object} web.WebResponse{data=[]web.LaporanPenilaianKinerjaResponse} "OK"
 // @Failure 400 {object} web.WebResponse "Bad Request"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
 // @Router /laporan_tpp [get]

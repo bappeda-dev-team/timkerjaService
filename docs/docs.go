@@ -285,6 +285,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/laporan_tpp": {
+            "get": {
+                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun plus nilai tpp individu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TPP"
+                ],
+                "summary": "Laporan TPP Konker by bulan tahun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 12)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.LaporanPenilaianKinerjaResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/only_timkerja": {
             "get": {
                 "description": "Get All Tim Kerja",
@@ -492,6 +558,108 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/petugas_tim": {
+            "post": {
+                "description": "Add petugas to the program unggulan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Petugas"
+                ],
+                "summary": "Add Petugas",
+                "parameters": [
+                    {
+                        "description": "Petugas Tim Create Request",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.PetugasTimCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/web.PetugasTimResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/petugas_tim/:idPetugasTim": {
+            "delete": {
+                "description": "Remove petugas from the program unggulan assigned",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Petugas"
+                ],
+                "summary": "Delete Petugas",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Petugas Tim ID",
+                        "name": "idPetugasTim",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "DELETED",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
                         }
                     },
                     "400": {
@@ -1758,6 +1926,9 @@ const docTemplate = `{
                 "is_sekretariat": {
                     "type": "boolean"
                 },
+                "keterangan": {
+                    "type": "string"
+                },
                 "kode_tim": {
                     "type": "string"
                 },
@@ -1816,6 +1987,9 @@ const docTemplate = `{
                 },
                 "tahun": {
                     "type": "string"
+                },
+                "tpp_pegawai": {
+                    "$ref": "#/definitions/web.PenilaianTppExtension"
                 }
             }
         },
@@ -1907,6 +2081,73 @@ const docTemplate = `{
                 }
             }
         },
+        "web.PenilaianTppExtension": {
+            "type": "object",
+            "properties": {
+                "jumlah_bersih": {
+                    "type": "integer"
+                },
+                "jumlah_kotor": {
+                    "type": "integer"
+                },
+                "jumlah_pajak": {
+                    "type": "integer"
+                },
+                "pajak": {
+                    "type": "number"
+                },
+                "persentase_penerimaan": {
+                    "type": "string"
+                },
+                "potongan_bpjs": {
+                    "type": "number"
+                },
+                "tpp_basic": {
+                    "type": "integer"
+                }
+            }
+        },
+        "web.PetugasTimCreateRequest": {
+            "type": "object",
+            "required": [
+                "id_program_unggulan",
+                "kode_tim",
+                "pegawai_id",
+                "tahun"
+            ],
+            "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "id_program_unggulan": {
+                    "type": "integer"
+                },
+                "kode_tim": {
+                    "type": "string"
+                },
+                "pegawai_id": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                }
+            }
+        },
+        "web.PetugasTimResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nama_pegawai": {
+                    "type": "string"
+                },
+                "pegawai_id": {
+                    "description": "nip",
+                    "type": "string"
+                }
+            }
+        },
         "web.ProgramUnggulanTimKerjaResponse": {
             "type": "object",
             "properties": {
@@ -1973,6 +2214,9 @@ const docTemplate = `{
                 "id_rencana_kinerja": {
                     "type": "string"
                 },
+                "id_rencana_kinerja_sekretariat": {
+                    "type": "integer"
+                },
                 "kode_opd": {
                     "type": "string"
                 },
@@ -1991,7 +2235,7 @@ const docTemplate = `{
                 "rencana_aksi": {
                     "type": "string"
                 },
-                "risko_hukum": {
+                "risiko_hukum": {
                     "type": "string"
                 },
                 "tahun": {
@@ -2032,6 +2276,9 @@ const docTemplate = `{
                 "id_rencana_kinerja": {
                     "type": "string"
                 },
+                "id_rencana_kinerja_sekretariat": {
+                    "type": "integer"
+                },
                 "kode_opd": {
                     "type": "string"
                 },
@@ -2050,7 +2297,7 @@ const docTemplate = `{
                 "rencana_aksi": {
                     "type": "string"
                 },
-                "risko_hukum": {
+                "risiko_hukum": {
                     "type": "string"
                 },
                 "tahun": {
@@ -2123,12 +2370,16 @@ const docTemplate = `{
         "web.SusunanTimCreateRequest": {
             "type": "object",
             "required": [
+                "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
                 "nip"
             ],
             "properties": {
+                "id_jabatan_tim": {
+                    "type": "integer"
+                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -2184,6 +2435,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "id_jabatan_tim": {
+                    "type": "integer"
+                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -2210,6 +2464,7 @@ const docTemplate = `{
         "web.SusunanTimUpdateRequest": {
             "type": "object",
             "required": [
+                "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
@@ -2217,6 +2472,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "id": {
+                    "type": "integer"
+                },
+                "id_jabatan_tim": {
                     "type": "integer"
                 },
                 "is_active": {

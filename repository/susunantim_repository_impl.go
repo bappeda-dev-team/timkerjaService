@@ -113,3 +113,23 @@ func (repository *SusunanTimRepositoryImpl) FindByKodeTim(ctx context.Context, t
 
 	return susunanTimList, nil
 }
+
+func (repository *SusunanTimRepositoryImpl) FindByIdPegawai(ctx context.Context, tx *sql.Tx, idPegawai string) (domain.SusunanTim, error) {
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan FROM susunan_tim WHERE pegawai_id = ?"
+	rows, err := tx.QueryContext(ctx, query, idPegawai)
+	if err != nil {
+		return domain.SusunanTim{}, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		var susunanTim domain.SusunanTim
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.IdJabatanTim, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan)
+		if err != nil {
+			return domain.SusunanTim{}, err
+		}
+		return susunanTim, nil
+	}
+
+	return domain.SusunanTim{}, errors.New("Pegawai tidak ditemukan")
+}

@@ -13,4 +13,5 @@ type SusunanTimRepository interface {
 	FindById(ctx context.Context, tx *sql.Tx, id int) (domain.SusunanTim, error)
 	FindAll(ctx context.Context, tx *sql.Tx) ([]domain.SusunanTim, error)
 	FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.SusunanTim, error)
+	FindByIdPegawai(ctx context.Context, tx *sql.Tx, idPegawai string) (domain.SusunanTim, error)
 }
