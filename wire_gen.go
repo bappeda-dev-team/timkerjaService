@@ -20,12 +20,14 @@ import (
 
 func InitializedServer() *echo.Echo {
 	timKerjaRepositoryImpl := repository.NewTimKerjaRepositoryImpl()
+	petugasTimRepositoryImpl := repository.NewPetugasTimRepositoryImpl()
+	susunanTimRepositoryImpl := repository.NewSusunanTimRepositoryImpl()
 	db := app.GetConnection()
 	v := _wireValue
 	validate := validator.New(v...)
-	timKerjaServiceImpl := service.NewTimKerjaServiceImpl(timKerjaRepositoryImpl, db, validate)
+	petugasTimServiceImpl := service.NewPetugasTimServiceImpl(petugasTimRepositoryImpl, susunanTimRepositoryImpl, db, validate)
+	timKerjaServiceImpl := service.NewTimKerjaServiceImpl(timKerjaRepositoryImpl, petugasTimServiceImpl, db, validate)
 	timKerjaControllerImpl := controller.NewTimKerjaControllerImpl(timKerjaServiceImpl)
-	susunanTimRepositoryImpl := repository.NewSusunanTimRepositoryImpl()
 	susunanTimServiceImpl := service.NewSusunanTimServiceImpl(susunanTimRepositoryImpl, db, validate)
 	susunanTimControllerImpl := controller.NewSusunanTimControllerImpl(susunanTimServiceImpl)
 	jabatanTimRepositoryImpl := repository.NewJabatanTimRepositoryImpl()
@@ -37,8 +39,6 @@ func InitializedServer() *echo.Echo {
 	penilaianKinerjaRepositoryImpl := repository.NewPenilaianKinerjaRepositoryImpl()
 	penilaianKinerjaServiceImpl := service.NewPenilaianKinerjaServiceImpl(db, penilaianKinerjaRepositoryImpl, validate)
 	penilaianKinerjaControllerImpl := controller.NewPenilaianKinerjaControllerImpl(penilaianKinerjaServiceImpl)
-	petugasTimRepositoryImpl := repository.NewPetugasTimRepositoryImpl()
-	petugasTimServiceImpl := service.NewPetugasTimServiceImpl(petugasTimRepositoryImpl, susunanTimRepositoryImpl, db, validate)
 	petugasTimControllerImpl := controller.NewPetugasTimControllerImpl(petugasTimServiceImpl)
 	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl, realisasiAnggaranControllerImpl, penilaianKinerjaControllerImpl, petugasTimControllerImpl)
 	return echoEcho

@@ -26,6 +26,7 @@ type ProgramUnggulanTimKerjaResponse struct {
 	Tahun               string                             `json:"tahun"`
 	KodeOpd             string                             `json:"kode_opd"`
 	Pokin               []internal.TaggingPohonKinerjaItem `json:"pohon_kinerja"`
+	PetugasTims         []PetugasTimResponse               `json:"petugas_tims"`
 }
 
 type ProgramUnggulanFullResponse struct {

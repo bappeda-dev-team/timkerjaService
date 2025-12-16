@@ -2166,6 +2166,12 @@ const docTemplate = `{
                 "kode_tim": {
                     "type": "string"
                 },
+                "petugas_tims": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/web.PetugasTimResponse"
+                    }
+                },
                 "pohon_kinerja": {
                     "type": "array",
                     "items": {

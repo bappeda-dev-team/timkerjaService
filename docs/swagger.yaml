@@ -325,6 +325,10 @@ definitions:
         type: string
       kode_tim:
         type: string
+      petugas_tims:
+        items:
+          $ref: '#/definitions/web.PetugasTimResponse'
+        type: array
       pohon_kinerja:
         items:
           $ref: '#/definitions/internal.TaggingPohonKinerjaItem'

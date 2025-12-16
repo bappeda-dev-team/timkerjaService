@@ -20,13 +20,15 @@ import (
 
 type TimKerjaServiceImpl struct {
 	TimKerjaRepository repository.TimKerjaRepository
+	PetugasTimService  PetugasTimService
 	DB                 *sql.DB
 	Validator          *validator.Validate
 }
 
-func NewTimKerjaServiceImpl(timKerjaRepository repository.TimKerjaRepository, db *sql.DB, validator *validator.Validate) *TimKerjaServiceImpl {
+func NewTimKerjaServiceImpl(timKerjaRepository repository.TimKerjaRepository, petugasTimService PetugasTimService, db *sql.DB, validator *validator.Validate) *TimKerjaServiceImpl {
 	return &TimKerjaServiceImpl{
 		TimKerjaRepository: timKerjaRepository,
+		PetugasTimService:  petugasTimService,
 		DB:                 db,
 		Validator:          validator,
 	}
@@ -313,7 +315,42 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 	// --- 5) Inject realisasi ke hasil merged ---
 	addRealisasiToResponses(merged, realisasiMap)
 
+	// --- 6) petugas tim
+	idProgramUnggulans := make([]int, 0, len(merged))
+	seen := make(map[int]struct{})
+
+	for _, m := range merged {
+		if _, ok := seen[m.IdProgramUnggulan]; ok {
+			continue
+		}
+		seen[m.IdProgramUnggulan] = struct{}{}
+		idProgramUnggulans = append(idProgramUnggulans, m.IdProgramUnggulan)
+	}
+
+	petugasTimMap, err := service.PetugasTimService.
+		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans)
+	if err != nil {
+		return nil, err
+	}
+
+	addPetugasTimToResponses(merged, petugasTimMap)
+
 	return merged, nil
+}
+
+func addPetugasTimToResponses(
+	responses []web.ProgramUnggulanTimKerjaResponse,
+	petugasTimMap map[int][]web.PetugasTimResponse,
+) {
+	for i := range responses {
+		id := responses[i].IdProgramUnggulan
+
+		if pts, ok := petugasTimMap[id]; ok {
+			responses[i].PetugasTims = pts
+		} else {
+			responses[i].PetugasTims = []web.PetugasTimResponse{}
+		}
+	}
 }
 
 func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, realisasiMap map[int]domain.RealisasiAnggaranRecord) {
