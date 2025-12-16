@@ -9,6 +9,7 @@ type PetugasTim struct {
 	IdProgramUnggulan int
 	KodeTim           string
 	PegawaiId         string
+	NamaPegawai       string
 	Tahun             int
 	Bulan             int
 	CreatedAt         time.Time

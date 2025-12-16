@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"timkerjaService/model/domain"
 )
 
@@ -41,4 +42,67 @@ func (repo *PetugasTimRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, id
 		return err
 	}
 	return nil
+}
+
+func (repo *PetugasTimRepositoryImpl) FindAllByIdProgramUnggulans(
+	ctx context.Context,
+	tx *sql.Tx,
+	idProgramUnggulans []int,
+) ([]domain.PetugasTim, error) {
+
+	if len(idProgramUnggulans) == 0 {
+		return []domain.PetugasTim{}, nil
+	}
+
+	placeholders := make([]string, len(idProgramUnggulans))
+	args := make([]any, 0, len(idProgramUnggulans))
+
+	for i, id := range idProgramUnggulans {
+		placeholders[i] = "?"
+		args = append(args, id)
+	}
+
+	query := fmt.Sprintf(`
+SELECT
+    pt.id,
+    pt.id_program_unggulan,
+    pt.kode_tim,
+    pt.pegawai_id,
+    st.nama_pegawai
+FROM petugas_tim pt
+JOIN susunan_tim st
+  ON st.pegawai_id = pt.pegawai_id
+ AND st.kode_tim   = pt.kode_tim
+WHERE pt.id_program_unggulan IN (%s)
+`, strings.Join(placeholders, ","))
+
+	rows, err := tx.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := make([]domain.PetugasTim, 0)
+
+	for rows.Next() {
+		var pet domain.PetugasTim
+
+		if err := rows.Scan(
+			&pet.Id,
+			&pet.IdProgramUnggulan,
+			&pet.KodeTim,
+			&pet.PegawaiId,
+			&pet.NamaPegawai,
+		); err != nil {
+			return nil, err
+		}
+
+		results = append(results, pet)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }

@@ -78,3 +78,28 @@ func (service *PetugasTimServiceImpl) Delete(ctx context.Context, idPetugasTim i
 
 	return nil
 }
+
+func (service *PetugasTimServiceImpl) FindAllByIdProgramUnggulans(ctx context.Context, idProgramUnggulans []int) (map[int][]web.PetugasTimResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	petugasTims, err := service.PetugasTimRepository.FindAllByIdProgramUnggulans(ctx, tx, idProgramUnggulans)
+	if err != nil {
+		return nil, err
+	}
+	results := make(map[int][]web.PetugasTimResponse)
+	for _, pt := range petugasTims {
+
+		resp := web.PetugasTimResponse{
+			Id:          pt.Id,
+			PegawaiId:   pt.PegawaiId,
+			NamaPegawai: pt.NamaPegawai,
+		}
+		results[pt.IdProgramUnggulan] = append(results[pt.IdProgramUnggulan], resp)
+	}
+
+	return results, nil
+}
