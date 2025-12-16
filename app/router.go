@@ -26,12 +26,12 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.DELETE("/timkerja/:id", timKerjaController.Delete)
 	e.GET("/timkerja/:id", timKerjaController.FindById)
 	e.GET("/only_timkerja", timKerjaController.FindAll)
+	// TODO: tambah tahun untuk get susunan aktif
 	e.GET("/timkerja", timKerjaController.FindAllTm)
 	e.GET("/timkerja-non-sekretariat", timKerjaController.FindAllTimNonSekretariat)
 	e.GET("/timkerja-sekretariat", timKerjaController.FindAllTimSekretariat)
 	// Program unggulan
 	e.POST("/timkerja/:kodetim/program_unggulan", timKerjaController.AddProgramUnggulan)
-	// TODO: TARGET PERBAIKAN
 	e.GET("/timkerja/:kodetim/program_unggulan", timKerjaController.FindAllProgramUnggulanTim)
 	e.DELETE("/timkerja/:kodetim/program_unggulan/:id", timKerjaController.DeleteProgramUnggulan)
 	// POST simpan realisasi anggaran by subkegiatan
@@ -41,6 +41,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// post simpan rencana kinerja dari sekret
 	e.POST("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.AddRencanaKinerja)
 	// get rekin by tim kerja sekret
+	// TODO: TARGET PERBAIKAN
 	e.GET("/timkerja_sekretariat/:kodetim/rencana_kinerja", timKerjaController.FindAllRencanaKinerjaTim)
 	// hapus rencana kinerja dari sekret
 	e.DELETE("/timkerja_sekretariat/:kodetim/rencana_kinerja/:id", timKerjaController.DeleteRencanaKinerjaTim)

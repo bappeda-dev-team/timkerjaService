@@ -57,20 +57,25 @@ type TargetIndikator struct {
 }
 
 type RencanaKinerjaTimKerjaResponse struct {
-	Id               int                               `json:"id"`
-	KodeTim          string                            `json:"kode_tim"`
-	IdRencanaKinerja string                            `json:"id_rencana_kinerja"`
-	IdPegawai        string                            `json:"id_pegawai"`
-	NamaPegawai      string                            `json:"nama_pegawai"`
-	RencanaKinerja   string                            `json:"rencana_kinerja"`
-	PaguAnggaran     int                               `json:"pagu_anggaran"`
-	Tahun            string                            `json:"tahun"`
-	KodeOpd          string                            `json:"kode_opd"`
-	IdPohon          int                               `json:"id_pohon,omitempty"`
-	NamaPohon        string                            `json:"nama_pohon,omitempty"`
-	Indikator        []internal.IndikatorResponse      `json:"indikators,omitempty"`
-	RencanaAksi      []internal.RencanaAksiResponse `json:"rencana_aksis"`
-	SubKegiatan      []internal.SubKegiatanResponse    `json:"subkegiatan,omitempty"`
+	Id                int                            `json:"id"`
+	KodeTim           string                         `json:"kode_tim"`
+	IdRencanaKinerja  string                         `json:"id_rencana_kinerja"`
+	IdPegawai         string                         `json:"id_pegawai"`
+	NamaPegawai       string                         `json:"nama_pegawai"`
+	RencanaKinerja    string                         `json:"rencana_kinerja"`
+	PaguAnggaran      int                            `json:"pagu_anggaran"`
+	Tahun             string                         `json:"tahun"`
+	KodeOpd           string                         `json:"kode_opd"`
+	IdPohon           int                            `json:"id_pohon,omitempty"`
+	NamaPohon         string                         `json:"nama_pohon,omitempty"`
+	Indikator         []internal.IndikatorResponse   `json:"indikators,omitempty"`
+	RencanaAksi       []internal.RencanaAksiResponse `json:"rencana_aksis"`
+	SubKegiatan       []internal.SubKegiatanResponse `json:"subkegiatan,omitempty"`
+	RealisasiAnggaran int                            `json:"realisasi_anggaran"`
+	FaktorPendorong   string                         `json:"faktor_pendorong"`
+	FaktorPenghambat  string                         `json:"faktor_penghambat"`
+	RisikoHukum       string                         `json:"risiko_hukum"`
+	Rekomendasi       string                         `json:"rekomendasi_tl"`
 }
 
 type RealisasiResponse struct {

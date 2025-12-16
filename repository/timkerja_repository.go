@@ -27,4 +27,5 @@ type TimKerjaRepository interface {
 	UpdateRealisasiPokin(ctx context.Context, tx *sql.Tx, realisasi domain.RealisasiPokin) (domain.RealisasiPokin, error)
 	FindAllRealisasiPokinByKodeItemTahun(ctx context.Context, tx *sql.Tx, kodeTim string, tahun string) ([]domain.RealisasiPokin, error)
 	FindRealisasiByKodeTimAndPohonIDs(ctx context.Context, tx *sql.Tx, kodeTim string, pohonIDs []int) (map[int]domain.RealisasiAnggaranRecord, error)
+	FindRealisasiByKodeTimAndRekinSekretariatIds(ctx context.Context, tx *sql.Tx, kodeTim string, rekinSekretIds []int) (map[int]domain.RealisasiAnggaranRecord, error)
 }

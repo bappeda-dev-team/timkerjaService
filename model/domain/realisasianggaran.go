@@ -25,11 +25,13 @@ type RealisasiAnggaran struct {
 }
 
 type RealisasiAnggaranRecord struct {
-	IdPohon                 int
-	RealisasiAnggaran       int
-	RencanaAksi             string
-	FaktorPendorong         string
-	FaktorPenghambat        string
-	RisikoHukum             string
-	RekomendasiTindakLanjut string
+	IdPohon                     int
+	IdRencanaKinerjaSekretariat int
+	IdProgramUnggulan           int
+	RealisasiAnggaran           int
+	RencanaAksi                 string
+	FaktorPendorong             string
+	FaktorPenghambat            string
+	RisikoHukum                 string
+	RekomendasiTl               string
 }

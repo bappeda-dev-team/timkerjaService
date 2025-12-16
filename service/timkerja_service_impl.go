@@ -326,7 +326,7 @@ func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, re
 				pohon.FaktorPendorong = rec.FaktorPendorong
 				pohon.FaktorPenghambat = rec.FaktorPenghambat
 				pohon.RisikoHukum = rec.RisikoHukum
-				pohon.Rekomendasi = rec.RekomendasiTindakLanjut
+				pohon.Rekomendasi = rec.RekomendasiTl
 			} else {
 				// default / zero values — opsional: log atau biarkan kosong
 			}
@@ -507,7 +507,40 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 
 	merged := helper.MergeRencanaKinerjaWithRekinParallel(ctx, rencanaKinerjas, perencanaanClient, 5)
 
+	rekinSekretIds := make([]int, 0, len(merged))
+	for _, r := range merged {
+		rekinSekretIds = append(rekinSekretIds, r.Id)
+	}
+
+	tx2, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	realisasiRekinMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndRekinSekretariatIds(ctx, tx2, kodeTim, rekinSekretIds)
+	helper.CommitOrRollback(tx2)
+	if err != nil {
+		return nil, err
+	}
+
+	applyRealisasi(merged, realisasiRekinMap)
+
 	return merged, nil
+}
+
+func applyRealisasi(
+	merged []web.RencanaKinerjaTimKerjaResponse,
+	realisasiMap map[int]domain.RealisasiAnggaranRecord,
+) {
+	for i := range merged {
+		if rec, ok := realisasiMap[merged[i].Id]; ok {
+			merged[i].RealisasiAnggaran = rec.RealisasiAnggaran
+			merged[i].FaktorPendorong = rec.FaktorPendorong
+			merged[i].FaktorPenghambat = rec.FaktorPenghambat
+			merged[i].RisikoHukum = rec.RisikoHukum
+			merged[i].Rekomendasi = rec.RekomendasiTl
+		}
+	}
 }
 
 func (service *TimKerjaServiceImpl) DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error {
