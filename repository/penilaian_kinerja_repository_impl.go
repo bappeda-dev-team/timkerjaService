@@ -162,10 +162,11 @@ LEFT JOIN penilaian_kinerja p
 	AND p2.bulan = ?
     AND p2.jenis_nilai = p.jenis_nilai
 )
+WHERE tk.tahun = ? AND tk.is_active AND st.is_active
 ORDER BY st.kode_tim, st.id;
 `
 
-	rows, err := tx.QueryContext(ctx, query, tahun, bulan)
+	rows, err := tx.QueryContext(ctx, query, tahun, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}

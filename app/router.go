@@ -26,7 +26,6 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.DELETE("/timkerja/:id", timKerjaController.Delete)
 	e.GET("/timkerja/:id", timKerjaController.FindById)
 	e.GET("/only_timkerja", timKerjaController.FindAll)
-	// TODO: tambah tahun untuk get susunan aktif
 	e.GET("/timkerja", timKerjaController.FindAllTm)
 	e.GET("/timkerja-non-sekretariat", timKerjaController.FindAllTimNonSekretariat)
 	e.GET("/timkerja-sekretariat", timKerjaController.FindAllTimSekretariat)
