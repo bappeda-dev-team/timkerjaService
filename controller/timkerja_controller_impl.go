@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"timkerjaService/helper"
 	"timkerjaService/model/web"
 	"timkerjaService/service"
 
@@ -205,11 +206,18 @@ func (controller *TimKerjaControllerImpl) FindById(c echo.Context) error {
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaResponse} "OK"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
 // @Router /only_timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
-	TimKerjaResponses, err := controller.TimKerjaService.FindAll(c.Request().Context())
+	// Ambil query param
+	// TODO change default to current year
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	if err != nil {
+		return err
+	}
+	TimKerjaResponses, err := controller.TimKerjaService.FindAll(c.Request().Context(), tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -230,11 +238,19 @@ func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTm(c.Request().Context())
+	// Ambil query param
+	// TODO change default to current year
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	if err != nil {
+		return err
+	}
+
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTm(c.Request().Context(), tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -328,11 +344,18 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja-sekretariat [get]
 func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Context) error {
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimNonSekretariat(c.Request().Context())
+	// Ambil query param
+	// TODO change default to current year
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	if err != nil {
+		return err
+	}
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimNonSekretariat(c.Request().Context(), tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -353,11 +376,18 @@ func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Contex
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja-sekretariat [get]
 func (controller *TimKerjaControllerImpl) FindAllTimSekretariat(c echo.Context) error {
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimSekretariat(c.Request().Context())
+	// Ambil query param
+	// TODO change default to current year
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	if err != nil {
+		return err
+	}
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimSekretariat(c.Request().Context(), tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -453,10 +483,17 @@ func (cont *TimKerjaControllerImpl) AddRencanaKinerja(c echo.Context) error {
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja/{kodetim}/program_unggulan [get]
 func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Context) error {
+	// Ambil query param
+	// TODO change default to current year
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	if err != nil {
+		return err
+	}
 	kodeTim := c.Param("kodetim")
 	if kodeTim == "" {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
@@ -466,7 +503,7 @@ func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Contex
 		})
 	}
 
-	RencanaKinerjaTimResponse, err := controller.TimKerjaService.FindAllRencanaKinerjaTim(c.Request().Context(), kodeTim)
+	RencanaKinerjaTimResponse, err := controller.TimKerjaService.FindAllRencanaKinerjaTim(c.Request().Context(), kodeTim, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,

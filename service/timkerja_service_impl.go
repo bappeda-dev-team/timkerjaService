@@ -154,28 +154,28 @@ func (service *TimKerjaServiceImpl) FindById(ctx context.Context, id int) (web.T
 	}, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAll(ctx context.Context) ([]web.TimKerjaResponse, error) {
+func (service *TimKerjaServiceImpl) FindAll(ctx context.Context, tahun int) ([]web.TimKerjaResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return []web.TimKerjaResponse{}, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaDomains, err := service.TimKerjaRepository.FindAll(ctx, tx)
+	timKerjaDomains, err := service.TimKerjaRepository.FindAll(ctx, tx, tahun)
 	if err != nil {
 		return []web.TimKerjaResponse{}, err
 	}
 	return helper.ToTimKerjaResponses(timKerjaDomains), nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllWithSusunan(ctx, tx)
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllWithSusunan(ctx, tx, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -371,14 +371,14 @@ func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, re
 	}
 }
 
-func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimNonSekretariatWithSusunan(ctx, tx)
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimNonSekretariatWithSusunan(ctx, tx, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -417,14 +417,14 @@ func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context
 	return result, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimSekretariatWithSusunan(ctx, tx)
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimSekretariatWithSusunan(ctx, tx, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -515,14 +515,14 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	}, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string) ([]web.RencanaKinerjaTimKerjaResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error) {
 	// Ambil data dari DB dulu — jangan tahan TX terlalu lama
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	rencanaKinerjas, err := service.TimKerjaRepository.FindRencanaKinerjaByKodeTim(ctx, tx, kodeTim)
+	rencanaKinerjas, err := service.TimKerjaRepository.FindRencanaKinerjaByKodeTim(ctx, tx, kodeTim, tahun)
 	helper.CommitOrRollback(tx)
 	if err != nil {
 		return nil, err

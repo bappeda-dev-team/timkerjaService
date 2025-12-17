@@ -364,6 +364,15 @@ const docTemplate = `{
                     "Tim Kerja"
                 ],
                 "summary": "Get All Tim Kerja",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1234,6 +1243,15 @@ const docTemplate = `{
                     "Tim Kerja"
                 ],
                 "summary": "Get All Tim Kerja with Details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1334,6 +1352,15 @@ const docTemplate = `{
                     "Tim Kerja"
                 ],
                 "summary": "Get All Tim Kerja Sekretariat with Details",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1539,6 +1566,15 @@ const docTemplate = `{
                     "Tim Kerja"
                 ],
                 "summary": "Find all program unggulan to tim kerja",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
