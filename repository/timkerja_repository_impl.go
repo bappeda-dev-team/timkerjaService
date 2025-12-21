@@ -168,9 +168,9 @@ func (repository *TimKerjaRepositoryImpl) AddProgramUnggulan(ctx context.Context
 	return programUnggulan, nil
 }
 
-func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.ProgramUnggulanTimKerja, error) {
-	query := "SELECT pu.id, pu.kode_tim, pu.id_program_unggulan, pu.kode_program_unggulan, pu.tahun, pu.kode_opd FROM tb_program_unggulan pu WHERE pu.kode_tim = ?"
-	rows, err := tx.QueryContext(ctx, query, kodeTim)
+func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string, tahun int) ([]domain.ProgramUnggulanTimKerja, error) {
+	query := "SELECT pu.id, pu.kode_tim, pu.id_program_unggulan, pu.kode_program_unggulan, pu.tahun, pu.kode_opd FROM tb_program_unggulan pu WHERE pu.kode_tim = ? AND pu.tahun = ?"
+	rows, err := tx.QueryContext(ctx, query, kodeTim, tahun)
 	if err != nil {
 		return []domain.ProgramUnggulanTimKerja{}, err
 	}
@@ -592,6 +592,8 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 	ctx context.Context,
 	tx *sql.Tx,
 	kodeTim string,
+	bulan int,
+	tahun int,
 	pohonIDs []int,
 ) (map[int]domain.RealisasiAnggaranRecord, error) {
 
@@ -601,22 +603,26 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 
 	// --- 1) Build placeholder MySQL: ?, ?, ?, ...
 	placeholders := make([]string, len(pohonIDs))
-	args := make([]any, 0, len(pohonIDs)+1)
-
-	args = append(args, kodeTim) // param pertama: kode_tim
+	args := make([]any, 0, len(pohonIDs)+3)
 
 	for i, id := range pohonIDs {
 		placeholders[i] = "?"
 		args = append(args, id)
 	}
 
+	args = append(args, kodeTim)
+	args = append(args, bulan)
+	args = append(args, tahun)
+
 	query := fmt.Sprintf(`
         SELECT
             id_pohon, realisasi_anggaran, rencana_aksi, faktor_pendorong,
             faktor_penghambat, risiko_hukum, rekomendasi_tl
         FROM realisasi_anggaran
-        WHERE kode_tim = ?
-          AND id_pohon IN (%s)
+        WHERE id_pohon IN (%s)
+          AND kode_tim = ?
+          AND bulan = ?
+          AND tahun = ?
     `, strings.Join(placeholders, ","))
 
 	// --- 2) Execute query
@@ -656,6 +662,8 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndRekinSekretariatIds(
 	ctx context.Context,
 	tx *sql.Tx,
 	kodeTim string,
+	bulan int,
+	tahun int,
 	rekinSekretIds []int,
 ) (map[int]domain.RealisasiAnggaranRecord, error) {
 
@@ -665,14 +673,16 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndRekinSekretariatIds(
 
 	// --- 1) Build placeholder MySQL: ?, ?, ?, ...
 	placeholders := make([]string, len(rekinSekretIds))
-	args := make([]any, 0, len(rekinSekretIds)+1)
-
-	args = append(args, kodeTim) // param pertama: kode_tim
+	args := make([]any, 0, len(rekinSekretIds)+3)
 
 	for i, id := range rekinSekretIds {
 		placeholders[i] = "?"
 		args = append(args, id)
 	}
+
+	args = append(args, kodeTim)
+	args = append(args, bulan)
+	args = append(args, tahun)
 
 	query := fmt.Sprintf(`
         SELECT
@@ -680,8 +690,10 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndRekinSekretariatIds(
             faktor_penghambat, risiko_hukum, rekomendasi_tl
         FROM realisasi_anggaran
         WHERE id_program_unggulan = 0
-          AND kode_tim = ?
           AND id_rencana_kinerja_sekretariat IN (%s)
+          AND kode_tim = ?
+          AND bulan = ?
+          AND tahun = ?
     `, strings.Join(placeholders, ","))
 
 	// --- 2) Execute query

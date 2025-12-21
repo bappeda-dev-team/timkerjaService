@@ -250,14 +250,15 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	}, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error) {
 	// --- 1) Ambil data program unggulan dari DB (TANPA realisasi) ---
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	programUnggulans, err := service.TimKerjaRepository.FindProgramUnggulanByKodeTim(ctx, tx, kodeTim)
+	// PROGRAM UNGGULAN BY TAHUN
+	programUnggulans, err := service.TimKerjaRepository.FindProgramUnggulanByKodeTim(ctx, tx, kodeTim, tahun)
 	helper.CommitOrRollback(tx)
 	if err != nil {
 		return nil, err
@@ -306,7 +307,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 		return nil, err
 	}
 
-	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndPohonIDs(ctx, tx2, kodeTim, pohonIDs)
+	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndPohonIDs(ctx, tx2, kodeTim, bulan, tahun, pohonIDs)
 	helper.CommitOrRollback(tx2)
 	if err != nil {
 		return nil, err
@@ -515,7 +516,7 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	}, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error) {
 	// Ambil data dari DB dulu — jangan tahan TX terlalu lama
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
@@ -554,7 +555,7 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 		return nil, err
 	}
 
-	realisasiRekinMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndRekinSekretariatIds(ctx, tx2, kodeTim, rekinSekretIds)
+	realisasiRekinMap, err := service.TimKerjaRepository.FindRealisasiByKodeTimAndRekinSekretariatIds(ctx, tx2, kodeTim, bulan, tahun, rekinSekretIds)
 	helper.CommitOrRollback(tx2)
 	if err != nil {
 		return nil, err

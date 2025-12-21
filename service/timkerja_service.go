@@ -13,12 +13,13 @@ type TimKerjaService interface {
 	FindAll(ctx context.Context, tahun int) ([]web.TimKerjaResponse, error)
 	FindAllTm(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
 	AddProgramUnggulan(ctx context.Context, timKerja web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error)
-	FindAllProgramUnggulanTim(ctx context.Context, kodeTim string) ([]web.ProgramUnggulanTimKerjaResponse, error)
+	// TODO: ubah tahun ke string
+	FindAllProgramUnggulanTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error)
 	FindAllTimNonSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
 	FindAllTimSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
 	DeleteProgramUnggulan(ctx context.Context, id int, kodeTim string) error
 	AddRencanaKinerja(ctx context.Context, timkerja web.RencanaKinerjaRequest) (web.RencanaKinerjaTimKerjaResponse, error)
-	FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error)
+	FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error)
 	DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error
 	SaveRealisasiPokin(ctx context.Context, realisasi web.RealisasiRequest) (web.RealisasiResponse, error)
 	GetRealisasiPokin(ctx context.Context, kodeItem string, tahun string) ([]web.RealisasiResponse, error)

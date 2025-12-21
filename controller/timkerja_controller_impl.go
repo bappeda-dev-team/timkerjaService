@@ -310,6 +310,8 @@ func (controller *TimKerjaControllerImpl) AddProgramUnggulan(c echo.Context) err
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja/{kodetim}/program_unggulan [get]
@@ -322,8 +324,12 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 			Data:   "KODE TIM TIDAK DITEMUKAN",
 		})
 	}
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
+	// TODO: ubah ke string agar kompatible dengan DB
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
 
-	ProgramUnggulanTimKerjaResponse, err := controller.TimKerjaService.FindAllProgramUnggulanTim(c.Request().Context(), kodeTim)
+	ProgramUnggulanTimKerjaResponse, err := controller.TimKerjaService.FindAllProgramUnggulanTim(c.Request().Context(), kodeTim, bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -484,11 +490,14 @@ func (cont *TimKerjaControllerImpl) AddRencanaKinerja(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja/{kodetim}/program_unggulan [get]
 func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Context) error {
 	// Ambil query param
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
 	// TODO change default to current year
 	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
 	if err != nil {
@@ -503,7 +512,7 @@ func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Contex
 		})
 	}
 
-	RencanaKinerjaTimResponse, err := controller.TimKerjaService.FindAllRencanaKinerjaTim(c.Request().Context(), kodeTim, tahun)
+	RencanaKinerjaTimResponse, err := controller.TimKerjaService.FindAllRencanaKinerjaTim(c.Request().Context(), kodeTim, bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
