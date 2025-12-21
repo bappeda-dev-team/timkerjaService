@@ -196,6 +196,8 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context, tahun int) ([
 					LevelJabatan: st.LevelJabatan,
 					Keterangan:   st.Keterangan,
 					IsActive:     st.IsActive,
+					Bulan:        st.Bulan,
+					Tahun:        st.Tahun,
 				})
 			}
 		}
@@ -372,14 +374,14 @@ func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, re
 	}
 }
 
-func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimNonSekretariatWithSusunan(ctx, tx, tahun)
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimNonSekretariatWithSusunan(ctx, tx, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -400,6 +402,8 @@ func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context
 					LevelJabatan: st.LevelJabatan,
 					Keterangan:   st.Keterangan,
 					IsActive:     st.IsActive,
+					Bulan:        st.Bulan,
+					Tahun:        st.Tahun,
 				})
 			}
 		}
@@ -418,14 +422,14 @@ func (service *TimKerjaServiceImpl) FindAllTimNonSekretariat(ctx context.Context
 	return result, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimSekretariatWithSusunan(ctx, tx, tahun)
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllTimSekretariatWithSusunan(ctx, tx, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}
@@ -446,6 +450,8 @@ func (service *TimKerjaServiceImpl) FindAllTimSekretariat(ctx context.Context, t
 					LevelJabatan: st.LevelJabatan,
 					Keterangan:   st.Keterangan,
 					IsActive:     st.IsActive,
+					Bulan:        st.Bulan,
+					Tahun:        st.Tahun,
 				})
 			}
 		}

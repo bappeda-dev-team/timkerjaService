@@ -56,6 +56,8 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
 		Keterangan:     &susunanTim.Keterangan,
+		Bulan:          susunanTim.Bulan,
+		Tahun:          susunanTim.Tahun,
 	}
 
 	susunanTimDomain, err = service.SusunanTimRepository.Create(ctx, tx, susunanTimDomain)
@@ -98,6 +100,8 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 		NamaJabatanTim: susunanTim.NamaJabatanTim,
 		IsActive:       susunanTim.IsActive,
 		Keterangan:     &susunanTim.Keterangan,
+		Bulan:          susunanTim.Bulan,
+		Tahun:          susunanTim.Tahun,
 	}
 
 	susunanTimDomain, err = service.SusunanTimRepository.Update(ctx, tx, susunanTimDomain)

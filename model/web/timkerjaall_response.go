@@ -18,4 +18,6 @@ type SusunanTimDetailResponse struct {
 	LevelJabatan int     `json:"level_jabatan"`
 	Keterangan   *string `json:"keterangan"`
 	IsActive     bool    `json:"is_active"`
+	Bulan        int     `json:"bulan"`
+	Tahun        int     `json:"tahun"`
 }

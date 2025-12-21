@@ -15,8 +15,8 @@ func NewSusunanTimRepositoryImpl() *SusunanTimRepositoryImpl {
 }
 
 func (repository *SusunanTimRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, susunanTim domain.SusunanTim) (domain.SusunanTim, error) {
-	query := "INSERT INTO susunan_tim (kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan) VALUES (?, ?, ?, ?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan)
+	query := "INSERT INTO susunan_tim (kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan, bulan, tahun) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	result, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan, susunanTim.Bulan, susunanTim.Tahun)
 	if err != nil {
 		return domain.SusunanTim{}, err
 	}
@@ -32,8 +32,8 @@ func (repository *SusunanTimRepositoryImpl) Create(ctx context.Context, tx *sql.
 }
 
 func (repository *SusunanTimRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, susunanTim domain.SusunanTim) (domain.SusunanTim, error) {
-	query := "UPDATE susunan_tim SET kode_tim = ?, pegawai_id = ?, nama_pegawai = ?, jabatan_tim_id = ?, nama_jabatan_tim = ?, is_active = ?, keterangan = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan, susunanTim.Id)
+	query := "UPDATE susunan_tim SET kode_tim = ?, pegawai_id = ?, nama_pegawai = ?, jabatan_tim_id = ?, nama_jabatan_tim = ?, is_active = ?, keterangan = ?, bulan = ?, tahun = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, query, susunanTim.KodeTim, susunanTim.PegawaiId, susunanTim.NamaPegawai, susunanTim.IdJabatanTim, susunanTim.NamaJabatanTim, susunanTim.IsActive, susunanTim.Keterangan, susunanTim.Bulan, susunanTim.Tahun, susunanTim.Id)
 	if err != nil {
 		return domain.SusunanTim{}, err
 	}

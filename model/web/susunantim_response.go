@@ -10,6 +10,8 @@ type SusunanTimResponse struct {
 	IdJabatanTim   int       `json:"id_jabatan_tim"`
 	NamaJabatanTim string    `json:"nama_jabatan_tim"`
 	IsActive       bool      `json:"is_active"`
+	Bulan          int       `json:"bulan"`
+	Tahun          int       `json:"tahun"`
 	Keterangan     *string   `json:"keterangan"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

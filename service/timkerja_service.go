@@ -15,8 +15,8 @@ type TimKerjaService interface {
 	AddProgramUnggulan(ctx context.Context, timKerja web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error)
 	// TODO: ubah tahun ke string
 	FindAllProgramUnggulanTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error)
-	FindAllTimNonSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
-	FindAllTimSekretariat(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
+	FindAllTimNonSekretariat(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error)
+	FindAllTimSekretariat(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error)
 	DeleteProgramUnggulan(ctx context.Context, id int, kodeTim string) error
 	AddRencanaKinerja(ctx context.Context, timkerja web.RencanaKinerjaRequest) (web.RencanaKinerjaTimKerjaResponse, error)
 	FindAllRencanaKinerjaTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.RencanaKinerjaTimKerjaResponse, error)

@@ -8,4 +8,6 @@ type SusunanTimCreateRequest struct {
 	NamaJabatanTim string `json:"nama_jabatan_tim" validate:"required"`
 	IsActive       bool   `json:"is_active"`
 	Keterangan     string `json:"keterangan"`
+	Bulan          int    `json:"bulan" validate:"required"`
+	Tahun          int    `json:"tahun" validate:"required"`
 }

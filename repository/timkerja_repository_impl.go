@@ -113,11 +113,11 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
             st.pegawai_id,
             st.nama_pegawai,
             st.nama_jabatan_tim,
-            jt.level_jabatan, -- ambil dari tabel jabatan_tim
+            jt.level_jabatan,
             st.keterangan,
             st.is_active
         FROM susunan_tim st
-        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan -- join dengan jabatan_tim untuk dapat level
+        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan
         ORDER BY st.kode_tim, jt.level_jabatan ASC`
 
 	rows, err := tx.QueryContext(ctx, query)
@@ -222,7 +222,7 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariat(ctx context.C
 
 }
 
-func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
+func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
 	timKerjaList, err := repository.FindAllTimNonSekretariat(ctx, tx, tahun)
 	if err != nil {
 		return nil, nil, err
@@ -238,12 +238,15 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
             st.nama_jabatan_tim,
             jt.level_jabatan, -- ambil dari tabel jabatan_tim
             st.keterangan,
-            st.is_active
+            st.is_active,
+            st.bulan,
+            st.tahun
         FROM susunan_tim st
-        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan -- join dengan jabatan_tim untuk dapat level
+        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan
+        WHERE st.bulan = ? AND st.tahun = ?
         ORDER BY st.kode_tim, jt.level_jabatan ASC`
 
-	rows, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -254,6 +257,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
 	for rows.Next() {
 		var susunanTim domain.SusunanTim
 		var levelJabatan sql.NullInt32
+		var bulanNS sql.NullInt32
+		var tahunNS sql.NullInt32
 
 		err := rows.Scan(
 			&susunanTim.Id,
@@ -264,6 +269,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
 			&levelJabatan,
 			&susunanTim.Keterangan,
 			&susunanTim.IsActive,
+			&bulanNS,
+			&tahunNS,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -272,6 +279,11 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
 		// Handle null values
 		if levelJabatan.Valid {
 			susunanTim.LevelJabatan = int(levelJabatan.Int32)
+		}
+
+		if bulanNS.Valid && tahunNS.Valid {
+			susunanTim.Bulan = int(bulanNS.Int32)
+			susunanTim.Tahun = int(tahunNS.Int32)
 		}
 
 		susunanTimMap[susunanTim.KodeTim] = append(susunanTimMap[susunanTim.KodeTim], susunanTim)
@@ -303,7 +315,7 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Cont
 
 }
 
-func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
+func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
 	timKerjaList, err := repository.FindAllTimSekretariat(ctx, tx, tahun)
 	if err != nil {
 		return nil, nil, err
@@ -319,12 +331,15 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx c
             st.nama_jabatan_tim,
             jt.level_jabatan, -- ambil dari tabel jabatan_tim
             st.keterangan,
-            st.is_active
+            st.is_active,
+            st.bulan,
+            st.tahun
         FROM susunan_tim st
-        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan -- join dengan jabatan_tim untuk dapat level
+        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan
+        WHERE st.bulan = ? AND st.tahun = ?
         ORDER BY st.kode_tim, jt.level_jabatan ASC`
 
-	rows, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -335,6 +350,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx c
 	for rows.Next() {
 		var susunanTim domain.SusunanTim
 		var levelJabatan sql.NullInt32
+		var bulanNS sql.NullInt32
+		var tahunNS sql.NullInt32
 
 		err := rows.Scan(
 			&susunanTim.Id,
@@ -345,6 +362,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx c
 			&levelJabatan,
 			&susunanTim.Keterangan,
 			&susunanTim.IsActive,
+			&bulanNS,
+			&tahunNS,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -353,6 +372,11 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx c
 		// Handle null values
 		if levelJabatan.Valid {
 			susunanTim.LevelJabatan = int(levelJabatan.Int32)
+		}
+
+		if bulanNS.Valid && tahunNS.Valid {
+			susunanTim.Bulan = int(bulanNS.Int32)
+			susunanTim.Tahun = int(tahunNS.Int32)
 		}
 
 		susunanTimMap[susunanTim.KodeTim] = append(susunanTimMap[susunanTim.KodeTim], susunanTim)

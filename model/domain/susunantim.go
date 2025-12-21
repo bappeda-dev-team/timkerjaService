@@ -14,4 +14,6 @@ type SusunanTim struct {
 	LevelJabatan   int
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	Bulan          int
+	Tahun          int
 }

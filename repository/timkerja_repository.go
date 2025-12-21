@@ -15,9 +15,9 @@ type TimKerjaRepository interface {
 	FindAllWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	AddProgramUnggulan(ctx context.Context, tx *sql.Tx, programUnggulan domain.ProgramUnggulanTimKerja) (domain.ProgramUnggulanTimKerja, error)
 	FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string, tahun int) ([]domain.ProgramUnggulanTimKerja, error)
-	FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
+	FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimNonSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error)
-	FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
+	FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error)
 	DeleteProgramUnggulan(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
 	AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error)

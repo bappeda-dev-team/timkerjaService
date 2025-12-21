@@ -351,17 +351,20 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 // @Accept json
 // @Produce json
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja-sekretariat [get]
 func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Context) error {
 	// Ambil query param
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
 	// TODO change default to current year
 	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
 	if err != nil {
 		return err
 	}
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimNonSekretariat(c.Request().Context(), tahun)
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimNonSekretariat(c.Request().Context(), bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -383,17 +386,20 @@ func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Contex
 // @Accept json
 // @Produce json
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja-sekretariat [get]
 func (controller *TimKerjaControllerImpl) FindAllTimSekretariat(c echo.Context) error {
 	// Ambil query param
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
 	// TODO change default to current year
 	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
 	if err != nil {
 		return err
 	}
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimSekretariat(c.Request().Context(), tahun)
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTimSekretariat(c.Request().Context(), bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
