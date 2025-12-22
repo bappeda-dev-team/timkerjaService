@@ -127,44 +127,56 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 ) ([]domain.LaporanPenilaian, error) {
 
 	query := `
-SELECT
-  st.id AS susunan_tim_id,
-  st.pegawai_id,
-  st.nama_pegawai,
-  jt.level_jabatan,
-  st.nama_jabatan_tim,
-  st.kode_tim,
-  tk.nama_tim,
-  tk.is_sekretariat,
-  tk.keterangan,
+	SELECT
+	st.id AS susunan_tim_id,
+	st.pegawai_id,
+	st.nama_pegawai,
+	jt.level_jabatan,
+	st.nama_jabatan_tim,
+	st.kode_tim,
+	tk.nama_tim,
+	tk.is_sekretariat,
+	tk.keterangan,
 
-  p.id,
-  p.jenis_nilai,
-  p.nilai_kinerja,
-  p.tahun,
-  p.bulan,
-  p.kode_opd,
-  p.created_at,
-  p.updated_at,
-  p.created_by
+	p.id,
+	p.jenis_nilai,
+	p.nilai_kinerja,
+	p.tahun,
+	p.bulan,
+	p.kode_opd,
+	p.created_at,
+	p.updated_at,
+	p.created_by
 
-FROM susunan_tim st
-LEFT JOIN jabatan_tim jt
-  ON jt.id = st.jabatan_tim_id
-LEFT JOIN tim_kerja tk
-  ON tk.kode_tim = st.kode_tim
-LEFT JOIN penilaian_kinerja p
-  ON p.id = (
-    SELECT MAX(p2.id)
-    FROM penilaian_kinerja p2
-	WHERE p2.id_pegawai = st.pegawai_id
-	AND p2.tahun = ?
-	AND p2.bulan = ?
-    AND p2.jenis_nilai = p.jenis_nilai
-)
-WHERE tk.tahun = ? AND tk.is_active AND st.is_active
-ORDER BY st.kode_tim, st.id;
-`
+	FROM susunan_tim st
+	LEFT JOIN jabatan_tim jt
+	ON jt.id = st.jabatan_tim_id
+	LEFT JOIN tim_kerja tk
+	ON tk.kode_tim = st.kode_tim
+
+	-- ambil ID penilaian TERBARU per pegawai + jenis_nilai
+	LEFT JOIN (
+		SELECT
+			id_pegawai,
+			jenis_nilai,
+			MAX(id) AS max_id
+		FROM penilaian_kinerja
+		WHERE tahun = ?
+		AND bulan = ?
+		GROUP BY id_pegawai, jenis_nilai
+	) latest_p
+	ON latest_p.id_pegawai = st.pegawai_id
+
+	LEFT JOIN penilaian_kinerja p
+	ON p.id = latest_p.max_id
+
+	WHERE
+	tk.tahun = ?
+	AND tk.is_active
+	AND st.is_active
+
+	ORDER BY st.kode_tim, st.id;
+	`
 
 	rows, err := tx.QueryContext(ctx, query, tahun, bulan, tahun)
 	if err != nil {

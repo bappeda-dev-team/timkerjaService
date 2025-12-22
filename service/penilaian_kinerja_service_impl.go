@@ -198,11 +198,13 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 	}()
 
 	// Ambil data RAW dari repository (belum grouped jenis nilai)
+	start := time.Now()
 	penilaianKinerja, err := s.PenilaianKinerjaRepository.FindByTahunBulan(ctx, tx, tahun, bulan)
 	if err != nil {
 		_ = tx.Rollback()
 		return nil, err
 	}
+	log.Println("DB fetch:", time.Since(start))
 
 	if err := tx.Commit(); err != nil {
 		return nil, err
@@ -218,15 +220,19 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 		&http.Client{Timeout: 25 * time.Second},
 	)
 
+	start = time.Now()
 	// gabung dengan api internal tim
 	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("Merge external:", time.Since(start))
 	// TODO: merge baris diatas dengan method All
 
 	// convert tambah tpp dan perhitungan
+	start = time.Now()
 	result := helper.ConvertToTppPegawaiResponse(merged)
+	log.Println("Convert Response:", time.Since(start))
 
 	return result, nil
 }
