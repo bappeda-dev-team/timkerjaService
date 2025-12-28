@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"timkerjaService/helper"
 	"timkerjaService/model/web"
 	"timkerjaService/service"
 
@@ -201,11 +202,18 @@ func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 // @Tags Susunan Tim
 // @Accept json
 // @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Success 200 {object} web.WebResponse{data=[]web.SusunanTimResponse} "OK"
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
 // @Router /susunantim [get]
 func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
-	SusunanTimResponses, err := controller.SusunanTimService.FindAll(c.Request().Context())
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
+	// TODO: ubah ke string agar kompatible dengan DB
+	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+
+	SusunanTimResponses, err := controller.SusunanTimService.FindAllByBulanTahun(c.Request().Context(), bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,

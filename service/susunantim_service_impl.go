@@ -174,6 +174,25 @@ func (service *SusunanTimServiceImpl) FindAll(ctx context.Context) ([]web.Susuna
 	return helper.ToSusunanTimResponses(susunanTimDomains), nil
 }
 
+func (service *SusunanTimServiceImpl) FindAllByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.SusunanTimResponse, error) {
+	if tahun <= 0 || bulan <= 0 || bulan > 12 {
+		return nil, errors.New("tahun atau bulan tidak valid")
+	}
+
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return []web.SusunanTimResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	susunanTimDomains, err := service.SusunanTimRepository.FindAllByBulanTahun(ctx, tx, bulan, tahun)
+	if err != nil {
+		return []web.SusunanTimResponse{}, err
+	}
+
+	return helper.ToSusunanTimResponses(susunanTimDomains), nil
+}
+
 func (service *SusunanTimServiceImpl) FindByKodeTim(ctx context.Context, kodeTim string) ([]web.SusunanTimResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
