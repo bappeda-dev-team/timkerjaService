@@ -174,11 +174,13 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 	tk.tahun = ?
 	AND tk.is_active
 	AND st.is_active
+    AND st.bulan = ?
+    AND st.tahun = ?
 
 	ORDER BY st.kode_tim, st.id;
 	`
 
-	rows, err := tx.QueryContext(ctx, query, tahun, bulan, tahun)
+	rows, err := tx.QueryContext(ctx, query, tahun, bulan, tahun, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}
