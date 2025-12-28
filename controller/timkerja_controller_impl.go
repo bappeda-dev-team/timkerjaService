@@ -238,19 +238,22 @@ func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 // @Tags Tim Kerja
 // @Accept json
 // @Produce json
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 	// Ambil query param
+	// TODO: ubah ke current month
+	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
 	// TODO change default to current year
 	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
 	if err != nil {
 		return err
 	}
 
-	TimKerjaResponses, err := controller.TimKerjaService.FindAllTm(c.Request().Context(), tahun)
+	TimKerjaResponses, err := controller.TimKerjaService.FindAllTmByBulanTahun(c.Request().Context(), bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,

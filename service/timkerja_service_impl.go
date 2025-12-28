@@ -216,6 +216,54 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context, tahun int) ([
 	return result, nil
 }
 
+func (service *TimKerjaServiceImpl) FindAllTmByBulanTahun(ctx context.Context, bulan, tahun int) ([]web.TimKerjaDetailResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	timKerjaList, susunanTimMap, err := service.TimKerjaRepository.FindAllWithSusunanByBulanTahun(ctx, tx, bulan, tahun)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []web.TimKerjaDetailResponse
+
+	for _, timKerja := range timKerjaList {
+		var susunanTimResponses []web.SusunanTimDetailResponse
+
+		// Get susunan tim for this kode_tim
+		if susunanTims, exists := susunanTimMap[timKerja.KodeTim]; exists {
+			for _, st := range susunanTims {
+				susunanTimResponses = append(susunanTimResponses, web.SusunanTimDetailResponse{
+					Id:           st.Id,
+					PegawaiId:    st.PegawaiId,
+					NamaPegawai:  st.NamaPegawai,
+					NamaJabatan:  st.NamaJabatanTim,
+					LevelJabatan: st.LevelJabatan,
+					Keterangan:   st.Keterangan,
+					IsActive:     st.IsActive,
+					Bulan:        st.Bulan,
+					Tahun:        st.Tahun,
+				})
+			}
+		}
+
+		result = append(result, web.TimKerjaDetailResponse{
+			Id:            timKerja.Id,
+			KodeTim:       timKerja.KodeTim,
+			NamaTim:       timKerja.NamaTim,
+			Keterangan:    timKerja.Keterangan,
+			IsActive:      timKerja.IsActive,
+			IsSekretariat: timKerja.IsSekretariat,
+			SusunanTims:   susunanTimResponses,
+		})
+	}
+
+	return result, nil
+}
+
 func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, programUnggulan web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error) {
 	err := service.Validator.Struct(programUnggulan)
 	if err != nil {

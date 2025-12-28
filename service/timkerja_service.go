@@ -12,6 +12,7 @@ type TimKerjaService interface {
 	FindById(ctx context.Context, id int) (web.TimKerjaResponse, error)
 	FindAll(ctx context.Context, tahun int) ([]web.TimKerjaResponse, error)
 	FindAllTm(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
+	FindAllTmByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error)
 	AddProgramUnggulan(ctx context.Context, timKerja web.ProgramUnggulanTimKerjaRequest) (web.ProgramUnggulanTimKerjaResponse, error)
 	// TODO: ubah tahun ke string
 	FindAllProgramUnggulanTim(ctx context.Context, kodeTim string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error)
