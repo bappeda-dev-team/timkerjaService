@@ -70,8 +70,11 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 	ctx context.Context,
 	idRekin string,
 	idPegawai string,
+	bulan int,
+	tahun int,
 ) (*DataRincianKerja, error) {
-	url := fmt.Sprintf("%s/api/v1/perencanaan/rencana_kinerja/%s/pegawai/%s/input_rincian_kak", c.host, idRekin, idPegawai)
+	// TODO: optimize with batch id pegawai id rekin
+	url := fmt.Sprintf("%s/api/v1/perencanaan/rencana_kinerja/%s/pegawai/%s/rincian_kak_by_bulan_tahun?bulan=%d&tahun=%d", c.host, idRekin, idPegawai, bulan, tahun)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err

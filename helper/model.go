@@ -121,6 +121,8 @@ func MergeRencanaKinerjaWithRekinParallel(
 	rencanas []domain.RencanaKinerjaTimKerja,
 	client *internal.PerencanaanClient,
 	maxConcurrency int,
+	bulan int,
+	tahun int,
 ) []web.RencanaKinerjaTimKerjaResponse {
 	responses := make([]web.RencanaKinerjaTimKerjaResponse, len(rencanas))
 	sem := make(chan struct{}, maxConcurrency)
@@ -133,6 +135,8 @@ func MergeRencanaKinerjaWithRekinParallel(
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
+			// ambil data dasar dari repository
+			// data rencana kinerja by kode tim
 			resp := web.RencanaKinerjaTimKerjaResponse{
 				Id:               r.Id,
 				KodeTim:          r.KodeTim,
@@ -144,7 +148,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 			}
 
 			// === Fetch API eksternal ===
-			dataRincian, err := client.GetDataRincianKerja(ctx, r.IdRencanaKinerja, r.IdPegawai)
+			dataRincian, err := client.GetDataRincianKerja(ctx, r.IdRencanaKinerja, r.IdPegawai, bulan, tahun)
 			if err != nil {
 				log.Printf("⚠️ gagal fetch rincian kerja [%v]: %v", r.IdRencanaKinerja, err)
 				resp.RencanaKinerja = "NOT_CHECKED"

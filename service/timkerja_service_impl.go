@@ -597,7 +597,7 @@ func (service *TimKerjaServiceImpl) FindAllRencanaKinerjaTim(ctx context.Context
 		&http.Client{Timeout: 20 * time.Second},
 	)
 
-	merged := helper.MergeRencanaKinerjaWithRekinParallel(ctx, rencanaKinerjas, perencanaanClient, 5)
+	merged := helper.MergeRencanaKinerjaWithRekinParallel(ctx, rencanaKinerjas, perencanaanClient, 5, bulan, tahun)
 
 	rekinSekretIds := make([]int, 0, len(merged))
 	for _, r := range merged {
