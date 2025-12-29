@@ -269,3 +269,40 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	// 4. Jumlah Bersih
 	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjsAmount
 }
+
+func ConvertToAllLaporan(
+	src []web.LaporanPenilaianKinerjaResponse,
+) []web.PenilaianGroupedResponse {
+
+	// slice kosong, tapi siap di-append
+	out := make([]web.PenilaianGroupedResponse, 0)
+
+	for _, lap := range src {
+		for _, p := range lap.PenilaianKinerjas {
+
+			// copy struct (aman, karena kita mau hasil terpisah)
+			item := p
+
+			// pastikan TPP tidak nil
+			if item.Tpp == nil {
+				item.Tpp = &web.PenilaianTppExtension{}
+			}
+
+			// inject context dari parent
+			item.NamaTim = lap.NamaTim
+
+			// konfigurasi tambahan
+			item.Tpp.PotonganBPJS = 0.01
+
+			// hitung TPP (pakai pointer ke item)
+			HitungTPP(&item)
+
+			// validasi hasil
+			if item.NamaPegawai != "" && item.Tpp.JumlahKotor != 0 {
+				out = append(out, item)
+			}
+		}
+	}
+
+	return out
+}

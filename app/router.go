@@ -74,6 +74,8 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// TPP KONKER
 	e.GET("/laporan_tpp", penilaianKinerjaController.LaporanTpp) // filter by bulan tahun
 
+	e.GET("/laporan_tpp_all", penilaianKinerjaController.LaporanTppAll) // filter by bulan tahun
+
 	// petugs tim
 	e.POST("/petugas_tim", petugasTimController.AddPetugas)
 	e.DELETE("/petugas_tim/:idPetugasTim", petugasTimController.DeletePetugas)

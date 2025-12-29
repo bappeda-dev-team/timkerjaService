@@ -22,6 +22,7 @@ type PenilaianKinerjaResponse struct {
 
 type PenilaianGroupedBase struct {
 	IdPegawai       string `json:"id_pegawai"`
+	NamaTim         string `json:"nama_tim,omitempty"`
 	NamaPegawai     string `json:"nama_pegawai"`
 	SusunanTimId    int    `json:"-"`
 	LevelJabatanTim int    `json:"level_jabatan_tim"`
