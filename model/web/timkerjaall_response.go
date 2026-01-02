@@ -7,6 +7,8 @@ type TimKerjaDetailResponse struct {
 	Keterangan    string                     `json:"keterangan"`
 	IsActive      bool                       `json:"is_active"`
 	IsSekretariat bool                       `json:"is_sekretariat"`
+	Bulan         int                        `json:"bulan"`
+	Tahun         int                        `json:"tahun"`
 	SusunanTims   []SusunanTimDetailResponse `json:"susunan_tims"`
 }
 

@@ -257,6 +257,8 @@ func (service *TimKerjaServiceImpl) FindAllTmByBulanTahun(ctx context.Context, b
 			Keterangan:    timKerja.Keterangan,
 			IsActive:      timKerja.IsActive,
 			IsSekretariat: timKerja.IsSekretariat,
+			Bulan:         bulan,
+			Tahun:         tahun,
 			SusunanTims:   susunanTimResponses,
 		})
 	}
