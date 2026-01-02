@@ -244,13 +244,17 @@ func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
-	// Ambil query param
-	// TODO: ubah ke current month
-	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
-	// TODO change default to current year
-	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	bulan, err := helper.GetQueryToInt(c, "bulan")
+	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
 		return err
+	}
+	if bulan < 1 || bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+
+	if tahun <= 0 {
+		return badRequest(c, "tahun tidak valid")
 	}
 
 	TimKerjaResponses, err := controller.TimKerjaService.FindAllTmByBulanTahun(c.Request().Context(), bulan, tahun)

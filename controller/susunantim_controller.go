@@ -9,4 +9,5 @@ type SusunanTimController interface {
 	FindById(c echo.Context) error
 	FindAll(c echo.Context) error
 	FindByKodeTim(c echo.Context) error
+	CloneSusunanTim(c echo.Context) error
 }

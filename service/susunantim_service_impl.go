@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"timkerjaService/helper"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
@@ -206,4 +207,67 @@ func (service *SusunanTimServiceImpl) FindByKodeTim(ctx context.Context, kodeTim
 	}
 
 	return helper.ToSusunanTimResponses(susunanTimDomains), nil
+}
+
+func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan int, tahun int, kodeTim string, bulanTarget int, tahunTarget int) error {
+	// guard bulan tahun
+	if tahun <= 0 || tahunTarget <= 0 {
+		return errors.New("tahun tidak valid")
+	}
+	if bulan < 1 || bulan > 12 || bulanTarget < 1 || bulanTarget > 12 {
+		return errors.New("bulan tidak valid")
+	}
+	if bulan == bulanTarget && tahun == tahunTarget {
+		return errors.New("tidak bisa clone ke bulan dan tahun yang sama")
+	}
+
+	// tx db
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	// cek untuk memastikan susunan tim belum ada di bulan tahun target
+	exists, err := service.SusunanTimRepository.ExistsByKodeTimBulanTahun(
+		ctx, tx, kodeTim, bulanTarget, tahunTarget,
+	)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("susunan tim target sudah ada")
+	}
+	susunanTims, err := service.SusunanTimRepository.FindByKodeTimBulanTahun(ctx, tx, kodeTim, bulan, tahun)
+	if err != nil {
+		return fmt.Errorf("find susunan tim gagal: %w", err)
+	}
+
+	if len(susunanTims) <= 0 {
+		return errors.New("Susunan Tim Tidak ditemukan")
+	}
+
+	cloneSusunanTim := make([]domain.SusunanTim, 0, len(susunanTims))
+	for _, st := range susunanTims {
+		newSusunanTim := domain.SusunanTim{
+			KodeTim:        st.KodeTim,
+			Bulan:          bulanTarget,
+			Tahun:          tahunTarget,
+			PegawaiId:      st.PegawaiId,
+			NamaPegawai:    st.NamaPegawai,
+			IdJabatanTim:   st.IdJabatanTim,
+			NamaJabatanTim: st.NamaJabatanTim,
+			IsActive:       st.IsActive,
+			Keterangan:     st.Keterangan,
+		}
+
+		cloneSusunanTim = append(cloneSusunanTim, newSusunanTim)
+	}
+
+	err = service.SusunanTimRepository.SaveAll(ctx, tx, cloneSusunanTim)
+	if err != nil {
+		return fmt.Errorf("save clone susunan tim gagal: %w", err)
+	}
+
+	return nil
 }

@@ -15,4 +15,7 @@ type SusunanTimRepository interface {
 	FindAllByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.SusunanTim, error)
 	FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) ([]domain.SusunanTim, error)
 	FindByIdPegawai(ctx context.Context, tx *sql.Tx, idPegawai string) (domain.SusunanTim, error)
+	FindByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) ([]domain.SusunanTim, error)
+	SaveAll(ctx context.Context, tx *sql.Tx, susunanTims []domain.SusunanTim) error
+	ExistsByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) (bool, error)
 }

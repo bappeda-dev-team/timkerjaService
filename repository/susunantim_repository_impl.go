@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 	"timkerjaService/model/domain"
 )
 
@@ -136,6 +137,28 @@ func (repository *SusunanTimRepositoryImpl) FindByKodeTim(ctx context.Context, t
 	return susunanTimList, nil
 }
 
+func (repository *SusunanTimRepositoryImpl) FindByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) ([]domain.SusunanTim, error) {
+	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim , is_active, keterangan, bulan, tahun FROM susunan_tim WHERE kode_tim = ? AND bulan = ? AND tahun = ? ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query, kodeTim, bulan, tahun)
+	if err != nil {
+		return []domain.SusunanTim{}, err
+	}
+	defer rows.Close()
+
+	var susunanTimList []domain.SusunanTim
+	for rows.Next() {
+		var susunanTim domain.SusunanTim
+		err := rows.Scan(&susunanTim.Id, &susunanTim.KodeTim, &susunanTim.PegawaiId, &susunanTim.NamaPegawai, &susunanTim.IdJabatanTim, &susunanTim.NamaJabatanTim, &susunanTim.IsActive, &susunanTim.Keterangan, &susunanTim.Bulan, &susunanTim.Tahun)
+		if err != nil {
+			return []domain.SusunanTim{}, err
+		}
+
+		susunanTimList = append(susunanTimList, susunanTim)
+	}
+
+	return susunanTimList, nil
+}
+
 func (repository *SusunanTimRepositoryImpl) FindByIdPegawai(ctx context.Context, tx *sql.Tx, idPegawai string) (domain.SusunanTim, error) {
 	query := "SELECT id, kode_tim, pegawai_id, nama_pegawai, jabatan_tim_id, nama_jabatan_tim, is_active, keterangan FROM susunan_tim WHERE pegawai_id = ?"
 	rows, err := tx.QueryContext(ctx, query, idPegawai)
@@ -154,4 +177,70 @@ func (repository *SusunanTimRepositoryImpl) FindByIdPegawai(ctx context.Context,
 	}
 
 	return domain.SusunanTim{}, errors.New("Pegawai tidak ditemukan")
+}
+
+func (repository *SusunanTimRepositoryImpl) SaveAll(ctx context.Context, tx *sql.Tx, susunanTims []domain.SusunanTim) error {
+	if len(susunanTims) == 0 {
+		return errors.New("Susunan Tim tidak boleh kosong")
+	}
+
+	var (
+		valueStrings []string
+		valueArgs    []any
+	)
+
+	for _, v := range susunanTims {
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueArgs = append(valueArgs,
+			v.KodeTim,
+			v.Bulan,
+			v.Tahun,
+			v.PegawaiId,
+			v.NamaPegawai,
+			v.IdJabatanTim,
+			v.NamaJabatanTim,
+			v.IsActive,
+			v.Keterangan,
+		)
+	}
+	query := `
+		INSERT INTO susunan_tim (
+			kode_tim, bulan, tahun,
+			pegawai_id, nama_pegawai,
+			jabatan_tim_id, nama_jabatan_tim,
+			is_active, keterangan
+		)
+		VALUES ` + strings.Join(valueStrings, ",")
+
+	_, err := tx.ExecContext(ctx, query, valueArgs...)
+	return err
+}
+
+func (repository *SusunanTimRepositoryImpl) ExistsByKodeTimBulanTahun(
+	ctx context.Context,
+	tx *sql.Tx,
+	kodeTim string,
+	bulan int,
+	tahun int,
+) (bool, error) {
+
+	query := `
+		SELECT 1
+		FROM susunan_tim
+		WHERE kode_tim = ?
+		  AND bulan = ?
+		  AND tahun = ?
+		LIMIT 1
+	`
+
+	var dummy int
+	err := tx.QueryRowContext(ctx, query, kodeTim, bulan, tahun).Scan(&dummy)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }

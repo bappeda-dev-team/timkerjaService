@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"timkerjaService/helper"
 	"timkerjaService/model/web"
 	"timkerjaService/service"
@@ -260,5 +261,88 @@ func (controller *SusunanTimControllerImpl) FindByKodeTim(c echo.Context) error 
 		Code:   http.StatusOK,
 		Status: "OK",
 		Data:   SusunanTimResponses,
+	})
+}
+
+// @Summary Clone susunan tim ke periode target
+// @Description Clone susunan tim dari periode asal ke periode target
+// @Tags Susunan Tim
+// @Accept json
+// @Produce json
+// @Param request body web.CloneSusunanTimRequest true "Payload clone"
+// @Success 200 {object} web.WebResponse
+// @Failure 400 {object} web.WebResponse
+// @Failure 409 {object} web.WebResponse
+// @Failure 500 {object} web.WebResponse
+// @Router /susunantim/clone [post]
+func (controller *SusunanTimControllerImpl) CloneSusunanTim(c echo.Context) error {
+	var req web.CloneSusunanTimRequest
+	if err := c.Bind(&req); err != nil {
+		return badRequest(c, "payload tidak valid")
+	}
+
+	// --- Validasi dasar ---
+	if req.KodeTim == "" {
+		return badRequest(c, "kodeTim wajib diisi")
+	}
+	if req.Bulan < 1 || req.Bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+	if req.BulanTarget < 1 || req.BulanTarget > 12 {
+		return badRequest(c, "bulanTarget tidak valid")
+	}
+	if req.Tahun <= 0 || req.TahunTarget <= 0 {
+		return badRequest(c, "tahun tidak valid")
+	}
+
+	// service
+	err := controller.SusunanTimService.CloneByKodeTim(
+		c.Request().Context(),
+		req.Bulan,
+		req.Tahun,
+		req.KodeTim,
+		req.BulanTarget,
+		req.TahunTarget,
+	)
+
+	if err != nil {
+		switch {
+		case strings.Contains(err.Error(), "sudah ada"):
+			return conflict(c, err.Error())
+		case strings.Contains(err.Error(), "tidak ditemukan"):
+			return conflict(c, err.Error())
+		default:
+			return internalError(c, err)
+		}
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   "Clone Sukses",
+	})
+}
+
+func badRequest(c echo.Context, message string) error {
+	return c.JSON(http.StatusBadRequest, web.WebResponse{
+		Code:   http.StatusBadRequest,
+		Status: "Bad Request",
+		Data:   message,
+	})
+}
+
+func conflict(c echo.Context, message string) error {
+	return c.JSON(http.StatusConflict, web.WebResponse{
+		Code:   http.StatusConflict,
+		Status: "Conflict",
+		Data:   message,
+	})
+}
+
+func internalError(c echo.Context, err error) error {
+	return c.JSON(http.StatusInternalServerError, web.WebResponse{
+		Code:   http.StatusInternalServerError,
+		Status: "INTERNAL_SERVER_ERROR",
+		Data:   err.Error(),
 	})
 }

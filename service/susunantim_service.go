@@ -13,4 +13,5 @@ type SusunanTimService interface {
 	FindAll(ctx context.Context) ([]web.SusunanTimResponse, error)
 	FindAllByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.SusunanTimResponse, error)
 	FindByKodeTim(ctx context.Context, kodeTim string) ([]web.SusunanTimResponse, error)
+	CloneByKodeTim(ctx context.Context, bulan int, tahun int, kodeTim string, bulanTarget int, tahunTarget int) error
 }

@@ -173,7 +173,9 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunanByBulanTahun(ctx con
             st.nama_jabatan_tim,
             jt.level_jabatan,
             st.keterangan,
-            st.is_active
+            st.is_active,
+            st.bulan,
+            st.tahun
         FROM susunan_tim st
         LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan
         WHERE st.bulan = ? AND st.tahun = ?
@@ -200,6 +202,8 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunanByBulanTahun(ctx con
 			&levelJabatan,
 			&susunanTim.Keterangan,
 			&susunanTim.IsActive,
+			&susunanTim.Bulan,
+			&susunanTim.Tahun,
 		)
 		if err != nil {
 			return nil, nil, err
