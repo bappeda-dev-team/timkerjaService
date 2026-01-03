@@ -209,10 +209,18 @@ func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 // @Failure 500 {object} web.WebResponse "Internal Server Error"
 // @Router /susunantim [get]
 func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
-	// TODO: ubah ke current month
-	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
-	// TODO: ubah ke string agar kompatible dengan DB
-	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	bulan, err := helper.GetQueryToInt(c, "bulan")
+	tahun, err := helper.GetQueryToInt(c, "tahun")
+	if err != nil {
+		return err
+	}
+	if bulan < 1 || bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+
+	if tahun <= 0 {
+		return badRequest(c, "tahun tidak valid")
+	}
 
 	SusunanTimResponses, err := controller.SusunanTimService.FindAllByBulanTahun(c.Request().Context(), bulan, tahun)
 	if err != nil {
