@@ -509,20 +509,21 @@ func (cont *TimKerjaControllerImpl) AddRencanaKinerja(c echo.Context) error {
 // @Router /timkerja/{kodetim}/program_unggulan [get]
 func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Context) error {
 	// Ambil query param
-	// TODO: ubah ke current month
-	bulan, err := helper.GetQueryIntWithDefault(c, "bulan", 12)
-	// TODO change default to current year
-	tahun, err := helper.GetQueryIntWithDefault(c, "tahun", 2025)
+	bulan, err := helper.GetQueryToInt(c, "bulan")
+	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
 		return err
 	}
+	if bulan < 1 || bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+
+	if tahun <= 0 {
+		return badRequest(c, "tahun tidak valid")
+	}
 	kodeTim := c.Param("kodetim")
 	if kodeTim == "" {
-		return c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD_REQUEST",
-			Data:   "KODE TIM TIDAK DITEMUKAN",
-		})
+		return badRequest(c, "kodetim harus terisi")
 	}
 
 	RencanaKinerjaTimResponse, err := controller.TimKerjaService.FindAllRencanaKinerjaTim(c.Request().Context(), kodeTim, bulan, tahun)

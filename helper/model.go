@@ -162,6 +162,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 			}
 
 			// === Map hasil dari API ===
+			resp.IdPohon = dataRincian.RencanaKinerja.IdPohon
 			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
 			resp.NamaPegawai = dataRincian.RencanaKinerja.NamaPegawai
 			resp.PaguAnggaran = dataRincian.RencanaKinerja.Pagu
