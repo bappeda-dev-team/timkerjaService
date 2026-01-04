@@ -1,9 +1,9 @@
 package web
 
 type TimKerjaCreateRequest struct {
-	NamaTim       string `json:"nama_tim"`
+	NamaTim       string `json:"nama_tim" validate:"required"`
 	Keterangan    string `json:"keterangan"`
-	Tahun         string `json:"tahun"`
+	Tahun         string `json:"tahun" validate:"required"`
 	IsActive      bool   `json:"is_active"`
 	IsSekretariat bool   `json:"is_sekretariat"`
 }
