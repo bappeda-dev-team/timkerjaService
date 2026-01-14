@@ -184,6 +184,7 @@ func MergeRencanaKinerjaWithRekinParallel(
 
 func MergeProgramUnggulanFromApiParallel(
 	ctx context.Context,
+	tahun int,
 	programUnggulans []domain.ProgramUnggulanTimKerja,
 	client *internal.PerencanaanClient,
 	maxConcurrency int,
@@ -216,7 +217,7 @@ func MergeProgramUnggulanFromApiParallel(
 			kodeBatch = append(kodeBatch, r.KodeProgramUnggulan)
 		}
 	}
-	rincianBatchResp, err := client.GetRincianProgramUnggulans(ctx, kodeBatch)
+	rincianBatchResp, err := client.GetRincianProgramUnggulans(ctx, kodeBatch, tahun)
 	if err != nil {
 		log.Printf("gagal fetch batch program unggulan: %v", err)
 	}
@@ -224,6 +225,10 @@ func MergeProgramUnggulanFromApiParallel(
 	rincianMap := make(map[string][]internal.TaggingPohonKinerjaItem)
 	for _, item := range rincianBatchResp {
 		kode := item.KodeProgramUnggulan
+		if item.Tahun != tahun {
+			continue
+		}
+
 		rincianMap[kode] = append(rincianMap[kode], item)
 	}
 

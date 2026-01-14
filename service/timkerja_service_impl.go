@@ -331,7 +331,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 		&http.Client{Timeout: 15 * time.Second},
 	)
 
-	merged := helper.MergeProgramUnggulanFromApiParallel(ctx, programUnggulans, perencanaanClient, 5)
+	merged := helper.MergeProgramUnggulanFromApiParallel(ctx, tahun, programUnggulans, perencanaanClient, 5)
 
 	// --- 3) Kumpulkan semua IdPohon dari hasil merged ---
 	pohonIDSet := map[int]struct{}{}

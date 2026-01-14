@@ -20,7 +20,7 @@ func NewPerencanaanClient(host string, httpClient *http.Client) *PerencanaanClie
 	}
 }
 
-func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kodeProgramUnggulans []string) ([]TaggingPohonKinerjaItem, error) {
+func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kodeProgramUnggulans []string, tahun int) ([]TaggingPohonKinerjaItem, error) {
 	// url check program unggulan
 	url := fmt.Sprintf("%s/api/v1/laporan-tagging/tagging/getDetailBatch", c.host)
 	// body kode program unggulans
