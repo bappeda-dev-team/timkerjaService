@@ -90,7 +90,13 @@ ORDER BY pt.pegawai_id, pt.id
 	defer rows.Close()
 
 	results := make([]domain.PetugasTim, 0)
-	seenPegawai := make(map[string]struct{})
+
+	type petugasKey struct {
+		PegawaiId         string
+		IdProgramUnggulan int
+		KodeTim           string
+	}
+	seenPegawai := make(map[petugasKey]struct{})
 
 	for rows.Next() {
 		var pet domain.PetugasTim
@@ -105,11 +111,17 @@ ORDER BY pt.pegawai_id, pt.id
 			return nil, err
 		}
 
-		if _, exists := seenPegawai[pet.PegawaiId]; exists {
+		key := petugasKey{
+			PegawaiId:         pet.PegawaiId,
+			IdProgramUnggulan: pet.IdProgramUnggulan,
+			KodeTim:           pet.KodeTim,
+		}
+
+		if _, exists := seenPegawai[key]; exists {
 			continue
 		}
 
-		seenPegawai[pet.PegawaiId] = struct{}{}
+		seenPegawai[key] = struct{}{}
 		results = append(results, pet)
 	}
 
