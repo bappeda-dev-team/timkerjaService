@@ -381,7 +381,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanTim(ctx context.Contex
 	}
 
 	petugasTimMap, err := service.PetugasTimService.
-		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans)
+		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}

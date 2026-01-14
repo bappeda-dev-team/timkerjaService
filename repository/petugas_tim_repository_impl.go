@@ -48,6 +48,8 @@ func (repo *PetugasTimRepositoryImpl) FindAllByIdProgramUnggulans(
 	ctx context.Context,
 	tx *sql.Tx,
 	idProgramUnggulans []int,
+	bulan int,
+	tahun int,
 ) ([]domain.PetugasTim, error) {
 
 	if len(idProgramUnggulans) == 0 {
@@ -56,6 +58,8 @@ func (repo *PetugasTimRepositoryImpl) FindAllByIdProgramUnggulans(
 
 	placeholders := make([]string, len(idProgramUnggulans))
 	args := make([]any, 0, len(idProgramUnggulans))
+
+	args = append(args, bulan, tahun)
 
 	for i, id := range idProgramUnggulans {
 		placeholders[i] = "?"
@@ -73,7 +77,10 @@ FROM petugas_tim pt
 JOIN susunan_tim st
   ON st.pegawai_id = pt.pegawai_id
  AND st.kode_tim   = pt.kode_tim
-WHERE pt.id_program_unggulan IN (%s)
+WHERE pt.bulan = ?
+  AND pt.tahun = ?
+  AND pt.id_program_unggulan IN (%s)
+ORDER BY pt.pegawai_id, pt.id
 `, strings.Join(placeholders, ","))
 
 	rows, err := tx.QueryContext(ctx, query, args...)
@@ -83,6 +90,7 @@ WHERE pt.id_program_unggulan IN (%s)
 	defer rows.Close()
 
 	results := make([]domain.PetugasTim, 0)
+	seenPegawai := make(map[string]struct{})
 
 	for rows.Next() {
 		var pet domain.PetugasTim
@@ -97,6 +105,11 @@ WHERE pt.id_program_unggulan IN (%s)
 			return nil, err
 		}
 
+		if _, exists := seenPegawai[pet.PegawaiId]; exists {
+			continue
+		}
+
+		seenPegawai[pet.PegawaiId] = struct{}{}
 		results = append(results, pet)
 	}
 

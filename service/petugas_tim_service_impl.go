@@ -79,14 +79,14 @@ func (service *PetugasTimServiceImpl) Delete(ctx context.Context, idPetugasTim i
 	return nil
 }
 
-func (service *PetugasTimServiceImpl) FindAllByIdProgramUnggulans(ctx context.Context, idProgramUnggulans []int) (map[int][]web.PetugasTimResponse, error) {
+func (service *PetugasTimServiceImpl) FindAllByIdProgramUnggulans(ctx context.Context, idProgramUnggulans []int, bulan int, tahun int) (map[int][]web.PetugasTimResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	petugasTims, err := service.PetugasTimRepository.FindAllByIdProgramUnggulans(ctx, tx, idProgramUnggulans)
+	petugasTims, err := service.PetugasTimRepository.FindAllByIdProgramUnggulans(ctx, tx, idProgramUnggulans, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}

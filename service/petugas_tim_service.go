@@ -8,5 +8,5 @@ import (
 type PetugasTimService interface {
 	Create(ctx context.Context, petugasTimReq web.PetugasTimCreateRequest) (web.PetugasTimResponse, error)
 	Delete(ctx context.Context, idPetugasTim int) error
-	FindAllByIdProgramUnggulans(ctx context.Context, idProgramUnggulans []int) (map[int][]web.PetugasTimResponse, error)
+	FindAllByIdProgramUnggulans(ctx context.Context, idProgramUnggulans []int, bulan int, tahun int) (map[int][]web.PetugasTimResponse, error)
 }
