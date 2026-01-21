@@ -3,7 +3,7 @@ package internal
 type DataRincianKerjaWrapper struct {
 	Code           int                `json:"code"`
 	Status         string             `json:"status"`
-	RencanaKinerja []DataRincianKerja `json:"rencana_kinerja"`
+	RencanaKinerja []DataRincianKerja `json:"data"`
 }
 
 type DataRincianKerja struct {
@@ -192,6 +192,12 @@ type FindByIdTerkaitRequest struct {
 
 type FindByKodeProgramUnggulansRequest struct {
 	KodeProgramUnggulan []string `json:"kode_program_unggulan" validate:"required,min=1"`
+}
+
+type FindByIdRekinsRequest struct {
+	Ids   []string `json:"id_rekins" validate:"required,min=1"`
+	Bulan int      `json:"bulan"`
+	Tahun int      `json:"tahun"`
 }
 
 type DetailPegawaiBatchRequest struct {

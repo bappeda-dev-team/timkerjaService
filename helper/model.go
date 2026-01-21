@@ -116,69 +116,68 @@ func ToRealisasiPokinResponses(realisasis []domain.RealisasiPokin) []web.Realisa
 }
 
 // internal
-func MergeRencanaKinerjaWithRekinParallel(
+func MergeRencanaKinerjaWithRekinBatch(
 	ctx context.Context,
 	rencanas []domain.RencanaKinerjaTimKerja,
 	client *internal.PerencanaanClient,
-	maxConcurrency int,
 	bulan int,
 	tahun int,
 ) []web.RencanaKinerjaTimKerjaResponse {
 	responses := make([]web.RencanaKinerjaTimKerjaResponse, len(rencanas))
-	sem := make(chan struct{}, maxConcurrency)
-	var wg sync.WaitGroup
 
-	for i, r := range rencanas {
-		wg.Add(1)
-		go func(i int, r domain.RencanaKinerjaTimKerja) {
-			defer wg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
-
-			// ambil data dasar dari repository
-			// data rencana kinerja by kode tim
-			resp := web.RencanaKinerjaTimKerjaResponse{
-				Id:               r.Id,
-				KodeTim:          r.KodeTim,
-				IdRencanaKinerja: r.IdRencanaKinerja,
-				IdPegawai:        r.IdPegawai,
-				Tahun:            r.Tahun,
-				KodeOpd:          r.KodeOpd,
-				PaguAnggaran:     0,
-			}
-
-			// === Fetch API eksternal ===
-			dataRincian, err := client.GetDataRincianKerja(ctx, r.IdRencanaKinerja, r.IdPegawai, bulan, tahun)
-			if err != nil {
-				log.Printf("⚠️ gagal fetch rincian kerja [%v]: %v", r.IdRencanaKinerja, err)
-				resp.RencanaKinerja = "NOT_CHECKED"
-				responses[i] = resp
-				return
-			}
-			if dataRincian == nil {
-				resp.RencanaKinerja = "NOT_FOUND"
-				responses[i] = resp
-				return
-			}
-
-			// === Map hasil dari API ===
-			resp.IdPohon = dataRincian.RencanaKinerja.IdPohon
-			resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
-			resp.NamaPegawai = dataRincian.RencanaKinerja.NamaPegawai
-			resp.PaguAnggaran = dataRincian.RencanaKinerja.Pagu
-			resp.RencanaAksi = dataRincian.RencanaAksi.RencanaAksi
-
-			// tambah disini kebutuhan tambahan
-			//
-			resp.Indikator = dataRincian.RencanaKinerja.Indikator
-
-			resp.SubKegiatan = dataRincian.SubKegiatan
-
-			responses[i] = resp
-		}(i, r)
+	idSet := make(map[string]struct{})
+	for _, r := range rencanas {
+		if r.IdRencanaKinerja != "" {
+			idSet[r.IdRencanaKinerja] = struct{}{}
+		}
 	}
 
-	wg.Wait()
+	idRekins := make([]string, 0, len(idSet))
+	for id := range idSet {
+		idRekins = append(idRekins, id)
+	}
+
+	batchResp, err := client.GetDataRincianKerjaBatch(ctx, idRekins, bulan, tahun)
+	if err != nil {
+		log.Printf("⚠️ gagal fetch batch rincian kerja: %v", err)
+	}
+
+	rekinMap := make(map[string]internal.DataRincianKerja)
+	for _, item := range batchResp {
+		rekinId := item.RencanaKinerja.IdRencanaKinerja
+		rekinMap[rekinId] = item
+	}
+
+	for i, r := range rencanas {
+		resp := web.RencanaKinerjaTimKerjaResponse{
+			Id:               r.Id,
+			KodeTim:          r.KodeTim,
+			IdRencanaKinerja: r.IdRencanaKinerja,
+			IdPegawai:        r.IdPegawai,
+			Tahun:            r.Tahun,
+			KodeOpd:          r.KodeOpd,
+			PaguAnggaran:     0,
+			RencanaKinerja:   "NOT_FOUND",
+		}
+
+		dataRincian, ok := rekinMap[r.IdRencanaKinerja]
+		if !ok {
+			responses[i] = resp
+			continue
+		}
+
+		// === Map batch result ===
+		resp.IdPohon = dataRincian.RencanaKinerja.IdPohon
+		resp.RencanaKinerja = dataRincian.RencanaKinerja.NamaRencanaKinerja
+		resp.NamaPegawai = dataRincian.RencanaKinerja.NamaPegawai
+		resp.PaguAnggaran = dataRincian.RencanaKinerja.Pagu
+		resp.RencanaAksi = dataRincian.RencanaAksi.RencanaAksi
+		resp.Indikator = dataRincian.RencanaKinerja.Indikator
+		resp.SubKegiatan = dataRincian.SubKegiatan
+
+		responses[i] = resp
+	}
+
 	return responses
 }
 

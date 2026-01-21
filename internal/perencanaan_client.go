@@ -1,4 +1,3 @@
-// TODO: ambil data pokin dari laporan tagging
 package internal
 
 import (
@@ -6,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 )
@@ -66,25 +66,50 @@ func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kode
 
 }
 
-func (c *PerencanaanClient) GetDataRincianKerja(
+func (c *PerencanaanClient) GetDataRincianKerjaBatch(
 	ctx context.Context,
-	idRekin string,
-	idPegawai string,
+	idRekins []string,
 	bulan int,
 	tahun int,
-) (*DataRincianKerja, error) {
-	// TODO: optimize with batch id pegawai id rekin
-	url := fmt.Sprintf("%s/api/v1/perencanaan/rencana_kinerja/%s/pegawai/%s/rincian_kak_by_bulan_tahun?bulan=%d&tahun=%d", c.host, idRekin, idPegawai, bulan, tahun)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+) ([]DataRincianKerja, error) {
+
+	if len(idRekins) == 0 {
+		return []DataRincianKerja{}, nil
+	}
+
+	url := fmt.Sprintf(
+		"%s/api/v1/perencanaan/rencana_kinerja/detail/findbatch",
+		c.host,
+	)
+
+	payload := FindByIdRekinsRequest{
+		Ids:   idRekins,
+		Bulan: bulan,
+		Tahun: tahun,
+	}
+
+	jsonBody, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("gagal encode body: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		url,
+		bytes.NewBuffer(jsonBody),
+	)
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("Content-Type", "application/json")
 
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
 	} else {
-		log.Printf("Session Id ditemukan, mungkin akan 401")
+		log.Printf("⚠️ session id tidak ditemukan, kemungkinan unauthorized")
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -93,8 +118,14 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 	}
 	defer resp.Body.Close()
 
+	// === Handle non-200 ===
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf(
+			"unexpected status %d: %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
 
 	var wrapper DataRincianKerjaWrapper
@@ -102,11 +133,7 @@ func (c *PerencanaanClient) GetDataRincianKerja(
 		return nil, fmt.Errorf("gagal decode response: %w", err)
 	}
 
-	if len(wrapper.RencanaKinerja) == 0 {
-		return nil, nil
-	}
-
-	return &wrapper.RencanaKinerja[0], nil
+	return wrapper.RencanaKinerja, nil
 }
 
 func (c *PerencanaanClient) GetNamaProgramUnggulanBatch(ctx context.Context, idProgramUnggulans []int) ([]ProgramUnggulanResponse, error) {
@@ -132,7 +159,6 @@ func (c *PerencanaanClient) GetNamaProgramUnggulanBatch(ctx context.Context, idP
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
-		log.Printf("X-Session-Id diterapkan: %s", sessionID)
 	} else {
 		log.Printf("Tidak ada X-Session-Id ditemukan, mungkin akan 401")
 	}
