@@ -154,6 +154,32 @@ func (service *TimKerjaServiceImpl) FindById(ctx context.Context, id int) (web.T
 	}, nil
 }
 
+func (service *TimKerjaServiceImpl) FindByKodeTim(ctx context.Context, kodeTim string) (web.TimKerjaResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return web.TimKerjaResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	timKerjaDomain, err := service.TimKerjaRepository.FindByKodeTim(ctx, tx, kodeTim)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return web.TimKerjaResponse{}, sql.ErrNoRows
+		}
+		return web.TimKerjaResponse{}, err
+	}
+
+	return web.TimKerjaResponse{
+		Id:            timKerjaDomain.Id,
+		KodeTim:       timKerjaDomain.KodeTim,
+		NamaTim:       timKerjaDomain.NamaTim,
+		Keterangan:    timKerjaDomain.Keterangan,
+		Tahun:         timKerjaDomain.Tahun,
+		IsActive:      timKerjaDomain.IsActive,
+		IsSekretariat: timKerjaDomain.IsSekretariat,
+	}, nil
+}
+
 func (service *TimKerjaServiceImpl) FindAll(ctx context.Context, tahun int) ([]web.TimKerjaResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {

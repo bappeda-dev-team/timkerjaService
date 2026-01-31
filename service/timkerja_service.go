@@ -10,6 +10,7 @@ type TimKerjaService interface {
 	Update(ctx context.Context, timKerja web.TimKerjaUpdateRequest) (web.TimKerjaResponse, error)
 	Delete(ctx context.Context, id int) error
 	FindById(ctx context.Context, id int) (web.TimKerjaResponse, error)
+	FindByKodeTim(ctx context.Context, kodeTim string) (web.TimKerjaResponse, error)
 	FindAll(ctx context.Context, tahun int) ([]web.TimKerjaResponse, error)
 	FindAllTm(ctx context.Context, tahun int) ([]web.TimKerjaDetailResponse, error)
 	FindAllTmByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error)

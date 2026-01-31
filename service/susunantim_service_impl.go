@@ -15,13 +15,19 @@ import (
 
 type SusunanTimServiceImpl struct {
 	SusunanTimRepository repository.SusunanTimRepository
+	TimKerjaService      TimKerjaService
 	DB                   *sql.DB
 	Validator            *validator.Validate
 }
 
-func NewSusunanTimServiceImpl(susunanTimRepository repository.SusunanTimRepository, db *sql.DB, validator *validator.Validate) *SusunanTimServiceImpl {
+func NewSusunanTimServiceImpl(
+	susunanTimRepository repository.SusunanTimRepository,
+	timKerjaService TimKerjaService,
+	db *sql.DB,
+	validator *validator.Validate) *SusunanTimServiceImpl {
 	return &SusunanTimServiceImpl{
 		SusunanTimRepository: susunanTimRepository,
+		TimKerjaService:      timKerjaService,
 		DB:                   db,
 		Validator:            validator,
 	}
@@ -247,10 +253,27 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 		return errors.New("Susunan Tim Tidak ditemukan")
 	}
 
+	timKerjaTarget, err := service.TimKerjaService.FindByKodeTim(ctx, kodeTim)
+	if err != nil {
+		return fmt.Errorf("tim kerja tidak ditemukan")
+	}
+
+	timKerjaBaru := web.TimKerjaCreateRequest{
+		NamaTim:       timKerjaTarget.NamaTim,
+		Keterangan:    timKerjaTarget.Keterangan,
+		IsActive:      timKerjaTarget.IsActive,
+		IsSekretariat: timKerjaTarget.IsSekretariat,
+	}
+
+	cloneTimKerja, err := service.TimKerjaService.Create(ctx, timKerjaBaru)
+	if err != nil {
+		return fmt.Errorf("tim kerja gagal di clone: %w", err)
+	}
+
 	cloneSusunanTim := make([]domain.SusunanTim, 0, len(susunanTims))
 	for _, st := range susunanTims {
 		newSusunanTim := domain.SusunanTim{
-			KodeTim:        st.KodeTim,
+			KodeTim:        cloneTimKerja.KodeTim,
 			Bulan:          bulanTarget,
 			Tahun:          tahunTarget,
 			PegawaiId:      st.PegawaiId,

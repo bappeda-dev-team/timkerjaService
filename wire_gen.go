@@ -28,7 +28,7 @@ func InitializedServer() *echo.Echo {
 	petugasTimServiceImpl := service.NewPetugasTimServiceImpl(petugasTimRepositoryImpl, susunanTimRepositoryImpl, db, validate)
 	timKerjaServiceImpl := service.NewTimKerjaServiceImpl(timKerjaRepositoryImpl, petugasTimServiceImpl, db, validate)
 	timKerjaControllerImpl := controller.NewTimKerjaControllerImpl(timKerjaServiceImpl)
-	susunanTimServiceImpl := service.NewSusunanTimServiceImpl(susunanTimRepositoryImpl, db, validate)
+	susunanTimServiceImpl := service.NewSusunanTimServiceImpl(susunanTimRepositoryImpl, timKerjaServiceImpl, db, validate)
 	susunanTimControllerImpl := controller.NewSusunanTimControllerImpl(susunanTimServiceImpl)
 	jabatanTimRepositoryImpl := repository.NewJabatanTimRepositoryImpl()
 	jabatanTimServiceImpl := service.NewJabatanTimServiceImpl(jabatanTimRepositoryImpl, db, validate)

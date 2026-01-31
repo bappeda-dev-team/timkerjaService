@@ -11,6 +11,7 @@ type TimKerjaRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error)
 	Delete(ctx context.Context, tx *sql.Tx, id int) error
 	FindById(ctx context.Context, tx *sql.Tx, id int) (domain.TimKerja, error)
+	FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) (domain.TimKerja, error)
 	FindAll(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error)
 	FindAllWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllWithSusunanByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)

@@ -76,6 +76,26 @@ func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return domain.TimKerja{}, nil
 }
 
+func (repository *TimKerjaRepositoryImpl) FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) (domain.TimKerja, error) {
+	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE kode_tim = ?"
+	rows, err := tx.QueryContext(ctx, query, kodeTim)
+	if err != nil {
+		return domain.TimKerja{}, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		var timKerja domain.TimKerja
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		if err != nil {
+			return domain.TimKerja{}, err
+		}
+		return timKerja, nil
+	}
+
+	return domain.TimKerja{}, nil
+}
+
 func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error) {
 	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE tahun = ? ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, tahun)
