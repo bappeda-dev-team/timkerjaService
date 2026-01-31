@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"timkerjaService/helper"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
@@ -263,6 +264,7 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 		Keterangan:    timKerjaTarget.Keterangan,
 		IsActive:      timKerjaTarget.IsActive,
 		IsSekretariat: timKerjaTarget.IsSekretariat,
+		Tahun:         strconv.Itoa(tahunTarget),
 	}
 
 	cloneTimKerja, err := service.TimKerjaService.Create(ctx, timKerjaBaru)
