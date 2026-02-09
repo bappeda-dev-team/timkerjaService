@@ -94,6 +94,7 @@ type LaporanTagPokinTahunanResponse struct {
 }
 
 type TaggingPohonKinerjaItem struct {
+	IdProgramUnggulan   int                `json:"id_program_unggulan"`
 	KodeProgramUnggulan string             `json:"kode_program_unggulan"`
 	NamaProgramUnggulan string             `json:"nama_program_unggulan"`
 	RencanaImplementasi string             `json:"rencana_implementasi"`

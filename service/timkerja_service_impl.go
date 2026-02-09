@@ -759,12 +759,17 @@ func (service *TimKerjaServiceImpl) GetRealisasiPokin(ctx context.Context, kodeI
 	return helper.ToRealisasiPokinResponses(realisasiPokins), nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponseAll, error) {
+func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return []web.ProgramUnggulanTimKerjaResponse{}, nil
+	}
+	defer helper.CommitOrRollback(tx)
 	// --- 1) Ambil data program unggulan dari API ---
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
 	if perencanaanHost == "" {
 		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
-		return []web.ProgramUnggulanTimKerjaResponseAll{}, nil
+		return []web.ProgramUnggulanTimKerjaResponse{}, nil
 	}
 
 	programUnggulanClient := internal.NewProgramUnggulanClient(
@@ -775,18 +780,23 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 	// Laporan Program Unggulan
 	responseProgramUnggulan, err := programUnggulanClient.GetLaporanProgramUnggulanByTahun(ctx, tahun)
 	if err != nil {
-		return []web.ProgramUnggulanTimKerjaResponseAll{}, fmt.Errorf("Terjadi kesalahan di client Program Unggulan: %w", err)
+		return []web.ProgramUnggulanTimKerjaResponse{}, fmt.Errorf("Terjadi kesalahan di client Program Unggulan: %w", err)
 	}
-	var result []web.ProgramUnggulanTimKerjaResponseAll
 
+	// kumpulkan buat cari petugas tim dan realisasi
+	var pohonIDs []int
+
+	var result []web.ProgramUnggulanTimKerjaResponse
 	for _, pokin := range responseProgramUnggulan {
+		pohonIDs = append(pohonIDs, pokin.IdPohon)
 		// filter OPD jika perlu
 		// if kodeOpd != "" && pokin.KodeOpd != kodeOpd {
 		// 	continue
 		// }
 
-		item := web.ProgramUnggulanTimKerjaResponseAll{
+		item := web.ProgramUnggulanTimKerjaResponse{
 			// field yang MEMANG ADA
+			IdProgramUnggulan:   pokin.IdProgramUnggulan,
 			KodeProgramUnggulan: pokin.KodeProgramUnggulan,
 			ProgramUnggulan:     pokin.NamaProgramUnggulan,
 			Tahun:               strconv.Itoa(pokin.Tahun),
@@ -794,15 +804,51 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 			Pokin:               []internal.TaggingPohonKinerjaItem{pokin},
 
 			// field yang TIDAK ADA di API → biarkan default
-			Id:                0,
-			KodeTim:           "",
-			NamaTim:           "",
-			IdProgramUnggulan: 0,
-			PetugasTims:       []web.PetugasTimResponse{},
+			Id:          0,
+			KodeTim:     "",
+			NamaTim:     "",
+			PetugasTims: []web.PetugasTimResponse{},
 		}
 
 		result = append(result, item)
 	}
+
+	tahunInt, err := strconv.Atoi(tahun)
+	if err != nil {
+		return []web.ProgramUnggulanTimKerjaResponse{}, fmt.Errorf("Tahun invalid: %w", err)
+	}
+	// --- 4) Query realisasi berdasarkan IdPohon (sudah diketahui) ---
+	tx2, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	// realisasi
+	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByPohonIDs(ctx, tx2, bulan, tahunInt, pohonIDs)
+	helper.CommitOrRollback(tx2)
+	if err != nil {
+		return nil, err
+	}
+	addRealisasiToResponses(result, realisasiMap)
+
+	// --- 6) petugas tim
+	idProgramUnggulans := make([]int, 0, len(result))
+	seen := make(map[int]struct{})
+
+	for _, m := range result {
+		if _, ok := seen[m.IdProgramUnggulan]; ok {
+			continue
+		}
+		seen[m.IdProgramUnggulan] = struct{}{}
+		idProgramUnggulans = append(idProgramUnggulans, m.IdProgramUnggulan)
+	}
+
+	petugasTimMap, err := service.PetugasTimService.
+		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans, bulan, tahunInt)
+	if err != nil {
+		return nil, err
+	}
+
+	addPetugasTimToResponses(result, petugasTimMap)
 
 	return result, nil
 }

@@ -75,22 +75,6 @@ func ToProgramUnggulanResponses(programUnggulans []domain.ProgramUnggulanTimKerj
 	return programUnggulanReponses
 }
 
-func ToProgramUnggulanAllResponses(programUnggulans []domain.ProgramUnggulanTimKerjaView) []web.ProgramUnggulanTimKerjaResponseAll {
-	programUnggulanReponses := make([]web.ProgramUnggulanTimKerjaResponseAll, len(programUnggulans))
-	for i, programUnggulanDomain := range programUnggulans {
-		programUnggulanReponses[i] = web.ProgramUnggulanTimKerjaResponseAll{
-			Id:                programUnggulanDomain.Id,
-			KodeTim:           programUnggulanDomain.KodeTim,
-			NamaTim:           programUnggulanDomain.NamaTim,
-			IdProgramUnggulan: programUnggulanDomain.IdProgramUnggulan,
-			ProgramUnggulan:   programUnggulanDomain.NamaProgramUnggulan,
-			Tahun:             programUnggulanDomain.Tahun,
-			KodeOpd:           programUnggulanDomain.KodeOpd,
-		}
-	}
-	return programUnggulanReponses
-}
-
 func ToRencanaKinerjaTimResponses(rencanaKinerjas []domain.RencanaKinerjaTimKerja) []web.RencanaKinerjaTimKerjaResponse {
 	rencanaKinerjaReponses := make([]web.RencanaKinerjaTimKerjaResponse, len(rencanaKinerjas))
 	for i, rencanaKinerjaDomain := range rencanaKinerjas {

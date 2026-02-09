@@ -834,3 +834,70 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndRekinSekretariatIds(
 
 	return result, nil
 }
+
+func (r *TimKerjaRepositoryImpl) FindRealisasiByPohonIDs(
+	ctx context.Context,
+	tx *sql.Tx,
+	bulan int,
+	tahun int,
+	pohonIDs []int,
+) (map[int]domain.RealisasiAnggaranRecord, error) {
+
+	if len(pohonIDs) == 0 {
+		return map[int]domain.RealisasiAnggaranRecord{}, nil
+	}
+
+	// --- 1) Build placeholder MySQL: ?, ?, ?, ...
+	placeholders := make([]string, len(pohonIDs))
+	args := make([]any, 0, len(pohonIDs)+3)
+
+	for i, id := range pohonIDs {
+		placeholders[i] = "?"
+		args = append(args, id)
+	}
+
+	args = append(args, bulan)
+	args = append(args, tahun)
+
+	query := fmt.Sprintf(`
+        SELECT
+            id_pohon, realisasi_anggaran, rencana_aksi, faktor_pendorong,
+            faktor_penghambat, risiko_hukum, rekomendasi_tl
+        FROM realisasi_anggaran
+        WHERE id_pohon IN (%s)
+          AND bulan = ?
+          AND tahun = ?
+    `, strings.Join(placeholders, ","))
+
+	// --- 2) Execute query
+	rows, err := tx.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// --- 3) Parse result
+	result := make(map[int]domain.RealisasiAnggaranRecord)
+	for rows.Next() {
+		var rec domain.RealisasiAnggaranRecord
+		if err := rows.Scan(
+			&rec.IdPohon,
+			&rec.RealisasiAnggaran,
+			&rec.RencanaAksi,
+			&rec.FaktorPendorong,
+			&rec.FaktorPenghambat,
+			&rec.RisikoHukum,
+			&rec.RekomendasiTl,
+		); err != nil {
+			return nil, err
+		}
+
+		result[rec.IdPohon] = rec
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}

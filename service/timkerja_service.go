@@ -25,5 +25,5 @@ type TimKerjaService interface {
 	DeleteRencanaKinerjaTim(ctx context.Context, id int, kodeTim string) error
 	SaveRealisasiPokin(ctx context.Context, realisasi web.RealisasiRequest) (web.RealisasiResponse, error)
 	GetRealisasiPokin(ctx context.Context, kodeItem string, tahun string) ([]web.RealisasiResponse, error)
-	FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponseAll, error)
+	FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponse, error)
 }
