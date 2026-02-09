@@ -22,4 +22,8 @@ type RealisasiAnggaranResponse struct {
 	Tahun                       string    `json:"tahun"`
 	CreatedAt                   time.Time `json:"created_at"`
 	UpdatedAt                   time.Time `json:"updated_at"`
+	CatatanRealisasiAnggaran    string    `json:"catatan_realisasi_anggaran"`
+	CatatanPenataUsahaKeuangan  string    `json:"catatan_penata_usaha_keuangan"`
+	CatatanPelaporanKeuangan    string    `json:"catatan_pelaporan_keuangan"`
+	CatatanPelaporanAset        string    `json:"catatan_pelaporan_aset"`
 }

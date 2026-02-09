@@ -166,6 +166,10 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 			bukti_dukung,
 			bulan,
 			tahun,
+			catatan_realisasi_anggaran,
+			catatan_penata_usaha_keuangan,
+			catatan_pelaporan_keuangan,
+			catatan_pelaporan_aset,
 			created_at,
 			updated_at
 		FROM realisasi_anggaran
@@ -196,6 +200,10 @@ func (r *RealisasiAnggaranRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 			&ra.BuktiDukung,
 			&ra.Bulan,
 			&ra.Tahun,
+			&ra.CatatanRealisasiAnggaran,
+			&ra.CatatanPenataUsahaKeuangan,
+			&ra.CatatanPelaporanKeuangan,
+			&ra.CatatanPelaporanAset,
 			&ra.CreatedAt,
 			&ra.UpdatedAt,
 		); err != nil {
@@ -215,8 +223,12 @@ func (r *RealisasiAnggaranRepositoryImpl) Upsert(ctx context.Context, tx *sql.Tx
 	query := `
 INSERT INTO realisasi_anggaran (
 	kode_tim, id_rencana_kinerja, id_pohon, id_program_unggulan, id_rencana_kinerja_sekretariat, kode_subkegiatan, realisasi_anggaran, kode_opd, rencana_aksi, faktor_pendorong,
-	faktor_penghambat, risiko_hukum, rekomendasi_tl, bukti_dukung, bulan, tahun
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	faktor_penghambat, risiko_hukum, rekomendasi_tl, bukti_dukung, bulan, tahun,
+	catatan_realisasi_anggaran,
+	catatan_penata_usaha_keuangan,
+	catatan_pelaporan_keuangan,
+	catatan_pelaporan_aset
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
 	realisasi_anggaran = VALUES(realisasi_anggaran),
 	kode_opd           = VALUES(kode_opd),
@@ -229,6 +241,10 @@ ON DUPLICATE KEY UPDATE
     id_rencana_kinerja = VALUES(id_rencana_kinerja),
     id_program_unggulan = VALUES(id_program_unggulan),
     id_rencana_kinerja_sekretariat = VALUES(id_rencana_kinerja_sekretariat),
+	catatan_realisasi_anggaran = VALUES(catatan_realisasi_anggaran),
+	catatan_penata_usaha_keuangan = VALUES(catatan_penata_usaha_keuangan),
+	catatan_pelaporan_keuangan = VALUES(catatan_pelaporan_keuangan),
+	catatan_pelaporan_aset = VALUES(catatan_pelaporan_aset),
     kode_tim           = VALUES(kode_tim),
 	updated_at         = NOW()
 `
@@ -236,6 +252,7 @@ ON DUPLICATE KEY UPDATE
 		ra.KodeTim, ra.IdRencanaKinerja, ra.IdPohon, ra.IdProgramUnggulan, ra.IdRencanaKinerjaSekretariat,
 		ra.KodeSubkegiatan, ra.RealisasiAnggaran, ra.KodeOpd, ra.RencanaAksi, ra.FaktorPendorong,
 		ra.FaktorPenghambat, ra.RisikoHukum, ra.RekomendasiTl, ra.BuktiDukung, ra.Bulan, ra.Tahun,
+		ra.CatatanRealisasiAnggaran, ra.CatatanPenataUsahaKeuangan, ra.CatatanPelaporanKeuangan, ra.CatatanPelaporanAset,
 	)
 	if err != nil {
 		return domain.RealisasiAnggaran{}, fmt.Errorf("upsert realisasi_anggaran: %w", err)

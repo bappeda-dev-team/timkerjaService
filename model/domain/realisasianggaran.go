@@ -22,6 +22,10 @@ type RealisasiAnggaran struct {
 	Tahun                       string
 	CreatedAt                   time.Time
 	UpdatedAt                   time.Time
+	CatatanRealisasiAnggaran    string
+	CatatanPenataUsahaKeuangan  string
+	CatatanPelaporanKeuangan    string
+	CatatanPelaporanAset        string
 }
 
 type RealisasiAnggaranRecord struct {
@@ -34,4 +38,8 @@ type RealisasiAnggaranRecord struct {
 	FaktorPenghambat            string
 	RisikoHukum                 string
 	RekomendasiTl               string
+	CatatanRealisasiAnggaran    string
+	CatatanPenataUsahaKeuangan  string
+	CatatanPelaporanKeuangan    string
+	CatatanPelaporanAset        string
 }

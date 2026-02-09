@@ -724,7 +724,11 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 	query := fmt.Sprintf(`
         SELECT
             id_pohon, realisasi_anggaran, rencana_aksi, faktor_pendorong,
-            faktor_penghambat, risiko_hukum, rekomendasi_tl
+            faktor_penghambat, risiko_hukum, rekomendasi_tl,
+            catatan_realisasi_anggaran,
+            catatan_penata_usaha_keuangan,
+            catatan_pelaporan_keuangan,
+            catatan_pelaporan_aset
         FROM realisasi_anggaran
         WHERE id_pohon IN (%s)
           AND kode_tim = ?
@@ -751,6 +755,10 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 			&rec.FaktorPenghambat,
 			&rec.RisikoHukum,
 			&rec.RekomendasiTl,
+			&rec.CatatanRealisasiAnggaran,
+			&rec.CatatanPenataUsahaKeuangan,
+			&rec.CatatanPelaporanKeuangan,
+			&rec.CatatanPelaporanAset,
 		); err != nil {
 			return nil, err
 		}

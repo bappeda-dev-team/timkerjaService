@@ -17,4 +17,8 @@ type RealisasiAnggaranCreateRequest struct {
 	BuktiDukung                 string `json:"bukti_dukung"`
 	Bulan                       int    `json:"bulan" validate:"required"`
 	Tahun                       string `json:"tahun" validate:"required"`
+	CatatanRealisasiAnggaran    string `json:"catatan_realisasi_anggaran"`
+	CatatanPenataUsahaKeuangan  string `json:"catatan_penata_usaha_keuangan"`
+	CatatanPelaporanKeuangan    string `json:"catatan_pelaporan_keuangan"`
+	CatatanPelaporanAset        string `json:"catatan_pelaporan_aset"`
 }

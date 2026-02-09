@@ -96,6 +96,10 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 		IdRencanaKinerja:            req.IdRencanaKinerja,
 		IdProgramUnggulan:           req.IdProgramUnggulan,
 		IdRencanaKinerjaSekretariat: req.IdRencanaKinerjaSekretariat,
+		CatatanRealisasiAnggaran:    req.CatatanRealisasiAnggaran,
+		CatatanPenataUsahaKeuangan:  req.CatatanPenataUsahaKeuangan,
+		CatatanPelaporanKeuangan:    req.CatatanPelaporanKeuangan,
+		CatatanPelaporanAset:        req.CatatanPelaporanAset,
 	}
 
 	ra, err := s.RealisasiAnggaranRepository.Upsert(ctx, tx, d)
