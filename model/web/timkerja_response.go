@@ -29,6 +29,19 @@ type ProgramUnggulanTimKerjaResponse struct {
 	PetugasTims         []PetugasTimResponse               `json:"petugas_tims"`
 }
 
+type ProgramUnggulanTimKerjaResponseAll struct {
+	Id                  int                                `json:"id"`
+	KodeTim             string                             `json:"kode_tim"`
+	NamaTim             string                             `json:"nama_tim"`
+	IdProgramUnggulan   int                                `json:"id_program_unggulan"`
+	KodeProgramUnggulan string                             `json:"kode_program_unggulan"`
+	ProgramUnggulan     string                             `json:"program_unggulan"`
+	Tahun               string                             `json:"tahun"`
+	KodeOpd             string                             `json:"kode_opd"`
+	Pokin               []internal.TaggingPohonKinerjaItem `json:"pohon_kinerja"`
+	PetugasTims         []PetugasTimResponse               `json:"petugas_tims"`
+}
+
 type ProgramUnggulanFullResponse struct {
 	Id                int    `json:"id"`
 	KodeTim           string `json:"kode_tim"`

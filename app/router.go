@@ -44,6 +44,8 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// hapus rencana kinerja dari sekret
 	e.DELETE("/timkerja_sekretariat/:kodetim/rencana_kinerja/:id", timKerjaController.DeleteRencanaKinerjaTim)
 	// response sret
+	// BKAD
+	e.GET("/timkerja/:kodeopd/all_program_unggulan", timKerjaController.AllProgramUnggulanOpd)
 
 	e.POST("/susunantim", susunanTimController.Create)
 	e.PUT("/susunantim/:id", susunanTimController.Update)

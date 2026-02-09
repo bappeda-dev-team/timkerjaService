@@ -87,6 +87,12 @@ type LaporanTaggingPohonKinerjaResponse struct {
 	Data    []TaggingPohonKinerjaItem `json:"data"`
 }
 
+type LaporanTagPokinTahunanResponse struct {
+	NamaTagging   string                    `json:"nama_tagging"`
+	Tahun         int                       `json:"tahun"`
+	PohonKinerjas []TaggingPohonKinerjaItem `json:"pohon_kinerjas"`
+}
+
 type TaggingPohonKinerjaItem struct {
 	KodeProgramUnggulan string             `json:"kode_program_unggulan"`
 	NamaProgramUnggulan string             `json:"nama_program_unggulan"`

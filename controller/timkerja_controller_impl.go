@@ -640,3 +640,48 @@ func (controller *TimKerjaControllerImpl) SaveRealisasiPokin(c echo.Context) err
 	})
 
 }
+
+// @Summary All Program Unggulan By Kode OPD
+// @Description Program Unggulan by Kode OPD satu table
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
+// @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponseAll}
+// @Failure 500 {object} web.WebResponse
+// @Router /timkerja/{kodeopd}/all_program_unggulan [get]
+func (controller *TimKerjaControllerImpl) AllProgramUnggulanOpd(c echo.Context) error {
+	bulan, err := helper.GetQueryToInt(c, "bulan")
+	tahun := c.QueryParam("tahun")
+	if err != nil {
+		return err
+	}
+	if bulan < 1 || bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+
+	if tahun == "" {
+		return badRequest(c, "tahun tidak valid")
+	}
+
+	kodeOpd := c.Param("kodeopd")
+	if kodeOpd == "" {
+		return badRequest(c, "kodeopd harus terisi")
+	}
+
+	ProgramUnggulanTimKerjaResponse, err := controller.TimKerjaService.FindAllProgramUnggulanOpd(c.Request().Context(), kodeOpd, bulan, tahun)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "SERVER ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   ProgramUnggulanTimKerjaResponse,
+	})
+}

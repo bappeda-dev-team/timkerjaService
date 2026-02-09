@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 	"timkerjaService/helper"
 	"timkerjaService/internal"
@@ -756,4 +757,52 @@ func (service *TimKerjaServiceImpl) GetRealisasiPokin(ctx context.Context, kodeI
 	}
 
 	return helper.ToRealisasiPokinResponses(realisasiPokins), nil
+}
+
+func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponseAll, error) {
+	// --- 1) Ambil data program unggulan dari API ---
+	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
+	if perencanaanHost == "" {
+		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")
+		return []web.ProgramUnggulanTimKerjaResponseAll{}, nil
+	}
+
+	programUnggulanClient := internal.NewProgramUnggulanClient(
+		perencanaanHost,
+		&http.Client{Timeout: 15 * time.Second},
+	)
+
+	// Laporan Program Unggulan
+	responseProgramUnggulan, err := programUnggulanClient.GetLaporanProgramUnggulanByTahun(ctx, tahun)
+	if err != nil {
+		return []web.ProgramUnggulanTimKerjaResponseAll{}, fmt.Errorf("Terjadi kesalahan di client Program Unggulan: %w", err)
+	}
+	var result []web.ProgramUnggulanTimKerjaResponseAll
+
+	for _, pokin := range responseProgramUnggulan {
+		// filter OPD jika perlu
+		// if kodeOpd != "" && pokin.KodeOpd != kodeOpd {
+		// 	continue
+		// }
+
+		item := web.ProgramUnggulanTimKerjaResponseAll{
+			// field yang MEMANG ADA
+			KodeProgramUnggulan: pokin.KodeProgramUnggulan,
+			ProgramUnggulan:     pokin.NamaProgramUnggulan,
+			Tahun:               strconv.Itoa(pokin.Tahun),
+			KodeOpd:             pokin.KodeOpd,
+			Pokin:               []internal.TaggingPohonKinerjaItem{pokin},
+
+			// field yang TIDAK ADA di API → biarkan default
+			Id:                0,
+			KodeTim:           "",
+			NamaTim:           "",
+			IdProgramUnggulan: 0,
+			PetugasTims:       []web.PetugasTimResponse{},
+		}
+
+		result = append(result, item)
+	}
+
+	return result, nil
 }

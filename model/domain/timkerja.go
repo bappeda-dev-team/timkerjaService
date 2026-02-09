@@ -28,6 +28,18 @@ type ProgramUnggulanTimKerja struct {
 	Pokin               []internal.TaggingPohonKinerjaItem
 }
 
+type ProgramUnggulanTimKerjaView struct {
+	Id                  int
+	KodeTim             string
+	NamaTim             string
+	KodeProgramUnggulan string
+	IdProgramUnggulan   int
+	NamaProgramUnggulan string
+	Tahun               string
+	KodeOpd             string
+	Pokin               []internal.TaggingPohonKinerjaItem
+}
+
 type RencanaKinerjaTimKerja struct {
 	Id               int
 	KodeTim          string
