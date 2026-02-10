@@ -444,6 +444,10 @@ func addRealisasiToResponses(responses []web.ProgramUnggulanTimKerjaResponse, re
 				pohon.FaktorPenghambat = rec.FaktorPenghambat
 				pohon.RisikoHukum = rec.RisikoHukum
 				pohon.Rekomendasi = rec.RekomendasiTl
+				pohon.CatatanRealisasiAnggaran = rec.CatatanRealisasiAnggaran
+				pohon.CatatanPenataUsahaKeuangan = rec.CatatanPenataUsahaKeuangan
+				pohon.CatatanPelaporanKeuangan = rec.CatatanPelaporanKeuangan
+				pohon.CatatanPelaporanAset = rec.CatatanPelaporanAset
 			} else {
 				// default / zero values — opsional: log atau biarkan kosong
 			}
@@ -780,7 +784,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 	// Laporan Program Unggulan
 	responseProgramUnggulan, err := programUnggulanClient.GetLaporanProgramUnggulanByTahun(ctx, tahun)
 	if err != nil {
-		return []web.ProgramUnggulanTimKerjaResponse{}, fmt.Errorf("Terjadi kesalahan di client Program Unggulan: %w", err)
+		return []web.ProgramUnggulanTimKerjaResponse{}, fmt.Errorf("Terjadi kesalahan di client: %w", err)
 	}
 
 	// kumpulkan buat cari petugas tim dan realisasi

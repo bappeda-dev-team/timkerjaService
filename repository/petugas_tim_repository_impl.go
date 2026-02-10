@@ -72,11 +72,14 @@ SELECT
     pt.id_program_unggulan,
     pt.kode_tim,
     pt.pegawai_id,
-    st.nama_pegawai
+    st.nama_pegawai,
+    tk.nama_tim
 FROM petugas_tim pt
 JOIN susunan_tim st
   ON st.pegawai_id = pt.pegawai_id
  AND st.kode_tim   = pt.kode_tim
+JOIN tim_kerja tk
+  ON tk.kode_tim = pt.kode_tim
 WHERE pt.bulan = ?
   AND pt.tahun = ?
   AND pt.id_program_unggulan IN (%s)
@@ -95,11 +98,13 @@ ORDER BY pt.pegawai_id, pt.id
 		PegawaiId         string
 		IdProgramUnggulan int
 		KodeTim           string
+		NamaTim           string
 	}
 	seenPegawai := make(map[petugasKey]struct{})
 
 	for rows.Next() {
 		var pet domain.PetugasTim
+		var namaTim sql.NullString
 
 		if err := rows.Scan(
 			&pet.Id,
@@ -107,14 +112,20 @@ ORDER BY pt.pegawai_id, pt.id
 			&pet.KodeTim,
 			&pet.PegawaiId,
 			&pet.NamaPegawai,
+			&namaTim,
 		); err != nil {
 			return nil, err
+		}
+
+		if namaTim.Valid {
+			pet.NamaTim = namaTim.String
 		}
 
 		key := petugasKey{
 			PegawaiId:         pet.PegawaiId,
 			IdProgramUnggulan: pet.IdProgramUnggulan,
 			KodeTim:           pet.KodeTim,
+			NamaTim:           pet.NamaTim,
 		}
 
 		if _, exists := seenPegawai[key]; exists {

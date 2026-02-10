@@ -97,6 +97,8 @@ func (service *PetugasTimServiceImpl) FindAllByIdProgramUnggulans(ctx context.Co
 			Id:          pt.Id,
 			PegawaiId:   pt.PegawaiId,
 			NamaPegawai: pt.NamaPegawai,
+			KodeTim:     pt.KodeTim,
+			NamaTim:     pt.NamaTim,
 		}
 		results[pt.IdProgramUnggulan] = append(results[pt.IdProgramUnggulan], resp)
 	}

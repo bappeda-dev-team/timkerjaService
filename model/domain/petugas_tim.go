@@ -7,6 +7,7 @@ import (
 type PetugasTim struct {
 	Id                int
 	IdProgramUnggulan int
+	NamaTim           string
 	KodeTim           string
 	PegawaiId         string
 	NamaPegawai       string

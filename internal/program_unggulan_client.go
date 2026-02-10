@@ -20,7 +20,7 @@ func NewProgramUnggulanClient(host string, httpClient *http.Client) *ProgramUngg
 
 func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Context, tahun string) ([]TaggingPohonKinerjaItem, error) {
 	if tahun == "" {
-		return nil, fmt.Errorf("tahun wajib terisi")
+		return nil, fmt.Errorf("[ProgramUnggulanError] tahun wajib terisi")
 	}
 	queries := make([]map[string]string, 0)
 	queries = append(queries, map[string]string{
@@ -31,7 +31,7 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 	// url get program unggulan bupati
 	url, err := buildURL(c.host, c.path+"/laporan/tagging_pokin", queries)
 	if err != nil {
-		return nil, fmt.Errorf("Error membuat query: %w", err)
+		return nil, fmt.Errorf("[ProgramUnggulanError] Error membuat query: %w", err)
 	}
 
 	log.Printf("URL: %s", url)
@@ -39,7 +39,7 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 	// request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Gagal membuat request: %w", err)
+		return nil, fmt.Errorf("[ProgramUnggulanError] Gagal membuat request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -47,19 +47,19 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
 	} else {
-		log.Printf("Tidak ada X-Session-Id ditemukan, mungkin akan 401")
+		log.Printf("[ProgramUnggulanError] Sesi user tidak ditemukan")
 	}
 
 	// send request
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Request ke perencanaan gagal: %w", err)
+		return nil, fmt.Errorf("[ProgramUnggulanError] Request ke gagal: %w", err)
 	}
 	defer res.Body.Close()
 
 	// response status
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Program unggulan: tidak ditemukan. status: %d", res.StatusCode)
+		return nil, fmt.Errorf("[ProgramUnggulanError] status: %d", res.StatusCode)
 	}
 
 	// safe, response pasti ada
@@ -71,7 +71,7 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 
 	var result wrapper
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("gagal decode response: %w", err)
+		return nil, fmt.Errorf("[ProgramUnggulanError] gagal decode response: %w", err)
 	}
 	if len(result.Data) == 0 {
 		return []TaggingPohonKinerjaItem{}, nil

@@ -94,28 +94,32 @@ type LaporanTagPokinTahunanResponse struct {
 }
 
 type TaggingPohonKinerjaItem struct {
-	IdProgramUnggulan   int                `json:"id_program_unggulan"`
-	KodeProgramUnggulan string             `json:"kode_program_unggulan"`
-	NamaProgramUnggulan string             `json:"nama_program_unggulan"`
-	RencanaImplementasi string             `json:"rencana_implementasi"`
-	IdTagging           int                `json:"id_tagging"`
-	IdPohon             int                `json:"id_pohon"`
-	Tahun               int                `json:"tahun"`
-	NamaPohon           string             `json:"nama_pohon"`
-	KodeOpd             string             `json:"kode_opd"`
-	NamaOpd             string             `json:"nama_opd"`
-	JenisPohon          string             `json:"jenis_pohon"`
-	KeteranganTagging   string             `json:"keterangan_tagging"`
-	Status              string             `json:"status"`
-	Pelaksanas          []PelaksanaPokin   `json:"pelaksanas"`
-	Keterangan          string             `json:"keterangan"`
-	Indikator           []TaggingIndikator `json:"indikator"`
-	RealisasiAnggaran   int                `json:"realisasi_anggaran"`
-	RencanaAksi         string             `json:"rencana_aksi"`
-	FaktorPendorong     string             `json:"faktor_pendorong"`
-	FaktorPenghambat    string             `json:"faktor_penghambat"`
-	RisikoHukum         string             `json:"risiko_hukum"`
-	Rekomendasi         string             `json:"rekomendasi_tl"`
+	IdProgramUnggulan          int                `json:"id_program_unggulan"`
+	KodeProgramUnggulan        string             `json:"kode_program_unggulan"`
+	NamaProgramUnggulan        string             `json:"nama_program_unggulan"`
+	RencanaImplementasi        string             `json:"rencana_implementasi"`
+	IdTagging                  int                `json:"id_tagging"`
+	IdPohon                    int                `json:"id_pohon"`
+	Tahun                      int                `json:"tahun"`
+	NamaPohon                  string             `json:"nama_pohon"`
+	KodeOpd                    string             `json:"kode_opd"`
+	NamaOpd                    string             `json:"nama_opd"`
+	JenisPohon                 string             `json:"jenis_pohon"`
+	KeteranganTagging          string             `json:"keterangan_tagging"`
+	Status                     string             `json:"status"`
+	Pelaksanas                 []PelaksanaPokin   `json:"pelaksanas"`
+	Keterangan                 string             `json:"keterangan"`
+	Indikator                  []TaggingIndikator `json:"indikator"`
+	RealisasiAnggaran          int                `json:"realisasi_anggaran"`
+	RencanaAksi                string             `json:"rencana_aksi"`
+	FaktorPendorong            string             `json:"faktor_pendorong"`
+	FaktorPenghambat           string             `json:"faktor_penghambat"`
+	RisikoHukum                string             `json:"risiko_hukum"`
+	Rekomendasi                string             `json:"rekomendasi_tl"`
+	CatatanRealisasiAnggaran   string             `json:"catatan_realisasi_anggaran"`
+	CatatanPenataUsahaKeuangan string             `json:"catatan_penata_usaha_keuangan"`
+	CatatanPelaporanKeuangan   string             `json:"catatan_pelaporan_keuangan"`
+	CatatanPelaporanAset       string             `json:"catatan_pelaporan_aset"`
 }
 
 type PelaksanaPokin struct {
