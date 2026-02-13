@@ -72,6 +72,30 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	}, nil
 }
 
+// untuk internal create misal di clone service
+func (service *TimKerjaServiceImpl) CreateWithTx(ctx context.Context, tx *sql.Tx, timKerja web.TimKerjaCreateRequest) (domain.TimKerja, error) {
+	err := service.Validator.Struct(timKerja)
+	if err != nil {
+		return domain.TimKerja{}, err
+	}
+
+	timKerjaDomain := domain.TimKerja{
+		KodeTim:       helper.GenerateKodeTim(0),
+		NamaTim:       timKerja.NamaTim,
+		Keterangan:    timKerja.Keterangan,
+		Tahun:         timKerja.Tahun,
+		IsActive:      timKerja.IsActive,
+		IsSekretariat: timKerja.IsSekretariat,
+	}
+
+	tim, err := service.TimKerjaRepository.Create(ctx, tx, timKerjaDomain)
+	if err != nil {
+		return domain.TimKerja{}, err
+	}
+
+	return tim, nil
+}
+
 func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.TimKerjaUpdateRequest) (web.TimKerjaResponse, error) {
 	err := service.Validator.Struct(timKerja)
 	if err != nil {
@@ -243,7 +267,7 @@ func (service *TimKerjaServiceImpl) FindAllTm(ctx context.Context, tahun int) ([
 	return result, nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllTmByBulanTahun(ctx context.Context, bulan, tahun int) ([]web.TimKerjaDetailResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllTmByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.TimKerjaDetailResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -288,6 +312,52 @@ func (service *TimKerjaServiceImpl) FindAllTmByBulanTahun(ctx context.Context, b
 			Tahun:         tahun,
 			SusunanTims:   susunanTimResponses,
 		})
+	}
+
+	return result, nil
+}
+
+func (service *TimKerjaServiceImpl) DetailTmByKodeTimBulanTahun(ctx context.Context, kodeTim string, bulan int, tahun int) (result web.TimKerjaDetailResponse, err error) {
+	tx, err := service.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return web.TimKerjaDetailResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	timKerja, susunanTimMap, err := service.TimKerjaRepository.FindWithSusunanByKodeTimBulanTahun(ctx, tx, kodeTim, bulan, tahun)
+	if err != nil {
+		return web.TimKerjaDetailResponse{}, err
+	}
+
+	var susunanTimResponses []web.SusunanTimDetailResponse
+
+	// Get susunan tim for this kode_tim
+	if susunanTims, exists := susunanTimMap[timKerja.KodeTim]; exists {
+		for _, st := range susunanTims {
+			susunanTimResponses = append(susunanTimResponses, web.SusunanTimDetailResponse{
+				Id:           st.Id,
+				PegawaiId:    st.PegawaiId,
+				NamaPegawai:  st.NamaPegawai,
+				NamaJabatan:  st.NamaJabatanTim,
+				LevelJabatan: st.LevelJabatan,
+				Keterangan:   st.Keterangan,
+				IsActive:     st.IsActive,
+				Bulan:        st.Bulan,
+				Tahun:        st.Tahun,
+			})
+		}
+	}
+
+	result = web.TimKerjaDetailResponse{
+		Id:            timKerja.Id,
+		KodeTim:       timKerja.KodeTim,
+		NamaTim:       timKerja.NamaTim,
+		Keterangan:    timKerja.Keterangan,
+		IsActive:      timKerja.IsActive,
+		IsSekretariat: timKerja.IsSekretariat,
+		Bulan:         bulan,
+		Tahun:         tahun,
+		SusunanTims:   susunanTimResponses,
 	}
 
 	return result, nil
@@ -763,7 +833,7 @@ func (service *TimKerjaServiceImpl) GetRealisasiPokin(ctx context.Context, kodeI
 	return helper.ToRealisasiPokinResponses(realisasiPokins), nil
 }
 
-func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun string) ([]web.ProgramUnggulanTimKerjaResponse, error) {
+func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error) {
 	tx, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return []web.ProgramUnggulanTimKerjaResponse{}, nil
@@ -817,17 +887,13 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 		result = append(result, item)
 	}
 
-	tahunInt, err := strconv.Atoi(tahun)
-	if err != nil {
-		return []web.ProgramUnggulanTimKerjaResponse{}, fmt.Errorf("Tahun invalid: %w", err)
-	}
 	// --- 4) Query realisasi berdasarkan IdPohon (sudah diketahui) ---
 	tx2, err := service.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	// realisasi
-	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByPohonIDs(ctx, tx2, bulan, tahunInt, pohonIDs)
+	realisasiMap, err := service.TimKerjaRepository.FindRealisasiByPohonIDs(ctx, tx2, bulan, tahun, pohonIDs)
 	helper.CommitOrRollback(tx2)
 	if err != nil {
 		return nil, err
@@ -847,7 +913,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 	}
 
 	petugasTimMap, err := service.PetugasTimService.
-		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans, bulan, tahunInt)
+		FindAllByIdProgramUnggulans(ctx, idProgramUnggulans, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}

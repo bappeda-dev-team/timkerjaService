@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type ProgramUnggulanClient struct {
@@ -18,15 +19,16 @@ func NewProgramUnggulanClient(host string, httpClient *http.Client) *ProgramUngg
 	}
 }
 
-func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Context, tahun string) ([]TaggingPohonKinerjaItem, error) {
-	if tahun == "" {
+func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Context, tahun int) ([]TaggingPohonKinerjaItem, error) {
+	if tahun <= 0 {
 		return nil, fmt.Errorf("[ProgramUnggulanError] tahun wajib terisi")
 	}
+	tahunStr := strconv.Itoa(tahun)
 	queries := make([]map[string]string, 0)
 	queries = append(queries, map[string]string{
 		// Ganti kebutuhan tagging disini
 		"nama_tagging": "Program Unggulan Bupati",
-		"tahun":        tahun,
+		"tahun":        tahunStr,
 	})
 	// url get program unggulan bupati
 	url, err := buildURL(c.host, c.path+"/laporan/tagging_pokin", queries)

@@ -31,4 +31,5 @@ type TimKerjaRepository interface {
 	FindRealisasiByKodeTimAndPohonIDs(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int, pohonIDs []int) (map[int]domain.RealisasiAnggaranRecord, error)
 	FindRealisasiByKodeTimAndRekinSekretariatIds(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int, rekinSekretIds []int) (map[int]domain.RealisasiAnggaranRecord, error)
 	FindRealisasiByPohonIDs(ctx context.Context, tx *sql.Tx, bulan int, tahun int, pohonIDs []int) (map[int]domain.RealisasiAnggaranRecord, error)
+	FindWithSusunanByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) (domain.TimKerja, map[string][]domain.SusunanTim, error)
 }

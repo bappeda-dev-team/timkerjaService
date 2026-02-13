@@ -917,3 +917,66 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByPohonIDs(
 
 	return result, nil
 }
+
+func (repository *TimKerjaRepositoryImpl) FindWithSusunanByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) (domain.TimKerja, map[string][]domain.SusunanTim, error) {
+	timKerja, err := repository.FindByKodeTim(ctx, tx, kodeTim)
+	if err != nil {
+		return domain.TimKerja{}, nil, err
+	}
+
+	// Get all susunan tim with jabatan details
+	query := `
+        SELECT
+            st.id,
+            st.kode_tim,
+            st.pegawai_id,
+            st.nama_pegawai,
+            st.nama_jabatan_tim,
+            jt.level_jabatan,
+            st.keterangan,
+            st.is_active,
+            st.bulan,
+            st.tahun
+        FROM susunan_tim st
+        LEFT JOIN jabatan_tim jt ON st.nama_jabatan_tim = jt.nama_jabatan
+        WHERE st.bulan = ? AND st.tahun = ?
+        ORDER BY st.kode_tim, jt.level_jabatan ASC`
+
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
+	if err != nil {
+		return domain.TimKerja{}, nil, err
+	}
+	defer rows.Close()
+
+	susunanTimMap := make(map[string][]domain.SusunanTim)
+
+	for rows.Next() {
+		var susunanTim domain.SusunanTim
+		var levelJabatan sql.NullInt32
+
+		err := rows.Scan(
+			&susunanTim.Id,
+			&susunanTim.KodeTim,
+			&susunanTim.PegawaiId,
+			&susunanTim.NamaPegawai,
+			&susunanTim.NamaJabatanTim,
+			&levelJabatan,
+			&susunanTim.Keterangan,
+			&susunanTim.IsActive,
+			&susunanTim.Bulan,
+			&susunanTim.Tahun,
+		)
+		if err != nil {
+			return domain.TimKerja{}, nil, err
+		}
+
+		// Handle null values
+		if levelJabatan.Valid {
+			susunanTim.LevelJabatan = int(levelJabatan.Int32)
+		}
+
+		susunanTimMap[susunanTim.KodeTim] = append(susunanTimMap[susunanTim.KodeTim], susunanTim)
+	}
+
+	return timKerja, susunanTimMap, nil
+}

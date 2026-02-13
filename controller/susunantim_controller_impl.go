@@ -210,9 +210,12 @@ func (controller *SusunanTimControllerImpl) FindById(c echo.Context) error {
 // @Router /susunantim [get]
 func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")

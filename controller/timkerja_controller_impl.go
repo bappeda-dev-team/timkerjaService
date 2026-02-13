@@ -246,9 +246,12 @@ func (controller *TimKerjaControllerImpl) FindAll(c echo.Context) error {
 // @Router /timkerja [get]
 func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
@@ -259,6 +262,55 @@ func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 	}
 
 	TimKerjaResponses, err := controller.TimKerjaService.FindAllTmByBulanTahun(c.Request().Context(), bulan, tahun)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL_SERVER_ERROR",
+			Data:   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, web.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   TimKerjaResponses,
+	})
+}
+
+// @Summary Get Tim Kerja with Details by Kode Tim
+// @Description Get Tim Kerja with their Susunan Tim details
+// @Tags Tim Kerja
+// @Accept json
+// @Produce json
+// @Param kodeTim path string true "Kode Tim Kerja"
+// @Param bulan query int true "Bulan penilaian (ex: 1)"
+// @Param tahun query int true "Tahun penilaian (ex: 2025)"
+// @Success 200 {object} web.WebResponse{data=[]web.TimKerjaDetailResponse}
+// @Failure 500 {object} web.WebResponse
+// @Router /timkerja/{kodeTim} [get]
+func (controller *TimKerjaControllerImpl) FindByKodeTim(c echo.Context) error {
+	kodeTim := c.Param("kodeTim")
+	if kodeTim == "" {
+		return badRequest(c, "kodeTim tidak valid")
+	}
+
+	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
+	tahun, err := helper.GetQueryToInt(c, "tahun")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
+	if bulan < 1 || bulan > 12 {
+		return badRequest(c, "bulan tidak valid")
+	}
+
+	if tahun <= 0 {
+		return badRequest(c, "tahun tidak valid")
+	}
+
+	TimKerjaResponses, err := controller.TimKerjaService.DetailTmByKodeTimBulanTahun(c.Request().Context(), kodeTim, bulan, tahun)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -325,9 +377,12 @@ func (controller *TimKerjaControllerImpl) AddProgramUnggulan(c echo.Context) err
 // @Router /timkerja/{kodetim}/program_unggulan [get]
 func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Context) error {
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
@@ -370,9 +425,12 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Context) error {
 	// Ambil query param
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
@@ -409,9 +467,12 @@ func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Contex
 // @Router /timkerja-sekretariat [get]
 func (controller *TimKerjaControllerImpl) FindAllTimSekretariat(c echo.Context) error {
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
@@ -524,9 +585,12 @@ func (cont *TimKerjaControllerImpl) AddRencanaKinerja(c echo.Context) error {
 func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Context) error {
 	// Ambil query param
 	bulan, err := helper.GetQueryToInt(c, "bulan")
+	if err != nil {
+		return badRequest(c, err.Error())
+	}
 	tahun, err := helper.GetQueryToInt(c, "tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
@@ -653,15 +717,18 @@ func (controller *TimKerjaControllerImpl) SaveRealisasiPokin(c echo.Context) err
 // @Router /timkerja/{kodeopd}/all_program_unggulan [get]
 func (controller *TimKerjaControllerImpl) AllProgramUnggulanOpd(c echo.Context) error {
 	bulan, err := helper.GetQueryToInt(c, "bulan")
-	tahun := c.QueryParam("tahun")
 	if err != nil {
-		return err
+		return badRequest(c, err.Error())
+	}
+	tahun, err := helper.GetQueryToInt(c, "tahun")
+	if err != nil {
+		return badRequest(c, err.Error())
 	}
 	if bulan < 1 || bulan > 12 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
-	if tahun == "" {
+	if tahun <= 0 {
 		return badRequest(c, "tahun tidak valid")
 	}
 

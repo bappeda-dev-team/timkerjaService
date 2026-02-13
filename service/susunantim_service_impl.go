@@ -218,14 +218,8 @@ func (service *SusunanTimServiceImpl) FindByKodeTim(ctx context.Context, kodeTim
 
 func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan int, tahun int, kodeTim string, bulanTarget int, tahunTarget int) error {
 	// guard bulan tahun
-	if tahun <= 0 || tahunTarget <= 0 {
-		return errors.New("tahun tidak valid")
-	}
-	if bulan < 1 || bulan > 12 || bulanTarget < 1 || bulanTarget > 12 {
-		return errors.New("bulan tidak valid")
-	}
-	if bulan == bulanTarget && tahun == tahunTarget {
-		return errors.New("tidak bisa clone ke bulan dan tahun yang sama")
+	if err := validateClone(bulan, tahun, bulanTarget, tahunTarget); err != nil {
+		return err
 	}
 
 	// tx db
@@ -236,46 +230,52 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 	defer helper.CommitOrRollback(tx)
 
 	// cek untuk memastikan susunan tim belum ada di bulan tahun target
-	exists, err := service.SusunanTimRepository.ExistsByKodeTimBulanTahun(
-		ctx, tx, kodeTim, bulanTarget, tahunTarget,
-	)
+	exists, err := service.SusunanTimRepository.
+		ExistsByKodeTimBulanTahun(ctx, tx, kodeTim, bulanTarget, tahunTarget)
 	if err != nil {
 		return err
 	}
 	if exists {
 		return errors.New("susunan tim target sudah ada")
 	}
-	susunanTims, err := service.SusunanTimRepository.FindByKodeTimBulanTahun(ctx, tx, kodeTim, bulan, tahun)
+	susunanTims, err := service.SusunanTimRepository.
+		FindByKodeTimBulanTahun(ctx, tx, kodeTim, bulan, tahun)
 	if err != nil {
 		return fmt.Errorf("find susunan tim gagal: %w", err)
 	}
-
 	if len(susunanTims) <= 0 {
 		return errors.New("Susunan Tim Tidak ditemukan")
 	}
 
-	timKerjaTarget, err := service.TimKerjaService.FindByKodeTim(ctx, kodeTim)
-	if err != nil {
-		return fmt.Errorf("tim kerja tidak ditemukan")
-	}
+	kodeTimTarget := kodeTim
 
-	timKerjaBaru := web.TimKerjaCreateRequest{
-		NamaTim:       timKerjaTarget.NamaTim,
-		Keterangan:    timKerjaTarget.Keterangan,
-		IsActive:      timKerjaTarget.IsActive,
-		IsSekretariat: timKerjaTarget.IsSekretariat,
-		Tahun:         strconv.Itoa(tahunTarget),
-	}
+	// Create tim kerja baru jika tahun tidak sama
+	if tahunTarget != tahun {
+		timKerjaTarget, err := service.TimKerjaService.
+			FindByKodeTim(ctx, kodeTim)
+		if err != nil {
+			return fmt.Errorf("tim kerja tidak ditemukan")
+		}
 
-	cloneTimKerja, err := service.TimKerjaService.Create(ctx, timKerjaBaru)
-	if err != nil {
-		return fmt.Errorf("tim kerja gagal di clone: %w", err)
+		cloneTimKerja, err := service.TimKerjaService.
+			CreateWithTx(ctx, tx, web.TimKerjaCreateRequest{
+				NamaTim:       timKerjaTarget.NamaTim,
+				Keterangan:    timKerjaTarget.Keterangan,
+				IsActive:      timKerjaTarget.IsActive,
+				IsSekretariat: timKerjaTarget.IsSekretariat,
+				Tahun:         strconv.Itoa(tahunTarget),
+			})
+		if err != nil {
+			return fmt.Errorf("tim kerja gagal di clone: %w", err)
+		}
+
+		kodeTimTarget = cloneTimKerja.KodeTim
 	}
 
 	cloneSusunanTim := make([]domain.SusunanTim, 0, len(susunanTims))
 	for _, st := range susunanTims {
 		newSusunanTim := domain.SusunanTim{
-			KodeTim:        cloneTimKerja.KodeTim,
+			KodeTim:        kodeTimTarget,
 			Bulan:          bulanTarget,
 			Tahun:          tahunTarget,
 			PegawaiId:      st.PegawaiId,
@@ -288,11 +288,23 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 
 		cloneSusunanTim = append(cloneSusunanTim, newSusunanTim)
 	}
-
 	err = service.SusunanTimRepository.SaveAll(ctx, tx, cloneSusunanTim)
 	if err != nil {
 		return fmt.Errorf("save clone susunan tim gagal: %w", err)
 	}
 
+	return nil
+}
+
+func validateClone(bulan, tahun, bulanTarget, tahunTarget int) error {
+	if tahun <= 0 || tahunTarget <= 0 {
+		return errors.New("tahun tidak valid")
+	}
+	if bulan < 1 || bulan > 12 || bulanTarget < 1 || bulanTarget > 12 {
+		return errors.New("bulan tidak valid")
+	}
+	if bulan == bulanTarget && tahun == tahunTarget {
+		return errors.New("tidak bisa clone ke bulan dan tahun yang sama")
+	}
 	return nil
 }
