@@ -747,6 +747,10 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 	result := make(map[int]domain.RealisasiAnggaranRecord)
 	for rows.Next() {
 		var rec domain.RealisasiAnggaranRecord
+		var catatanRealisasiAnggaran,
+			catatanPenataUsahaKeuangan,
+			catatanPelaporanKeuangan,
+			catatanPelaporanAset sql.NullString
 		if err := rows.Scan(
 			&rec.IdPohon,
 			&rec.RealisasiAnggaran,
@@ -755,12 +759,24 @@ func (r *TimKerjaRepositoryImpl) FindRealisasiByKodeTimAndPohonIDs(
 			&rec.FaktorPenghambat,
 			&rec.RisikoHukum,
 			&rec.RekomendasiTl,
-			&rec.CatatanRealisasiAnggaran,
-			&rec.CatatanPenataUsahaKeuangan,
-			&rec.CatatanPelaporanKeuangan,
-			&rec.CatatanPelaporanAset,
+			&catatanRealisasiAnggaran,
+			&catatanPenataUsahaKeuangan,
+			&catatanPelaporanKeuangan,
+			&catatanPelaporanAset,
 		); err != nil {
 			return nil, err
+		}
+		if catatanRealisasiAnggaran.Valid {
+			rec.CatatanRealisasiAnggaran = catatanRealisasiAnggaran.String
+		}
+		if catatanPenataUsahaKeuangan.Valid {
+			rec.CatatanPenataUsahaKeuangan = catatanPenataUsahaKeuangan.String
+		}
+		if catatanPelaporanKeuangan.Valid {
+			rec.CatatanPelaporanKeuangan = catatanPelaporanKeuangan.String
+		}
+		if catatanPelaporanAset.Valid {
+			rec.CatatanPelaporanAset = catatanPelaporanAset.String
 		}
 
 		result[rec.IdPohon] = rec
