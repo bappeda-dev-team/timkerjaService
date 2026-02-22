@@ -56,7 +56,6 @@ func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawa
 		return nil, fmt.Errorf("Request ke perencanaan gagal: %w", err)
 	}
 	defer res.Body.Close()
-	log.Printf("Request: %v", req)
 
 	// response status
 	if res.StatusCode != http.StatusOK {

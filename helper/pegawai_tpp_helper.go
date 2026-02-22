@@ -298,9 +298,12 @@ func ConvertToAllLaporan(
 			HitungTPP(&item)
 
 			// validasi hasil
-			if item.NamaPegawai != "" && item.Tpp.JumlahKotor != 0 {
+            // ADA PERUBAHAN, DULU HANYA YANG PUNYA TPP YANG MASUK
+			// SEKARANG DI BKAD DAN PERUBAHAN TERBARU
+			// SEMUA PEGAWAI MUNCUL
+			// if item.NamaPegawai != "" && item.Tpp.JumlahKotor != 0 {
 				out = append(out, item)
-			}
+			// }
 		}
 	}
 

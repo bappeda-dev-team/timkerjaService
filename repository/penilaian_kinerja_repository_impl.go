@@ -153,6 +153,8 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 	ON jt.id = st.jabatan_tim_id
 	LEFT JOIN tim_kerja tk
 	ON tk.kode_tim = st.kode_tim
+	AND tk.tahun = ?
+	AND tk.is_active
 
 	-- ambil ID penilaian TERBARU per pegawai + jenis_nilai
 	LEFT JOIN (
@@ -170,17 +172,14 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 	LEFT JOIN penilaian_kinerja p
 	ON p.id = latest_p.max_id
 
-	WHERE
-	tk.tahun = ?
-	AND tk.is_active
-	AND st.is_active
+	WHERE st.is_active
     AND st.bulan = ?
     AND st.tahun = ?
 
 	ORDER BY st.kode_tim, st.id;
 	`
 
-	rows, err := tx.QueryContext(ctx, query, tahun, bulan, tahun, bulan, tahun)
+	rows, err := tx.QueryContext(ctx, query, tahun, tahun, bulan, bulan, tahun)
 	if err != nil {
 		return nil, err
 	}
