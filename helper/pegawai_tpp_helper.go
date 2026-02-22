@@ -298,12 +298,14 @@ func ConvertToAllLaporan(
 			HitungTPP(&item)
 
 			// validasi hasil
-            // ADA PERUBAHAN, DULU HANYA YANG PUNYA TPP YANG MASUK
+			// ADA PERUBAHAN, DULU HANYA YANG PUNYA TPP YANG MASUK
 			// SEKARANG DI BKAD DAN PERUBAHAN TERBARU
 			// SEMUA PEGAWAI MUNCUL
+			// TODO FIX LOGIC TPP JUMLAH KOTOR
 			// if item.NamaPegawai != "" && item.Tpp.JumlahKotor != 0 {
+			if item.NamaPegawai != "" {
 				out = append(out, item)
-			// }
+			}
 		}
 	}
 

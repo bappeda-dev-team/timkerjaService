@@ -7,7 +7,7 @@ type RealisasiAnggaran struct {
 	IdRencanaKinerjaSekretariat int
 	IdProgramUnggulan           int
 	KodeSubkegiatan             string
-	RealisasiAnggaran           int
+	RealisasiAnggaran           int64
 	KodeTim                     string
 	IdPohon                     int
 	IdRencanaKinerja            string
@@ -32,7 +32,7 @@ type RealisasiAnggaranRecord struct {
 	IdPohon                     int
 	IdRencanaKinerjaSekretariat int
 	IdProgramUnggulan           int
-	RealisasiAnggaran           int
+	RealisasiAnggaran           int64
 	RencanaAksi                 string
 	FaktorPendorong             string
 	FaktorPenghambat            string

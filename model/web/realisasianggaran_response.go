@@ -10,7 +10,7 @@ type RealisasiAnggaranResponse struct {
 	IdPohon                     int       `json:"id_pohon" validate:"required"`
 	IdRencanaKinerja            string    `json:"id_rencana_kinerja"`
 	KodeSubkegiatan             string    `json:"kode_subkegiatan"`
-	RealisasiAnggaran           int       `json:"realisasi_anggaran"`
+	RealisasiAnggaran           int64     `json:"realisasi_anggaran"`
 	KodeOpd                     string    `json:"kode_opd"`
 	RencanaAksi                 string    `json:"rencana_aksi"`
 	FaktorPendorong             string    `json:"faktor_pendorong"`

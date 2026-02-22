@@ -7,7 +7,7 @@ type RealisasiAnggaranCreateRequest struct {
 	IdProgramUnggulan           int    `json:"id_program_unggulan"`
 	IdPohon                     int    `json:"id_pohon" validate:"required"`
 	IdRencanaKinerja            string `json:"id_rencana_kinerja" validate:"required"`
-	RealisasiAnggaran           int    `json:"realisasi_anggaran" validate:"required"`
+	RealisasiAnggaran           int64  `json:"realisasi_anggaran" validate:"required"`
 	KodeOpd                     string `json:"kode_opd" validate:"required"`
 	RencanaAksi                 string `json:"rencana_aksi"`
 	FaktorPendorong             string `json:"faktor_pendorong"`

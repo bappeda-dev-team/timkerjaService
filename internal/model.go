@@ -110,7 +110,7 @@ type TaggingPohonKinerjaItem struct {
 	Pelaksanas                 []PelaksanaPokin   `json:"pelaksanas"`
 	Keterangan                 string             `json:"keterangan"`
 	Indikator                  []TaggingIndikator `json:"indikator"`
-	RealisasiAnggaran          int                `json:"realisasi_anggaran"`
+	RealisasiAnggaran          int64              `json:"realisasi_anggaran"`
 	RencanaAksi                string             `json:"rencana_aksi"`
 	FaktorPendorong            string             `json:"faktor_pendorong"`
 	FaktorPenghambat           string             `json:"faktor_penghambat"`

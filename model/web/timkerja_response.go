@@ -73,7 +73,7 @@ type RencanaKinerjaTimKerjaResponse struct {
 	Indikator         []internal.IndikatorResponse   `json:"indikators,omitempty"`
 	RencanaAksi       []internal.RencanaAksiResponse `json:"rencana_aksis"`
 	SubKegiatan       []internal.SubKegiatanResponse `json:"subkegiatan,omitempty"`
-	RealisasiAnggaran int                            `json:"realisasi_anggaran"`
+	RealisasiAnggaran int64                          `json:"realisasi_anggaran"`
 	FaktorPendorong   string                         `json:"faktor_pendorong"`
 	FaktorPenghambat  string                         `json:"faktor_penghambat"`
 	RisikoHukum       string                         `json:"risiko_hukum"`
