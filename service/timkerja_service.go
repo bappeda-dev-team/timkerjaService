@@ -30,4 +30,5 @@ type TimKerjaService interface {
 	SaveRealisasiPokin(ctx context.Context, realisasi web.RealisasiRequest) (web.RealisasiResponse, error)
 	GetRealisasiPokin(ctx context.Context, kodeItem string, tahun string) ([]web.RealisasiResponse, error)
 	FindAllProgramUnggulanOpd(ctx context.Context, kodeOpd string, bulan int, tahun int) ([]web.ProgramUnggulanTimKerjaResponse, error)
+	CheckCloned(ctx context.Context, cloneId int, bulan int, tahun int) (bool, error)
 }

@@ -246,15 +246,25 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 	if len(susunanTims) <= 0 {
 		return errors.New("Susunan Tim Tidak ditemukan")
 	}
-
 	kodeTimTarget := kodeTim
 
-	// Create tim kerja baru jika tahun tidak sama
-	if tahunTarget != tahun {
+	// Create tim kerja baru jika tahun dan bulan tidak sama
+	if tahunTarget != tahun || bulanTarget != bulan {
+
 		timKerjaTarget, err := service.TimKerjaService.
 			FindByKodeTim(ctx, kodeTim)
 		if err != nil {
 			return fmt.Errorf("tim kerja tidak ditemukan")
+		}
+
+		timExists, err := service.TimKerjaService.
+			CheckCloned(ctx, timKerjaTarget.Id, bulanTarget, tahunTarget)
+		if err != nil {
+			return err
+		}
+
+		if timExists {
+			return errors.New("Tim kerja sudah ada pada periode tersebut")
 		}
 
 		cloneTimKerja, err := service.TimKerjaService.
@@ -263,7 +273,9 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 				Keterangan:    timKerjaTarget.Keterangan,
 				IsActive:      timKerjaTarget.IsActive,
 				IsSekretariat: timKerjaTarget.IsSekretariat,
+				Bulan:         bulanTarget,
 				Tahun:         strconv.Itoa(tahunTarget),
+				CloneFrom:     timKerjaTarget.Id,
 			})
 		if err != nil {
 			return fmt.Errorf("tim kerja gagal di clone: %w", err)

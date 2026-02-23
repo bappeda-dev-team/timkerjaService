@@ -5,6 +5,7 @@ type TimKerjaUpdateRequest struct {
 	NamaTim       string `json:"nama_tim"`
 	Keterangan    string `json:"keterangan"`
 	Tahun         string `json:"tahun"`
+	Bulan         int    `json:"bulan"`
 	IsActive      bool   `json:"is_active"`
 	IsSekretariat bool   `json:"is_sekretariat"`
 }

@@ -15,6 +15,8 @@ type TimKerja struct {
 	IsSekretariat bool
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	Bulan         int
+	CloneFrom     int
 }
 
 type ProgramUnggulanTimKerja struct {

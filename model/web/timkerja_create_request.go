@@ -6,6 +6,8 @@ type TimKerjaCreateRequest struct {
 	Tahun         string `json:"tahun" validate:"required"`
 	IsActive      bool   `json:"is_active"`
 	IsSekretariat bool   `json:"is_sekretariat"`
+	Bulan         int    `json:"bulan"`
+	CloneFrom     int    `json:"clone_from"`
 }
 
 type ProgramUnggulanTimKerjaRequest struct {

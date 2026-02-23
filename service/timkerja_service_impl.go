@@ -51,6 +51,7 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 		KodeTim:       helper.GenerateKodeTim(0),
 		NamaTim:       timKerja.NamaTim,
 		Keterangan:    timKerja.Keterangan,
+		Bulan:         timKerja.Bulan,
 		Tahun:         timKerja.Tahun,
 		IsActive:      timKerja.IsActive,
 		IsSekretariat: timKerja.IsSekretariat,
@@ -66,6 +67,7 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 		KodeTim:       timKerjaDomain.KodeTim,
 		NamaTim:       timKerjaDomain.NamaTim,
 		Keterangan:    timKerjaDomain.Keterangan,
+		Bulan:         timKerjaDomain.Bulan,
 		Tahun:         timKerjaDomain.Tahun,
 		IsActive:      timKerjaDomain.IsActive,
 		IsSekretariat: timKerja.IsSekretariat,
@@ -83,9 +85,11 @@ func (service *TimKerjaServiceImpl) CreateWithTx(ctx context.Context, tx *sql.Tx
 		KodeTim:       helper.GenerateKodeTim(0),
 		NamaTim:       timKerja.NamaTim,
 		Keterangan:    timKerja.Keterangan,
+		Bulan:         timKerja.Bulan,
 		Tahun:         timKerja.Tahun,
 		IsActive:      timKerja.IsActive,
 		IsSekretariat: timKerja.IsSekretariat,
+		CloneFrom:     timKerja.CloneFrom,
 	}
 
 	tim, err := service.TimKerjaRepository.Create(ctx, tx, timKerjaDomain)
@@ -112,6 +116,7 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 		Id:            timKerja.Id,
 		NamaTim:       timKerja.NamaTim,
 		Keterangan:    timKerja.Keterangan,
+		Bulan:         timKerja.Bulan,
 		Tahun:         timKerja.Tahun,
 		IsActive:      timKerja.IsActive,
 		IsSekretariat: timKerja.IsSekretariat,
@@ -132,6 +137,7 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 		KodeTim:       kodeTim.KodeTim,
 		NamaTim:       timKerjaDomain.NamaTim,
 		Keterangan:    timKerjaDomain.Keterangan,
+		Bulan:         timKerjaDomain.Bulan,
 		Tahun:         timKerjaDomain.Tahun,
 		IsActive:      timKerjaDomain.IsActive,
 		IsSekretariat: timKerjaDomain.IsSekretariat,
@@ -173,6 +179,7 @@ func (service *TimKerjaServiceImpl) FindById(ctx context.Context, id int) (web.T
 		KodeTim:       timKerjaDomain.KodeTim,
 		NamaTim:       timKerjaDomain.NamaTim,
 		Keterangan:    timKerjaDomain.Keterangan,
+		Bulan:         timKerjaDomain.Bulan,
 		Tahun:         timKerjaDomain.Tahun,
 		IsActive:      timKerjaDomain.IsActive,
 		IsSekretariat: timKerjaDomain.IsSekretariat,
@@ -199,6 +206,7 @@ func (service *TimKerjaServiceImpl) FindByKodeTim(ctx context.Context, kodeTim s
 		KodeTim:       timKerjaDomain.KodeTim,
 		NamaTim:       timKerjaDomain.NamaTim,
 		Keterangan:    timKerjaDomain.Keterangan,
+		Bulan:         timKerjaDomain.Bulan,
 		Tahun:         timKerjaDomain.Tahun,
 		IsActive:      timKerjaDomain.IsActive,
 		IsSekretariat: timKerjaDomain.IsSekretariat,
@@ -921,4 +929,14 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 	addPetugasTimToResponses(result, petugasTimMap)
 
 	return result, nil
+}
+
+func (service *TimKerjaServiceImpl) CheckCloned(
+	ctx context.Context,
+	cloneId int,
+	bulan int,
+	tahun int,
+) (bool, error) {
+	return service.TimKerjaRepository.
+		CheckCloned(ctx, service.DB, cloneId, bulan, tahun)
 }

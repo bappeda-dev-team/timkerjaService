@@ -18,14 +18,17 @@ func NewTimKerjaRepositoryImpl() *TimKerjaRepositoryImpl {
 }
 
 func (repository *TimKerjaRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error) {
-	query := "INSERT INTO tim_kerja (kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO tim_kerja (kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat, clone_from) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 	result, err := tx.ExecContext(ctx, query,
 		timKerja.KodeTim,
 		timKerja.NamaTim,
 		timKerja.Keterangan,
+		timKerja.Bulan,
 		timKerja.Tahun,
 		timKerja.IsActive,
-		timKerja.IsSekretariat)
+		timKerja.IsSekretariat,
+		timKerja.CloneFrom,
+	)
 	if err != nil {
 		return domain.TimKerja{}, err
 	}
@@ -38,8 +41,8 @@ func (repository *TimKerjaRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *TimKerjaRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, timKerja domain.TimKerja) (domain.TimKerja, error) {
-	query := "UPDATE tim_kerja SET nama_tim = ?, keterangan = ?, tahun = ?, is_active = ?, is_sekretariat = ? WHERE id = ?"
-	_, err := tx.ExecContext(ctx, query, timKerja.NamaTim, timKerja.Keterangan, timKerja.Tahun, timKerja.IsActive, timKerja.IsSekretariat, timKerja.Id)
+	query := "UPDATE tim_kerja SET nama_tim = ?, keterangan = ?, bulan = ?, tahun = ?, is_active = ?, is_sekretariat = ? WHERE id = ?"
+	_, err := tx.ExecContext(ctx, query, timKerja.NamaTim, timKerja.Keterangan, timKerja.Bulan, timKerja.Tahun, timKerja.IsActive, timKerja.IsSekretariat, timKerja.Id)
 	if err != nil {
 		return domain.TimKerja{}, err
 	}
@@ -57,7 +60,7 @@ func (repository *TimKerjaRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE id = ?"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, query, id)
 	if err != nil {
 		return domain.TimKerja{}, err
@@ -66,9 +69,14 @@ func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.
 
 	if rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		var bulanNs sql.NullInt32
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
 		}
 		return timKerja, nil
 	}
@@ -77,7 +85,7 @@ func (repository *TimKerjaRepositoryImpl) FindById(ctx context.Context, tx *sql.
 }
 
 func (repository *TimKerjaRepositoryImpl) FindByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string) (domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE kode_tim = ?"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE kode_tim = ?"
 	rows, err := tx.QueryContext(ctx, query, kodeTim)
 	if err != nil {
 		return domain.TimKerja{}, err
@@ -86,9 +94,14 @@ func (repository *TimKerjaRepositoryImpl) FindByKodeTim(ctx context.Context, tx 
 
 	if rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		var bulanNs sql.NullInt32
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
 		}
 		return timKerja, nil
 	}
@@ -97,7 +110,7 @@ func (repository *TimKerjaRepositoryImpl) FindByKodeTim(ctx context.Context, tx 
 }
 
 func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE tahun = ? ORDER BY id ASC"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE tahun = ? ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, tahun)
 	if err != nil {
 		return []domain.TimKerja{}, err
@@ -107,9 +120,14 @@ func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	var timKerjaList []domain.TimKerja
 	for rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		var bulanNs sql.NullInt32
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
 		}
 
 		timKerjaList = append(timKerjaList, timKerja)
@@ -283,7 +301,7 @@ func (repository *TimKerjaRepositoryImpl) FindProgramUnggulanByKodeTim(ctx conte
 }
 
 func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE NOT is_sekretariat AND tahun = ? AND is_active ORDER BY id ASC"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE NOT is_sekretariat AND tahun = ? AND is_active ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, tahun)
 	if err != nil {
 		return []domain.TimKerja{}, err
@@ -293,9 +311,15 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariat(ctx context.C
 	var timKerjaList []domain.TimKerja
 	for rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		var bulanNs sql.NullInt32
+
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
 		}
 
 		timKerjaList = append(timKerjaList, timKerja)
@@ -375,8 +399,9 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
 	return timKerjaList, susunanTimMap, nil
 }
 
+// TODO: cek apakah disini butuh bulan ?
 func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error) {
-	query := "SELECT id, kode_tim, nama_tim, keterangan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE is_sekretariat AND tahun = ? AND is_active ORDER BY id ASC"
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE is_sekretariat AND tahun = ? AND is_active ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, tahun)
 	if err != nil {
 		return []domain.TimKerja{}, err
@@ -386,9 +411,15 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Cont
 	var timKerjaList []domain.TimKerja
 	for rows.Next() {
 		var timKerja domain.TimKerja
-		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		var bulanNs sql.NullInt32
+
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
 		if err != nil {
 			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
 		}
 
 		timKerjaList = append(timKerjaList, timKerja)
@@ -995,4 +1026,32 @@ func (repository *TimKerjaRepositoryImpl) FindWithSusunanByKodeTimBulanTahun(ctx
 	}
 
 	return timKerja, susunanTimMap, nil
+}
+
+func (repository *TimKerjaRepositoryImpl) CheckCloned(
+	ctx context.Context,
+	tx *sql.DB,
+	cloneId int,
+	bulan int,
+	tahun int,
+) (bool, error) {
+	query := `
+		SELECT 1
+		FROM tim_kerja
+		WHERE clone_from = ?
+		AND bulan = ?
+		AND tahun = ?
+		LIMIT 1
+	`
+
+	var exists int
+	err := tx.QueryRowContext(ctx, query, cloneId, bulan, tahun).Scan(&exists)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }

@@ -321,7 +321,7 @@ func (controller *SusunanTimControllerImpl) CloneSusunanTim(c echo.Context) erro
 		case strings.Contains(err.Error(), "sudah ada"):
 			return conflict(c, err.Error())
 		case strings.Contains(err.Error(), "tidak ditemukan"):
-			return conflict(c, err.Error())
+			return notFound(c, err.Error())
 		default:
 			return internalError(c, err)
 		}
@@ -346,6 +346,14 @@ func conflict(c echo.Context, message string) error {
 	return c.JSON(http.StatusConflict, web.WebResponse{
 		Code:   http.StatusConflict,
 		Status: "Conflict",
+		Data:   message,
+	})
+}
+
+func notFound(c echo.Context, message string) error {
+	return c.JSON(http.StatusNotFound, web.WebResponse{
+		Code:   http.StatusNotFound,
+		Status: "Not Found",
 		Data:   message,
 	})
 }
