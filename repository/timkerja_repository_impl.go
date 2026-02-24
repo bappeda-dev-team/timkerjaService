@@ -137,6 +137,34 @@ func (repository *TimKerjaRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 
 }
 
+func (repository *TimKerjaRepositoryImpl) FindAllByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, error) {
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE bulan = ? AND tahun = ? ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
+	if err != nil {
+		return []domain.TimKerja{}, err
+	}
+	defer rows.Close()
+
+	var timKerjaList []domain.TimKerja
+	for rows.Next() {
+		var timKerja domain.TimKerja
+		var bulanNs sql.NullInt32
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		if err != nil {
+			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
+		}
+
+		timKerjaList = append(timKerjaList, timKerja)
+	}
+
+	return timKerjaList, nil
+
+}
+
 func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
 	timKerjaList, err := repository.FindAll(ctx, tx, tahun)
 	if err != nil {
@@ -196,7 +224,7 @@ func (repository *TimKerjaRepositoryImpl) FindAllWithSusunan(ctx context.Context
 }
 
 func (repository *TimKerjaRepositoryImpl) FindAllWithSusunanByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
-	timKerjaList, err := repository.FindAll(ctx, tx, tahun)
+	timKerjaList, err := repository.FindAllByBulanTahun(ctx, tx, bulan, tahun)
 	if err != nil {
 		return nil, nil, err
 	}
