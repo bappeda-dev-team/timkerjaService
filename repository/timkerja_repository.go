@@ -20,8 +20,10 @@ type TimKerjaRepository interface {
 	FindProgramUnggulanByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string, tahun int) ([]domain.ProgramUnggulanTimKerja, error)
 	FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimNonSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error)
+	FindAllTimNonSekretariatByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, error)
 	FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error)
 	FindAllTimSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error)
+	FindAllTimSekretariatByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, error)
 	DeleteProgramUnggulan(ctx context.Context, tx *sql.Tx, id int, kodeTim string) error
 	AddRencanaKinerja(ctx context.Context, tx *sql.Tx, rencanaKinerja domain.RencanaKinerjaTimKerja) (domain.RencanaKinerjaTimKerja, error)
 	FindRencanaKinerjaByKodeTim(ctx context.Context, tx *sql.Tx, kodeTim string, tahun int) ([]domain.RencanaKinerjaTimKerja, error)

@@ -357,8 +357,37 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariat(ctx context.C
 
 }
 
+func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, error) {
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE NOT is_sekretariat AND bulan = ? AND tahun = ? AND is_active ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
+	if err != nil {
+		return []domain.TimKerja{}, err
+	}
+	defer rows.Close()
+
+	var timKerjaList []domain.TimKerja
+	for rows.Next() {
+		var timKerja domain.TimKerja
+		var bulanNs sql.NullInt32
+
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		if err != nil {
+			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
+		}
+
+		timKerjaList = append(timKerjaList, timKerja)
+	}
+
+	return timKerjaList, nil
+
+}
+
 func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
-	timKerjaList, err := repository.FindAllTimNonSekretariat(ctx, tx, tahun)
+	timKerjaList, err := repository.FindAllTimNonSekretariatByBulanTahun(ctx, tx, bulan, tahun)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -427,7 +456,6 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimNonSekretariatWithSusunan(ct
 	return timKerjaList, susunanTimMap, nil
 }
 
-// TODO: cek apakah disini butuh bulan ?
 func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Context, tx *sql.Tx, tahun int) ([]domain.TimKerja, error) {
 	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE is_sekretariat AND tahun = ? AND is_active ORDER BY id ASC"
 	rows, err := tx.QueryContext(ctx, query, tahun)
@@ -457,8 +485,37 @@ func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariat(ctx context.Cont
 
 }
 
+func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatByBulanTahun(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, error) {
+	query := "SELECT id, kode_tim, nama_tim, keterangan, bulan, tahun, is_active, is_sekretariat FROM tim_kerja WHERE is_sekretariat AND bulan = ? AND tahun = ? AND is_active ORDER BY id ASC"
+	rows, err := tx.QueryContext(ctx, query, bulan, tahun)
+	if err != nil {
+		return []domain.TimKerja{}, err
+	}
+	defer rows.Close()
+
+	var timKerjaList []domain.TimKerja
+	for rows.Next() {
+		var timKerja domain.TimKerja
+		var bulanNs sql.NullInt32
+
+		err := rows.Scan(&timKerja.Id, &timKerja.KodeTim, &timKerja.NamaTim, &timKerja.Keterangan,
+			&bulanNs, &timKerja.Tahun, &timKerja.IsActive, &timKerja.IsSekretariat)
+		if err != nil {
+			return []domain.TimKerja{}, err
+		}
+		if bulanNs.Valid {
+			timKerja.Bulan = int(bulanNs.Int32)
+		}
+
+		timKerjaList = append(timKerjaList, timKerja)
+	}
+
+	return timKerjaList, nil
+
+}
+
 func (repository *TimKerjaRepositoryImpl) FindAllTimSekretariatWithSusunan(ctx context.Context, tx *sql.Tx, bulan int, tahun int) ([]domain.TimKerja, map[string][]domain.SusunanTim, error) {
-	timKerjaList, err := repository.FindAllTimSekretariat(ctx, tx, tahun)
+	timKerjaList, err := repository.FindAllTimSekretariatByBulanTahun(ctx, tx, bulan, tahun)
 	if err != nil {
 		return nil, nil, err
 	}
