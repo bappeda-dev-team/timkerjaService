@@ -34,12 +34,13 @@ func (controller *PenilaianKinerjaControllerImpl) All(c echo.Context) error {
 	// Ambil query param
 	tahunStr := c.QueryParam("tahun")
 	bulanStr := c.QueryParam("bulan")
+	kodeOpd := c.QueryParam("kodeOpd")
 
-	if tahunStr == "" || bulanStr == "" {
+	if tahunStr == "" || bulanStr == "" || kodeOpd == "" {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   "tahun dan bulan wajib diisi",
+			Data:   "tahun, bulan dan kodeOpd wajib diisi",
 		})
 	}
 
@@ -63,7 +64,7 @@ func (controller *PenilaianKinerjaControllerImpl) All(c echo.Context) error {
 	}
 
 	// Panggil service
-	result, err := controller.PenilaianKinerjaService.All(c.Request().Context(), tahun, bulan)
+	result, err := controller.PenilaianKinerjaService.All(c.Request().Context(), tahun, bulan, kodeOpd)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -177,12 +178,13 @@ func (controller *PenilaianKinerjaControllerImpl) LaporanTpp(c echo.Context) err
 	// Ambil query param
 	tahunStr := c.QueryParam("tahun")
 	bulanStr := c.QueryParam("bulan")
+	kodeOpd := c.QueryParam("kodeOpd")
 
-	if tahunStr == "" || bulanStr == "" {
+	if tahunStr == "" || bulanStr == "" || kodeOpd == "" {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   "tahun dan bulan wajib diisi",
+			Data:   "tahun, bulan dan kodeOpd wajib diisi",
 		})
 	}
 
@@ -206,7 +208,7 @@ func (controller *PenilaianKinerjaControllerImpl) LaporanTpp(c echo.Context) err
 	}
 
 	// Panggil service
-	result, err := controller.PenilaianKinerjaService.TppPegawaiAll(c.Request().Context(), tahun, bulan)
+	result, err := controller.PenilaianKinerjaService.TppPegawaiAll(c.Request().Context(), tahun, bulan, kodeOpd)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -238,12 +240,13 @@ func (controller *PenilaianKinerjaControllerImpl) LaporanTppAll(c echo.Context) 
 	// Ambil query param
 	tahunStr := c.QueryParam("tahun")
 	bulanStr := c.QueryParam("bulan")
+	kodeOpd := c.QueryParam("kodeOpd")
 
-	if tahunStr == "" || bulanStr == "" {
+	if tahunStr == "" || bulanStr == "" || kodeOpd == "" {
 		return c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   "tahun dan bulan wajib diisi",
+			Data:   "tahun, bulan dan kodeOpd wajib diisi",
 		})
 	}
 
@@ -267,7 +270,7 @@ func (controller *PenilaianKinerjaControllerImpl) LaporanTppAll(c echo.Context) 
 	}
 
 	// Panggil service
-	result, err := controller.PenilaianKinerjaService.TppPegawaiAllInOne(c.Request().Context(), tahun, bulan)
+	result, err := controller.PenilaianKinerjaService.TppPegawaiAllInOne(c.Request().Context(), tahun, bulan, kodeOpd)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, web.WebResponse{
 			Code:   http.StatusInternalServerError,

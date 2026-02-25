@@ -18,6 +18,9 @@ func MergePenilaianKinerjaParallel(
 	penilaianKinerja []domain.LaporanPenilaian,
 	client *internal.KepegawaianClient,
 	maxConcurrency int,
+	bulan int,
+	tahun int,
+	kodeOpd string,
 ) ([]web.LaporanPenilaianKinerjaResponse, error) {
 
 	var (
@@ -132,8 +135,9 @@ func MergePenilaianKinerjaParallel(
 		})
 	}
 
+	log.Printf("KODE OPD: %s", kodeOpd)
 	// Ambil detail pegawai batch
-	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, listIdPegawais)
+	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, listIdPegawais, bulan, tahun, kodeOpd)
 	if err != nil {
 		log.Printf("ERROR KEPEGAWAIAN HOST: %v\n", err)
 		return responses, nil // tetap return meski gagal

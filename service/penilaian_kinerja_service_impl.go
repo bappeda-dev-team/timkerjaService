@@ -35,6 +35,7 @@ func (s *PenilaianKinerjaServiceImpl) All(
 	ctx context.Context,
 	tahun int,
 	bulan int,
+	kodeOpd string,
 ) ([]web.LaporanPenilaianKinerjaResponse, error) {
 
 	if tahun <= 0 || bulan <= 0 || bulan > 12 {
@@ -74,7 +75,7 @@ func (s *PenilaianKinerjaServiceImpl) All(
 	)
 
 	// gabung dengan api internal tim
-	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
+	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5, bulan, tahun, kodeOpd)
 	if err != nil {
 		return nil, err
 	}
@@ -180,6 +181,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 	ctx context.Context,
 	tahun int,
 	bulan int,
+	kodeOpd string,
 ) ([]web.LaporanPenilaianKinerjaResponse, error) {
 
 	if tahun <= 0 || bulan <= 0 || bulan > 12 {
@@ -219,7 +221,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 	)
 
 	// gabung dengan api internal tim
-	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
+	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5, bulan, tahun, kodeOpd)
 	if err != nil {
 		return nil, err
 	}
@@ -235,6 +237,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAllInOne(
 	ctx context.Context,
 	tahun int,
 	bulan int,
+	kodeOpd string,
 ) ([]web.PenilaianGroupedResponse, error) {
 
 	if tahun <= 0 || bulan <= 0 || bulan > 12 {
@@ -274,7 +277,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAllInOne(
 	)
 
 	// gabung dengan api internal tim
-	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5)
+	merged, err := helper.MergePenilaianKinerjaParallel(ctx, penilaianKinerja, kepegawaianClient, 5, bulan, tahun, kodeOpd)
 	if err != nil {
 		return nil, err
 	}

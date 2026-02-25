@@ -213,6 +213,9 @@ type FindByIdRekinsRequest struct {
 
 type DetailPegawaiBatchRequest struct {
 	NipPegawais []string `json:"nipPegawais" validate:"required"`
+	Bulan       int      `json:"bulan" validate:"required"`
+	Tahun       int      `json:"tahun" validate:"required"`
+	KodeOpd     string   `json:"kodeOpd" validate:"required"`
 }
 
 type DetailPegawaiResponse struct {
@@ -226,8 +229,10 @@ type DetailPegawaiResponse struct {
 	Eselon        string  `json:"eselon"`
 	Pangkat       string  `json:"pangkat"`
 	Golongan      string  `json:"golongan"`
-	TanggalMulai  string  `json:"tanggalMulai"`
-	TanggalAkhir  *string `json:"tanggalAkhir"` // null -> pointer
+	BulanMulai    int     `json:"bulanMulai"`
+	TahunMulai    int     `json:"tahunMulai"`
+	BulanBerakhir *int    `json:"bulanBerakhir"` // null -> pointer
+	TahunBerakhir *int    `json:"tahunBerakhir"` // null -> pointer
 	Tpp           float64 `json:"basicTpp"`
 	Pajak         float64 `json:"pajak"`
 }
