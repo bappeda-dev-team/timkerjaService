@@ -235,4 +235,6 @@ type DetailPegawaiResponse struct {
 	TahunBerakhir *int    `json:"tahunBerakhir"` // null -> pointer
 	Tpp           float64 `json:"basicTpp"`
 	Pajak         float64 `json:"pajak"`
+	Bpjs1         float64 `json:"bpjs_1"`
+	Bpjs4         float64 `json:"bpjs_4"`
 }

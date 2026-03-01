@@ -176,6 +176,10 @@ func MergePenilaianKinerjaParallel(
 
 			// Pajak
 			item.Tpp.Pajak = dp.Pajak
+
+			// BPJS
+			item.Tpp.Bpjs1 = dp.Bpjs1
+			item.Tpp.Bpjs4 = dp.Bpjs4
 		}
 	}
 
@@ -266,12 +270,19 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	tpp.JumlahPajak = int(float64(tpp.JumlahKotor) * tpp.Pajak)
 
 	// 3. BPJS = persen BPJS * jumlah kotor
+	// tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
 	tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
+	// bpjs 1
+	tpp.Bpjs1 = float64(tpp.JumlahKotor) * tpp.Bpjs1
+	// bpjs 4
+	tpp.Bpjs4 = float64(tpp.JumlahKotor) * tpp.Bpjs4
 
-	bpjsAmount := int(tpp.PotonganBPJS)
+	// bpjsAmount := int(tpp.PotonganBPJS)
+	bpjs1Amount := int(tpp.Bpjs1)
+	bpjs4Amount := int(tpp.Bpjs4)
 
 	// 4. Jumlah Bersih
-	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjsAmount
+	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjs1Amount - bpjs4Amount
 }
 
 func ConvertToAllLaporan(
