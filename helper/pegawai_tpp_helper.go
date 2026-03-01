@@ -178,8 +178,8 @@ func MergePenilaianKinerjaParallel(
 			item.Tpp.Pajak = dp.Pajak
 
 			// BPJS
-			item.Tpp.Bpjs1 = dp.Bpjs1
-			item.Tpp.Bpjs4 = dp.Bpjs4
+			item.Tpp.PotonganBPJS1 = dp.Bpjs1
+			item.Tpp.PotonganBPJS4 = dp.Bpjs4
 		}
 	}
 
@@ -239,9 +239,6 @@ func ConvertToTppPegawaiResponse(
 				item.Tpp = &web.PenilaianTppExtension{}
 			}
 
-			// Set konfigurasi tambahan di sini
-			item.Tpp.PotonganBPJS = 0.01
-
 			// Hitung TPP dengan pointer, agar perubahan tersimpan
 			HitungTPP(&item)
 
@@ -271,15 +268,17 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 
 	// 3. BPJS = persen BPJS * jumlah kotor
 	// tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
-	tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
 	// bpjs 1
-	tpp.Bpjs1 = float64(tpp.JumlahKotor) * tpp.Bpjs1
+	potonganBpjs1 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS1
 	// bpjs 4
-	tpp.Bpjs4 = float64(tpp.JumlahKotor) * tpp.Bpjs4
+	potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
 
 	// bpjsAmount := int(tpp.PotonganBPJS)
-	bpjs1Amount := int(tpp.Bpjs1)
-	bpjs4Amount := int(tpp.Bpjs4)
+	bpjs1Amount := int(potonganBpjs1)
+	bpjs4Amount := int(potonganBpjs4)
+
+	tpp.Bpjs1 = bpjs1Amount
+	tpp.Bpjs4 = bpjs4Amount
 
 	// 4. Jumlah Bersih
 	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjs1Amount - bpjs4Amount
@@ -307,7 +306,7 @@ func ConvertToAllLaporan(
 			item.NamaTim = lap.NamaTim
 
 			// konfigurasi tambahan
-			item.Tpp.PotonganBPJS = 0.01
+			// item.Tpp.PotonganBPJS = 0.01
 
 			// hitung TPP (pakai pointer ke item)
 			HitungTPP(&item)

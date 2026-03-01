@@ -46,9 +46,10 @@ type PenilaianTppExtension struct {
 	JumlahKotor          int     `json:"jumlah_kotor"`
 	Pajak                float64 `json:"pajak"`
 	JumlahPajak          int     `json:"jumlah_pajak"`
-	PotonganBPJS         float64 `json:"potongan_bpjs"`
-	Bpjs1                float64 `json:"bpjs_1"`
-	Bpjs4                float64 `json:"bpjs_4"`
+	PotonganBPJS1        float64 `json:"potongan_bpjs_1"`
+	PotonganBPJS4        float64 `json:"potongan_bpjs_4"`
+	Bpjs1                int     `json:"bpjs_1"`
+	Bpjs4                int     `json:"bpjs_4"`
 	JumlahBersih         int     `json:"jumlah_bersih"`
 }
 
