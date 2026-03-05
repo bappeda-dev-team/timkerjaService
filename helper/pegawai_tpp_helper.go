@@ -40,6 +40,18 @@ func MergePenilaianKinerjaParallel(
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
+			// get nilai opd (KINERJA_BAPPEDA)
+			// get Maximum nilai
+			kinerjaOpd := 0
+
+			for _, pp := range laporan.Penilaians {
+				if pp.JenisNilai == "KINERJA_BAPPEDA" {
+					if pp.NilaiKinerja > kinerjaOpd {
+						kinerjaOpd = pp.NilaiKinerja
+					}
+				}
+			}
+
 			groupMap := make(map[string]*web.PenilaianGroupedResponse)
 
 			// Group per pegawai-per-bulan
@@ -72,7 +84,10 @@ func MergePenilaianKinerjaParallel(
 
 				switch p.JenisNilai {
 				case "KINERJA_BAPPEDA":
-					item.KinerjaBappeda = p.NilaiKinerja
+					// item.KinerjaBappeda = p.NilaiKinerja
+					// All person punya nilai kinerja bappeda (opd) yang sama
+					// request 02/01/2026, 21.52
+					item.KinerjaBappeda = kinerjaOpd
 				case "KINERJA_TIM":
 					item.KinerjaTim = p.NilaiKinerja
 				case "KINERJA_PERSON":
