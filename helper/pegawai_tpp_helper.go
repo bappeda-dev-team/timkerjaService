@@ -204,25 +204,34 @@ func MergePenilaianKinerjaParallel(
 }
 
 func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
-	xs := []float64{}
 
-	if item.KinerjaBappeda > 0 {
-		xs = append(xs, float64(item.KinerjaBappeda))
-	}
-	if item.KinerjaTim > 0 {
-		xs = append(xs, float64(item.KinerjaTim))
-	}
-	if item.KinerjaPerson > 0 {
-		xs = append(xs, float64(item.KinerjaPerson))
+	// yang 0 tidak masuk slice
+	// xs := []float64{}
+	// if item.KinerjaBappeda > 0 {
+	// 	xs = append(xs, float64(item.KinerjaBappeda))
+	// }
+	// if item.KinerjaTim > 0 {
+	// 	xs = append(xs, float64(item.KinerjaTim))
+	// }
+	// if item.KinerjaPerson > 0 {
+	// 	xs = append(xs, float64(item.KinerjaPerson))
+	// }
+	// if len(xs) == 0 {
+	// 	return 0
+	// }
+	// yang 0 tetap masuk ke slice
+	xs := []float64{
+		float64(item.KinerjaBappeda),
+		float64(item.KinerjaTim),
+		float64(item.KinerjaPerson),
 	}
 
-	if len(xs) == 0 {
-		return 0
-	}
-	avgNilai := math.Ceil(average(xs))
-	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran)
+	avgNilai := average(xs)
 
-	return int(hasilAkhir)
+	// percentage
+	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 100
+
+	return int(math.Ceil(hasilAkhir))
 }
 
 func average(xs []float64) float64 {
