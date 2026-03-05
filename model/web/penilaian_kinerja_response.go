@@ -34,10 +34,11 @@ type PenilaianGroupedBase struct {
 	Tahun           string `json:"tahun"`
 	Bulan           int    `json:"bulan"`
 
-	KinerjaBappeda int `json:"kinerja_bappeda"`
-	KinerjaTim     int `json:"kinerja_tim"`
-	KinerjaPerson  int `json:"kinerja_person"`
-	NilaiAkhir     int `json:"nilai_akhir"`
+	KinerjaBappeda   int `json:"kinerja_bappeda"`
+	KinerjaTim       int `json:"kinerja_tim"`
+	KinerjaPerson    int `json:"kinerja_person"`
+	KinerjaKehadiran int `json:"kinerja_kehadiran"`
+	NilaiAkhir       int `json:"nilai_akhir"`
 }
 
 type PenilaianTppExtension struct {

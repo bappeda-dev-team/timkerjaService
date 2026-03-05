@@ -77,6 +77,8 @@ func MergePenilaianKinerjaParallel(
 					item.KinerjaTim = p.NilaiKinerja
 				case "KINERJA_PERSON":
 					item.KinerjaPerson = p.NilaiKinerja
+				case "KINERJA_KEHADIRAN":
+					item.KinerjaKehadiran = p.NilaiKinerja
 				}
 			}
 
@@ -202,8 +204,10 @@ func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
 	if len(xs) == 0 {
 		return 0
 	}
+	avgNilai := math.Ceil(average(xs))
+	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran)
 
-	return int(math.Ceil(average(xs)))
+	return int(hasilAkhir)
 }
 
 func average(xs []float64) float64 {
