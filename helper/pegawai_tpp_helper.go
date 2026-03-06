@@ -242,7 +242,8 @@ func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
 	avgNilai := average(xs)
 
 	// percentage
-	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 100
+    // KEHADIRAN PAKAI BASE 100 -> 80.50 simpan 8050
+	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 10_000
 
 	return int(math.Ceil(hasilAkhir))
 }
