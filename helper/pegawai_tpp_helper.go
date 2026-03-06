@@ -52,6 +52,7 @@ func MergePenilaianKinerjaParallel(
 			}
 		}
 	}
+
 	// ==============================
 	// 1) GROUPING JENIS NILAI
 	// ==============================
@@ -95,15 +96,9 @@ func MergePenilaianKinerjaParallel(
 
 				switch p.JenisNilai {
 				case "KINERJA_BAPPEDA":
-					// item.KinerjaBappeda = p.NilaiKinerja
-					// All person punya nilai kinerja bappeda (opd) yang sama
-					// request 02/01/2026, 21.52
-					item.KinerjaBappeda = kinerjaOpd
+					item.KinerjaBappeda = p.NilaiKinerja
 				case "KINERJA_TIM":
-					// All person punya nilai kinerja tim yang sama
-					// request 03/06/2026, 07.53
-					// item.KinerjaTim = p.NilaiKinerja
-					item.KinerjaTim = kinerjaPerTim[item.KodeTim]
+					item.KinerjaTim = p.NilaiKinerja
 				case "KINERJA_PERSON":
 					item.KinerjaPerson = p.NilaiKinerja
 				case "KINERJA_KEHADIRAN":
@@ -114,6 +109,10 @@ func MergePenilaianKinerjaParallel(
 			// Convert map → slice dan hitung nilai akhir
 			grouped := make([]web.PenilaianGroupedResponse, 0, len(groupMap))
 			for _, v := range groupMap {
+				v.KinerjaBappeda = kinerjaOpd
+				if val, ok := kinerjaPerTim[v.KodeTim]; ok {
+					v.KinerjaTim = val
+				}
 				v.NilaiAkhir = hitungNilaiAkhir(v.PenilaianGroupedBase)
 				grouped = append(grouped, *v)
 			}
