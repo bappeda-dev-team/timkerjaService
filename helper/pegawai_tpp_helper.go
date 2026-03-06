@@ -28,7 +28,30 @@ func MergePenilaianKinerjaParallel(
 		sem       = make(chan struct{}, maxConcurrency)
 		wg        sync.WaitGroup
 	)
+	// ============
+	// 0 SET NILAI OPD = sama semua
+	// SET NILAI TIM = sama semua by tim
+	// ===========
 
+	// get nilai opd (KINERJA_BAPPEDA)
+	// get Maximum nilai
+	kinerjaOpd := 0
+	kinerjaPerTim := make(map[string]int)
+
+	for _, laporan := range penilaianKinerja {
+		for _, pp := range laporan.Penilaians {
+			if pp.JenisNilai == "KINERJA_BAPPEDA" {
+				if pp.NilaiKinerja > kinerjaOpd {
+					kinerjaOpd = pp.NilaiKinerja
+				}
+			}
+			if pp.JenisNilai == "KINERJA_TIM" {
+				if pp.NilaiKinerja > kinerjaPerTim[pp.KodeTim] {
+					kinerjaPerTim[pp.KodeTim] = pp.NilaiKinerja
+				}
+			}
+		}
+	}
 	// ==============================
 	// 1) GROUPING JENIS NILAI
 	// ==============================
@@ -39,18 +62,6 @@ func MergePenilaianKinerjaParallel(
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
-
-			// get nilai opd (KINERJA_BAPPEDA)
-			// get Maximum nilai
-			kinerjaOpd := 0
-
-			for _, pp := range laporan.Penilaians {
-				if pp.JenisNilai == "KINERJA_BAPPEDA" {
-					if pp.NilaiKinerja > kinerjaOpd {
-						kinerjaOpd = pp.NilaiKinerja
-					}
-				}
-			}
 
 			groupMap := make(map[string]*web.PenilaianGroupedResponse)
 
@@ -89,7 +100,10 @@ func MergePenilaianKinerjaParallel(
 					// request 02/01/2026, 21.52
 					item.KinerjaBappeda = kinerjaOpd
 				case "KINERJA_TIM":
-					item.KinerjaTim = p.NilaiKinerja
+					// All person punya nilai kinerja tim yang sama
+					// request 03/06/2026, 07.53
+					// item.KinerjaTim = p.NilaiKinerja
+					item.KinerjaTim = kinerjaPerTim[item.KodeTim]
 				case "KINERJA_PERSON":
 					item.KinerjaPerson = p.NilaiKinerja
 				case "KINERJA_KEHADIRAN":
