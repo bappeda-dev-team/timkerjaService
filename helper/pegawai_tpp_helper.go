@@ -242,10 +242,10 @@ func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
 	avgNilai := average(xs)
 
 	// percentage
-    // KEHADIRAN PAKAI BASE 100 -> 80.50 simpan 8050
+	// KEHADIRAN PAKAI BASE 100 -> 80.50 simpan 8050
 	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 10_000
 
-	return int(math.Ceil(hasilAkhir))
+	return int(hasilAkhir)
 }
 
 func average(xs []float64) float64 {
@@ -316,14 +316,21 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
 
 	// bpjsAmount := int(tpp.PotonganBPJS)
-	bpjs1Amount := int(potonganBpjs1)
-	bpjs4Amount := int(potonganBpjs4)
+	bpjs1Amount := limitMax(int(potonganBpjs1), 60_000)  // limit 60_000
+	bpjs4Amount := limitMax(int(potonganBpjs4), 240_000) // limit 240_000
 
 	tpp.Bpjs1 = bpjs1Amount
 	tpp.Bpjs4 = bpjs4Amount
 
 	// 4. Jumlah Bersih
 	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjs1Amount - bpjs4Amount
+}
+
+func limitMax(value int, max int) int {
+	if value > max {
+		return max
+	}
+	return value
 }
 
 func ConvertToAllLaporan(
