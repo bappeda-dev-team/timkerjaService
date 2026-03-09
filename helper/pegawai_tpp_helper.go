@@ -311,9 +311,9 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	// 3. BPJS = persen BPJS * jumlah kotor
 	// tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
 	// bpjs 1
-	potonganBpjs1 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS1
+	// potonganBpjs1 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS1
 	// bpjs 4
-	potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
+	// potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
 
 	// bpjsAmount := int(tpp.PotonganBPJS)
 	bpjs1Amount := limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS1)), 60_000)
