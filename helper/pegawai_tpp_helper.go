@@ -216,7 +216,7 @@ func MergePenilaianKinerjaParallel(
 	return responses, nil
 }
 
-func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
+func hitungNilaiAkhir(item web.PenilaianGroupedBase) float64 {
 
 	// yang 0 tidak masuk slice
 	// xs := []float64{}
@@ -245,7 +245,7 @@ func hitungNilaiAkhir(item web.PenilaianGroupedBase) int {
 	// KEHADIRAN PAKAI BASE 100 -> 80.50 simpan 8050
 	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 10_000
 
-	return int(hasilAkhir)
+	return hasilAkhir
 }
 
 func average(xs []float64) float64 {
@@ -300,13 +300,13 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 
 	tpp := p.Tpp
 
-	tpp.PersentasePenerimaan = fmt.Sprintf("%d%%", p.NilaiAkhir)
+	tpp.PersentasePenerimaan = fmt.Sprintf("%.2f%%", p.NilaiAkhir)
 
 	// 1. Hitung TPP Kotor = TppBasic * (NilaiAkhir / 100)
-	tpp.JumlahKotor = int(float64(tpp.TppBasic) * (float64(p.NilaiAkhir) / 100.0))
+	tpp.JumlahKotor = int(math.Round(float64(tpp.TppBasic) * (p.NilaiAkhir / 100.0)))
 
 	// 2. Pajak = persen pajak * jumlah kotor
-	tpp.JumlahPajak = int(float64(tpp.JumlahKotor) * tpp.Pajak)
+	tpp.JumlahPajak = int(math.Round(float64(tpp.JumlahKotor) * tpp.Pajak))
 
 	// 3. BPJS = persen BPJS * jumlah kotor
 	// tpp.PotonganBPJS = float64(tpp.JumlahKotor) * tpp.PotonganBPJS
@@ -316,11 +316,15 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
 
 	// bpjsAmount := int(tpp.PotonganBPJS)
-	bpjs1Amount := limitMax(int(potonganBpjs1), 60_000)  // limit 60_000
-	bpjs4Amount := limitMax(int(potonganBpjs4), 240_000) // limit 240_000
+	bpjs1Amount := limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS1)), 60_000)
+	bpjs4Amount := limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS4)), 240_000)
 
 	tpp.Bpjs1 = bpjs1Amount
 	tpp.Bpjs4 = bpjs4Amount
+
+	if tpp.JumlahBersih < 0 {
+		tpp.JumlahBersih = 0
+	}
 
 	// 4. Jumlah Bersih
 	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjs1Amount - bpjs4Amount
