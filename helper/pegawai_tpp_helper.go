@@ -316,18 +316,18 @@ func HitungTPP(p *web.PenilaianGroupedResponse) {
 	// potonganBpjs4 := float64(tpp.JumlahKotor) * tpp.PotonganBPJS4
 
 	// bpjsAmount := int(tpp.PotonganBPJS)
-	bpjs1Amount := limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS1)), 60_000)
-	bpjs4Amount := limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS4)), 240_000)
-
-	tpp.Bpjs1 = bpjs1Amount
-	tpp.Bpjs4 = bpjs4Amount
+	tpp.Bpjs1 = limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS1)),
+		60_000)
+	tpp.Bpjs4 = limitMax(int(math.Round(float64(tpp.JumlahKotor)*tpp.PotonganBPJS4)),
+		240_000)
 
 	if tpp.JumlahBersih < 0 {
 		tpp.JumlahBersih = 0
 	}
 
 	// 4. Jumlah Bersih
-	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - bpjs1Amount - bpjs4Amount
+	// Bpjs4 tidak mengurangi jumlah bersih 10 mar 2026
+	tpp.JumlahBersih = tpp.JumlahKotor - tpp.JumlahPajak - tpp.Bpjs1
 }
 
 func limitMax(value int, max int) int {
