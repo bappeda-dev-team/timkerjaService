@@ -286,10 +286,11 @@ func MergePenilaianKinerjaParallel(
 		}
 
 		row := web.LaporanPenilaianKinerjaResponse{
-			NamaTim:       "KEPALA OPD",
-			KodeTim:       "000",
-			IsSekretariat: false,
-			Keterangan:    "KHUSUS PENANGGUNG JAWAB",
+			NamaTim:           "KEPALA OPD",
+			KodeTim:           "000",
+			IsSekretariat:     false,
+			IsPenanggungJawab: true,
+			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
 			PenilaianKinerjas: []web.PenilaianGroupedResponse{
 				item,
 			},
@@ -307,10 +308,11 @@ func MergePenilaianKinerjaParallel(
 	if kepalaItem != nil {
 
 		row := web.LaporanPenilaianKinerjaResponse{
-			NamaTim:       "KEPALA OPD",
-			KodeTim:       "000",
-			IsSekretariat: false,
-			Keterangan:    "KHUSUS PENANGGUNG JAWAB",
+			NamaTim:           "KEPALA OPD",
+			KodeTim:           "000",
+			IsSekretariat:     false,
+			IsPenanggungJawab: true,
+			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
 			PenilaianKinerjas: []web.PenilaianGroupedResponse{
 				*kepalaItem,
 			},
@@ -345,7 +347,31 @@ func MergePenilaianKinerjaParallel(
 		})
 	}
 
+	// sort tim, tim kepala berada di atas
+	sort.Slice(responses, func(i, j int) bool {
+
+		pi := priority(responses[i])
+		pj := priority(responses[j])
+
+		// tim penanggung jawab selalu di atas
+		if pi != pj {
+			return pi < pj
+		}
+
+		return responses[i].KodeTim < responses[j].KodeTim
+	})
+
 	return responses, nil
+}
+
+func priority(r web.LaporanPenilaianKinerjaResponse) int {
+	if r.IsPenanggungJawab {
+		return 0
+	}
+	if r.IsSekretariat {
+		return 1
+	}
+	return 2
 }
 
 func hitungNilaiAkhir(item web.PenilaianGroupedBase) float64 {
