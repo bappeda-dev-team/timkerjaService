@@ -254,7 +254,8 @@ func MergePenilaianKinerjaParallel(
 					Golongan:     kepala.Golongan,
 					JenisJabatan: kepala.JenisJabatan,
 
-					KodeTim:          responses[i].KodeTim,
+					NamaTim:          "KEPALA OPD",
+					KodeTim:          "000",
 					Tahun:            strconv.Itoa(tahun),
 					Bulan:            bulan,
 					KinerjaBappeda:   kinerjaOpd,
@@ -286,11 +287,20 @@ func MergePenilaianKinerjaParallel(
 			A := responses[i].PenilaianKinerjas[a]
 			B := responses[i].PenilaianKinerjas[b]
 
-			// level jabatan tim kecil > level besar
+			// PRIORITAS 1: KodeTim "000" selalu di atas
+			if A.KodeTim == "000" && B.KodeTim != "000" {
+				return true
+			}
+			if B.KodeTim == "000" && A.KodeTim != "000" {
+				return false
+			}
+
+			// PRIORITAS 2: Level jabatan tim
 			if A.LevelJabatanTim != B.LevelJabatanTim {
 				return A.LevelJabatanTim < B.LevelJabatanTim
 			}
 
+			// PRIORITAS 3: SusunanTimId
 			return A.SusunanTimId < B.SusunanTimId
 		})
 	}
