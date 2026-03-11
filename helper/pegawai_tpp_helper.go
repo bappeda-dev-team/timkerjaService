@@ -242,7 +242,7 @@ func MergePenilaianKinerjaParallel(
 				continue
 			}
 
-			row := web.PenilaianGroupedResponse{
+			item := web.PenilaianGroupedResponse{
 				PenilaianGroupedBase: web.PenilaianGroupedBase{
 					IdPegawai:       kepala.NIP,
 					NamaPegawai:     kepala.NamaPegawai,
@@ -265,17 +265,26 @@ func MergePenilaianKinerjaParallel(
 				},
 			}
 
-			row.NilaiAkhir = hitungNilaiAkhir(row.PenilaianGroupedBase)
+			item.NilaiAkhir = hitungNilaiAkhir(item.PenilaianGroupedBase)
 
-			row.Tpp = &web.PenilaianTppExtension{
+			item.Tpp = &web.PenilaianTppExtension{
 				TppBasic:      int(math.Round(kepala.Tpp)),
 				Pajak:         kepala.Pajak,
 				PotonganBPJS1: kepala.Bpjs1,
 				PotonganBPJS4: kepala.Bpjs4,
 			}
 
-			responses[i].PenilaianKinerjas =
-				append(responses[i].PenilaianKinerjas, row)
+			row := web.LaporanPenilaianKinerjaResponse{
+				NamaTim:       "KEPALA OPD",
+				KodeTim:       "000",
+				IsSekretariat: false,
+				Keterangan:    "KHUSUS PENANGGUNG JAWAB",
+				PenilaianKinerjas: []web.PenilaianGroupedResponse{
+					item,
+				},
+			}
+
+			responses = append(responses, row)
 		}
 	}
 
@@ -469,20 +478,4 @@ func ConvertToAllLaporan(
 	}
 
 	return out
-}
-
-func kepalaSudahAda(
-	responses []web.LaporanPenilaianKinerjaResponse,
-	nip string,
-) bool {
-
-	for _, tim := range responses {
-		for _, p := range tim.PenilaianKinerjas {
-			if p.IdPegawai == nip {
-				return true
-			}
-		}
-	}
-
-	return false
 }
