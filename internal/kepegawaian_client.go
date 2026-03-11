@@ -20,7 +20,7 @@ func NewKepegawaianClient(host string, httpClient *http.Client) *KepegawaianClie
 	}
 }
 
-func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawais []string, bulan int, tahun int, kodeOpd string) ([]DetailPegawaiResponse, error) {
+func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, bulan int, tahun int, kodeOpd string) ([]DetailPegawaiResponse, error) {
 	// biar gampang switch prod -> dev
 	// prod: host path
 	hostPath := fmt.Sprintf("%s/%s", c.host, c.path)
@@ -33,10 +33,9 @@ func (c *KepegawaianClient) GetDetailPegawaiBatch(ctx context.Context, nipPegawa
 
 	// body id program unggulans
 	payload := DetailPegawaiBatchRequest{
-		NipPegawais: nipPegawais,
-		Bulan:       bulan,
-		Tahun:       tahun,
-		KodeOpd:     kodeOpd,
+		Bulan:   bulan,
+		Tahun:   tahun,
+		KodeOpd: kodeOpd,
 	}
 	jsonBody, err := json.Marshal(payload)
 	if err != nil {

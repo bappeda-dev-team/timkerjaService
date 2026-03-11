@@ -133,41 +133,23 @@ func MergePenilaianKinerjaParallel(
 	// ==============================
 	// 2) AMBIL DETAIL PEGAWAI (BATCH)
 	// ==============================
-	idPegawaiSet := map[string]struct{}{}
-	for _, resp := range responses {
-		for _, p := range resp.PenilaianKinerjas {
-			if p.IdPegawai != "" {
-				idPegawaiSet[p.IdPegawai] = struct{}{}
-			}
-		}
-	}
+	// idPegawaiSet := map[string]struct{}{}
+	// for _, resp := range responses {
+	// 	for _, p := range resp.PenilaianKinerjas {
+	// 		if p.IdPegawai != "" {
+	// 			idPegawaiSet[p.IdPegawai] = struct{}{}
+	// 		}
+	// 	}
+	// }
 
-	// Siapkan list ID
-	listIdPegawais := make([]string, 0, len(idPegawaiSet))
-	for id := range idPegawaiSet {
-		listIdPegawais = append(listIdPegawais, id)
-	}
+	// // Siapkan list ID
+	// listIdPegawais := make([]string, 0, len(idPegawaiSet))
+	// for id := range idPegawaiSet {
+	// 	listIdPegawais = append(listIdPegawais, id)
+	// }
 
-	// ======================
-	// 2.5) SORTING: LevelJabatanTim ASC
-	// ======================
-	for i := range responses {
-		sort.Slice(responses[i].PenilaianKinerjas, func(a, b int) bool {
-			A := responses[i].PenilaianKinerjas[a]
-			B := responses[i].PenilaianKinerjas[b]
-
-			// level jabatan tim kecil > level besar
-			if A.LevelJabatanTim != B.LevelJabatanTim {
-				return A.LevelJabatanTim < B.LevelJabatanTim
-			}
-
-			return A.SusunanTimId < B.SusunanTimId
-		})
-	}
-
-	log.Printf("KODE OPD: %s", kodeOpd)
 	// Ambil detail pegawai batch
-	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, listIdPegawais, bulan, tahun, kodeOpd)
+	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, bulan, tahun, kodeOpd)
 	if err != nil {
 		log.Printf("ERROR KEPEGAWAIAN HOST: %v\n", err)
 		return responses, nil // tetap return meski gagal
@@ -178,7 +160,6 @@ func MergePenilaianKinerjaParallel(
 	for _, dp := range detailPegawais {
 		dpMap[dp.NIP] = dp
 	}
-
 	// ==============================
 	// 3) MERGE DETAIL PEGAWAI KE RESPONSE
 	// ==============================
@@ -211,6 +192,107 @@ func MergePenilaianKinerjaParallel(
 			item.Tpp.PotonganBPJS1 = dp.Bpjs1
 			item.Tpp.PotonganBPJS4 = dp.Bpjs4
 		}
+	}
+
+	// ==============================
+	// 4) INJECT KEPALA JIKA BELUM ADA
+	// ==============================
+
+	var kepala *internal.DetailPegawaiResponse
+
+	for i := range detailPegawais {
+		if detailPegawais[i].IsKepala {
+			kepala = &detailPegawais[i]
+
+			log.Printf(
+				"[TPP] Kepala OPD ditemukan | nip=%s | nama=%s | jabatan=%s",
+				kepala.NIP,
+				kepala.NamaPegawai,
+				kepala.NamaJabatan,
+			)
+
+			break
+		}
+	}
+	// LOG JIKA KEPALA TIDAK DITEMUKAN DARI TPP KEPEGAWAIAN
+	if kepala == nil {
+		log.Printf(
+			"[TPP][WARNING] Kepala OPD tidak ditemukan | kode_opd=%s | bulan=%d | tahun=%d",
+			kodeOpd,
+			bulan,
+			tahun,
+		)
+	}
+
+	if kepala != nil {
+
+		for i := range responses {
+
+			// cek apakah kepala sudah ada di tim
+			exists := false
+			for _, p := range responses[i].PenilaianKinerjas {
+				if p.IdPegawai == kepala.NIP {
+					exists = true
+					break
+				}
+			}
+
+			if exists {
+				log.Printf("KEPALA OPD SUDAH ADA DI PENILAIAN")
+				continue
+			}
+
+			row := web.PenilaianGroupedResponse{
+				PenilaianGroupedBase: web.PenilaianGroupedBase{
+					IdPegawai:       kepala.NIP,
+					NamaPegawai:     kepala.NamaPegawai,
+					SusunanTimId:    1,
+					LevelJabatanTim: 1,
+					NamaJabatanTim:  "Penanggung Jawab",
+
+					Pangkat:      kepala.Pangkat,
+					Golongan:     kepala.Golongan,
+					JenisJabatan: kepala.JenisJabatan,
+
+					KodeTim:          responses[i].KodeTim,
+					Tahun:            strconv.Itoa(tahun),
+					Bulan:            bulan,
+					KinerjaBappeda:   kinerjaOpd,
+					KinerjaTim:       0,
+					KinerjaPerson:    0,
+					KinerjaKehadiran: 0,
+				},
+			}
+
+			row.NilaiAkhir = hitungNilaiAkhir(row.PenilaianGroupedBase)
+
+			row.Tpp = &web.PenilaianTppExtension{
+				TppBasic:      int(math.Round(kepala.Tpp)),
+				Pajak:         kepala.Pajak,
+				PotonganBPJS1: kepala.Bpjs1,
+				PotonganBPJS4: kepala.Bpjs4,
+			}
+
+			responses[i].PenilaianKinerjas =
+				append(responses[i].PenilaianKinerjas, row)
+		}
+	}
+
+	// ======================
+	// 2.5) SORTING: LevelJabatanTim ASC
+	// ======================
+	for i := range responses {
+		sort.Slice(responses[i].PenilaianKinerjas, func(a, b int) bool {
+			A := responses[i].PenilaianKinerjas[a]
+			B := responses[i].PenilaianKinerjas[b]
+
+			// level jabatan tim kecil > level besar
+			if A.LevelJabatanTim != B.LevelJabatanTim {
+				return A.LevelJabatanTim < B.LevelJabatanTim
+			}
+
+			return A.SusunanTimId < B.SusunanTimId
+		})
 	}
 
 	return responses, nil
@@ -377,4 +459,20 @@ func ConvertToAllLaporan(
 	}
 
 	return out
+}
+
+func kepalaSudahAda(
+	responses []web.LaporanPenilaianKinerjaResponse,
+	nip string,
+) bool {
+
+	for _, tim := range responses {
+		for _, p := range tim.PenilaianKinerjas {
+			if p.IdPegawai == nip {
+				return true
+			}
+		}
+	}
+
+	return false
 }
