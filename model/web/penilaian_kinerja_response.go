@@ -29,6 +29,7 @@ type PenilaianGroupedBase struct {
 	NamaJabatanTim  string `json:"nama_jabatan_tim"`
 	Pangkat         string `json:"pangkat"`
 	Golongan        string `json:"golongan"`
+	Jabatan         string `json:"jabatan"`
 	JenisJabatan    string `json:"jenis_jabatan"`
 	KodeTim         string `json:"kode_tim"`
 	Tahun           string `json:"tahun"`

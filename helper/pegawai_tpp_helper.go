@@ -84,6 +84,7 @@ func MergePenilaianKinerjaParallel(
 							// Akan diisi dari API eksternal
 							Pangkat:      "",
 							Golongan:     "",
+							Jabatan:      "",
 							JenisJabatan: "",
 
 							KodeTim: p.KodeTim,
@@ -176,6 +177,7 @@ func MergePenilaianKinerjaParallel(
 			// Basic biodata
 			item.Pangkat = dp.Pangkat
 			item.Golongan = dp.Golongan
+			item.Jabatan = dp.NamaJabatan
 			item.JenisJabatan = dp.JenisJabatan
 
 			// TPP extension selalu aman
@@ -265,6 +267,7 @@ func MergePenilaianKinerjaParallel(
 
 					Pangkat:      kepala.Pangkat,
 					Golongan:     kepala.Golongan,
+					Jabatan:      kepala.NamaJabatan,
 					JenisJabatan: kepala.JenisJabatan,
 
 					NamaTim:          "KEPALA OPD",
