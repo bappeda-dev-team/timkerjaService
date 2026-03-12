@@ -253,7 +253,7 @@ func (controller *TimKerjaControllerImpl) FindAllTm(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -302,7 +302,7 @@ func (controller *TimKerjaControllerImpl) FindByKodeTim(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -384,7 +384,7 @@ func (controller *TimKerjaControllerImpl) FindAllProgramUnggulanTim(c echo.Conte
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -432,7 +432,7 @@ func (controller *TimKerjaControllerImpl) FindAllTimNonSekretariat(c echo.Contex
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -474,7 +474,7 @@ func (controller *TimKerjaControllerImpl) FindAllTimSekretariat(c echo.Context) 
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -592,7 +592,7 @@ func (controller *TimKerjaControllerImpl) FindAllRencanaKinerjaTim(c echo.Contex
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -724,7 +724,7 @@ func (controller *TimKerjaControllerImpl) AllProgramUnggulanOpd(c echo.Context) 
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 

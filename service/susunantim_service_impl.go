@@ -183,7 +183,7 @@ func (service *SusunanTimServiceImpl) FindAll(ctx context.Context) ([]web.Susuna
 }
 
 func (service *SusunanTimServiceImpl) FindAllByBulanTahun(ctx context.Context, bulan int, tahun int) ([]web.SusunanTimResponse, error) {
-	if tahun <= 0 || bulan <= 0 || bulan > 12 {
+	if tahun <= 0 || bulan <= 0 || bulan > 14 {
 		return nil, errors.New("tahun atau bulan tidak valid")
 	}
 
@@ -312,7 +312,7 @@ func validateClone(bulan, tahun, bulanTarget, tahunTarget int) error {
 	if tahun <= 0 || tahunTarget <= 0 {
 		return errors.New("tahun tidak valid")
 	}
-	if bulan < 1 || bulan > 12 || bulanTarget < 1 || bulanTarget > 12 {
+	if bulan < 1 || bulan > 14 || bulanTarget < 1 || bulanTarget > 14 {
 		return errors.New("bulan tidak valid")
 	}
 	if bulan == bulanTarget && tahun == tahunTarget {

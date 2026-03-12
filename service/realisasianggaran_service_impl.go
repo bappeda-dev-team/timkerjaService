@@ -75,7 +75,7 @@ func (s *RealisasiAnggaranServiceImpl) Upsert(ctx context.Context, req web.Reali
 	// 		return web.RealisasiAnggaranResponse{}, errors.New("bulan tidak valid")
 	// 	}
 	// }
-	if req.Bulan < 1 || req.Bulan > 12 {
+	if req.Bulan < 1 || req.Bulan > 14 {
 		return web.RealisasiAnggaranResponse{}, errors.New("bulan tidak valid")
 	}
 

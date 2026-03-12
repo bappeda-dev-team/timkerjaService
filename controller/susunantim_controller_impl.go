@@ -217,7 +217,7 @@ func (controller *SusunanTimControllerImpl) FindAll(c echo.Context) error {
 	if err != nil {
 		return badRequest(c, err.Error())
 	}
-	if bulan < 1 || bulan > 12 {
+	if bulan < 1 || bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
 
@@ -296,10 +296,10 @@ func (controller *SusunanTimControllerImpl) CloneSusunanTim(c echo.Context) erro
 	if req.KodeTim == "" {
 		return badRequest(c, "kodeTim wajib diisi")
 	}
-	if req.Bulan < 1 || req.Bulan > 12 {
+	if req.Bulan < 1 || req.Bulan > 14 {
 		return badRequest(c, "bulan tidak valid")
 	}
-	if req.BulanTarget < 1 || req.BulanTarget > 12 {
+	if req.BulanTarget < 1 || req.BulanTarget > 14 {
 		return badRequest(c, "bulanTarget tidak valid")
 	}
 	if req.Tahun <= 0 || req.TahunTarget <= 0 {
