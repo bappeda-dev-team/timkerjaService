@@ -184,7 +184,7 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 	kodeOpd string,
 ) ([]web.LaporanPenilaianKinerjaResponse, error) {
 
-	if tahun <= 0 || bulan <= 0 || bulan > 12 {
+	if tahun <= 0 || bulan <= 0 || bulan > 14 {
 		return nil, errors.New("tahun atau bulan tidak valid")
 	}
 
