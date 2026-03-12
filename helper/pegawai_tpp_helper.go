@@ -226,99 +226,101 @@ func MergePenilaianKinerjaParallel(
 	// cek apakah kepala opd sudah ada nilainya (untuk guard)
 	var kepalaItem *web.PenilaianGroupedResponse
 
-	for i := range responses {
-		for j := range responses[i].PenilaianKinerjas {
+	if kepala != nil {
+		for i := range responses {
+			for j := range responses[i].PenilaianKinerjas {
 
-			if responses[i].PenilaianKinerjas[j].IdPegawai == kepala.NIP {
+				if responses[i].PenilaianKinerjas[j].IdPegawai == kepala.NIP {
 
-				// copy dulu
-				tmp := responses[i].PenilaianKinerjas[j]
-				kepalaItem = &tmp
+					// copy dulu
+					tmp := responses[i].PenilaianKinerjas[j]
+					kepalaItem = &tmp
 
-				// hapus dari tim lama
-				responses[i].PenilaianKinerjas =
-					append(
-						responses[i].PenilaianKinerjas[:j],
-						responses[i].PenilaianKinerjas[j+1:]...,
-					)
+					// hapus dari tim lama
+					responses[i].PenilaianKinerjas =
+						append(
+							responses[i].PenilaianKinerjas[:j],
+							responses[i].PenilaianKinerjas[j+1:]...,
+						)
 
+					break
+				}
+			}
+
+			if kepalaItem != nil {
 				break
 			}
 		}
 
+		if kepalaItem == nil {
+
+			item := web.PenilaianGroupedResponse{
+				PenilaianGroupedBase: web.PenilaianGroupedBase{
+					IdPegawai:       kepala.NIP,
+					NamaPegawai:     kepala.NamaPegawai,
+					SusunanTimId:    1,
+					LevelJabatanTim: 1,
+					NamaJabatanTim:  "Penanggung Jawab",
+
+					Pangkat:      kepala.Pangkat,
+					Golongan:     kepala.Golongan,
+					JenisJabatan: kepala.JenisJabatan,
+
+					NamaTim:          "KEPALA OPD",
+					KodeTim:          "000",
+					Tahun:            strconv.Itoa(tahun),
+					Bulan:            bulan,
+					KinerjaBappeda:   kinerjaOpd,
+					KinerjaTim:       0,
+					KinerjaPerson:    0,
+					KinerjaKehadiran: 0,
+				},
+			}
+
+			item.NilaiAkhir = hitungNilaiAkhir(item.PenilaianGroupedBase)
+
+			item.Tpp = &web.PenilaianTppExtension{
+				TppBasic:      int(math.Round(kepala.Tpp)),
+				Pajak:         kepala.Pajak,
+				PotonganBPJS1: kepala.Bpjs1,
+				PotonganBPJS4: kepala.Bpjs4,
+			}
+
+			row := web.LaporanPenilaianKinerjaResponse{
+				NamaTim:           "KEPALA OPD",
+				KodeTim:           "000",
+				IsSekretariat:     false,
+				IsPenanggungJawab: true,
+				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+				PenilaianKinerjas: []web.PenilaianGroupedResponse{
+					item,
+				},
+			}
+			responses = append(responses, row)
+		}
+
 		if kepalaItem != nil {
-			break
-		}
-	}
-
-	if kepalaItem == nil {
-
-		item := web.PenilaianGroupedResponse{
-			PenilaianGroupedBase: web.PenilaianGroupedBase{
-				IdPegawai:       kepala.NIP,
-				NamaPegawai:     kepala.NamaPegawai,
-				SusunanTimId:    1,
-				LevelJabatanTim: 1,
-				NamaJabatanTim:  "Penanggung Jawab",
-
-				Pangkat:      kepala.Pangkat,
-				Golongan:     kepala.Golongan,
-				JenisJabatan: kepala.JenisJabatan,
-
-				NamaTim:          "KEPALA OPD",
-				KodeTim:          "000",
-				Tahun:            strconv.Itoa(tahun),
-				Bulan:            bulan,
-				KinerjaBappeda:   kinerjaOpd,
-				KinerjaTim:       0,
-				KinerjaPerson:    0,
-				KinerjaKehadiran: 0,
-			},
+			kepalaItem.NamaTim = "KEPALA OPD"
+			kepalaItem.KodeTim = "000"
+			kepalaItem.NamaJabatanTim = "Penanggung Jawab"
+			kepalaItem.LevelJabatanTim = 1
 		}
 
-		item.NilaiAkhir = hitungNilaiAkhir(item.PenilaianGroupedBase)
+		if kepalaItem != nil {
 
-		item.Tpp = &web.PenilaianTppExtension{
-			TppBasic:      int(math.Round(kepala.Tpp)),
-			Pajak:         kepala.Pajak,
-			PotonganBPJS1: kepala.Bpjs1,
-			PotonganBPJS4: kepala.Bpjs4,
+			row := web.LaporanPenilaianKinerjaResponse{
+				NamaTim:           "KEPALA OPD",
+				KodeTim:           "000",
+				IsSekretariat:     false,
+				IsPenanggungJawab: true,
+				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+				PenilaianKinerjas: []web.PenilaianGroupedResponse{
+					*kepalaItem,
+				},
+			}
+
+			responses = append(responses, row)
 		}
-
-		row := web.LaporanPenilaianKinerjaResponse{
-			NamaTim:           "KEPALA OPD",
-			KodeTim:           "000",
-			IsSekretariat:     false,
-			IsPenanggungJawab: true,
-			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-			PenilaianKinerjas: []web.PenilaianGroupedResponse{
-				item,
-			},
-		}
-		responses = append(responses, row)
-	}
-
-	if kepalaItem != nil {
-		kepalaItem.NamaTim = "KEPALA OPD"
-		kepalaItem.KodeTim = "000"
-		kepalaItem.NamaJabatanTim = "Penanggung Jawab"
-		kepalaItem.LevelJabatanTim = 1
-	}
-
-	if kepalaItem != nil {
-
-		row := web.LaporanPenilaianKinerjaResponse{
-			NamaTim:           "KEPALA OPD",
-			KodeTim:           "000",
-			IsSekretariat:     false,
-			IsPenanggungJawab: true,
-			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-			PenilaianKinerjas: []web.PenilaianGroupedResponse{
-				*kepalaItem,
-			},
-		}
-
-		responses = append(responses, row)
 	}
 
 	// ======================
