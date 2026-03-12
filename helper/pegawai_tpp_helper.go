@@ -40,7 +40,8 @@ func MergePenilaianKinerjaParallel(
 
 	for _, laporan := range penilaianKinerja {
 		for _, pp := range laporan.Penilaians {
-			if pp.JenisNilai == "KINERJA_BAPPEDA" {
+			// ambil dari nilai penanggung jawab
+			if laporan.IsPenanggungJawab && pp.JenisNilai == "KINERJA_BAPPEDA" {
 				if pp.NilaiKinerja > kinerjaOpd {
 					kinerjaOpd = pp.NilaiKinerja
 				}
@@ -428,6 +429,7 @@ func ConvertToTppPegawaiResponse(
 			NamaTim:           lap.NamaTim,
 			KodeTim:           lap.KodeTim,
 			IsSekretariat:     lap.IsSekretariat,
+			IsPenanggungJawab: lap.IsPenanggungJawab,
 			Keterangan:        lap.Keterangan,
 			PenilaianKinerjas: make([]web.PenilaianGroupedResponse, len(lap.PenilaianKinerjas)),
 		}
