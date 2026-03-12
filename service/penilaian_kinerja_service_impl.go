@@ -60,6 +60,14 @@ func (s *PenilaianKinerjaServiceImpl) All(
 		return nil, err
 	}
 
+	// Ambil data tim bayangan (kode_tim 000)
+	penilaianKinerjaKepala, err := s.PenilaianKinerjaRepository.FindTimBayangan(ctx, tx, tahun, bulan, "000")
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+	penilaianKinerja = append(penilaianKinerja, penilaianKinerjaKepala...)
+
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -205,6 +213,13 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAll(
 		_ = tx.Rollback()
 		return nil, err
 	}
+	// Ambil data tim bayangan (kode_tim 000)
+	penilaianKinerjaKepala, err := s.PenilaianKinerjaRepository.FindTimBayangan(ctx, tx, tahun, bulan, "000")
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+	penilaianKinerja = append(penilaianKinerja, penilaianKinerjaKepala...)
 
 	if err := tx.Commit(); err != nil {
 		return nil, err
@@ -261,6 +276,13 @@ func (s *PenilaianKinerjaServiceImpl) TppPegawaiAllInOne(
 		_ = tx.Rollback()
 		return nil, err
 	}
+	// Ambil data tim bayangan (kode_tim 000)
+	penilaianKinerjaKepala, err := s.PenilaianKinerjaRepository.FindTimBayangan(ctx, tx, tahun, bulan, "000")
+	if err != nil {
+		_ = tx.Rollback()
+		return nil, err
+	}
+	penilaianKinerja = append(penilaianKinerja, penilaianKinerjaKepala...)
 
 	if err := tx.Commit(); err != nil {
 		return nil, err

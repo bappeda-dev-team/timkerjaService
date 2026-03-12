@@ -258,7 +258,7 @@ func MergePenilaianKinerjaParallel(
 				PenilaianGroupedBase: web.PenilaianGroupedBase{
 					IdPegawai:       kepala.NIP,
 					NamaPegawai:     kepala.NamaPegawai,
-					SusunanTimId:    1,
+					SusunanTimId:    0,
 					LevelJabatanTim: 1,
 					NamaJabatanTim:  "Penanggung Jawab",
 
@@ -270,7 +270,7 @@ func MergePenilaianKinerjaParallel(
 					KodeTim:          "000",
 					Tahun:            strconv.Itoa(tahun),
 					Bulan:            bulan,
-					KinerjaBappeda:   kinerjaOpd,
+					KinerjaBappeda:   0,
 					KinerjaTim:       0,
 					KinerjaPerson:    0,
 					KinerjaKehadiran: 0,
@@ -304,6 +304,7 @@ func MergePenilaianKinerjaParallel(
 			kepalaItem.KodeTim = "000"
 			kepalaItem.NamaJabatanTim = "Penanggung Jawab"
 			kepalaItem.LevelJabatanTim = 1
+			kepalaItem.NamaPegawai = kepala.NamaPegawai
 		}
 
 		if kepalaItem != nil {

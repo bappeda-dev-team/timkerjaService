@@ -23,9 +23,10 @@ type PenilaianKinerja struct {
 }
 
 type LaporanPenilaian struct {
-	NamaTim       string
-	KodeTim       string
-	IsSekretariat bool
-	Keterangan    string
-	Penilaians    []PenilaianKinerja
+	NamaTim           string
+	KodeTim           string
+	IsSekretariat     bool
+	IsPenanggungJawab bool
+	Keterangan        string
+	Penilaians        []PenilaianKinerja
 }

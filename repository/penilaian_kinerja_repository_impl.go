@@ -279,6 +279,130 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindByTahunBulan(
 	return result, nil
 }
 
+func (repo *PenilaianKinerjaRepositoryImpl) FindTimBayangan(
+	ctx context.Context,
+	tx *sql.Tx,
+	tahun int,
+	bulan int,
+	kodeTimBayangan string,
+) ([]domain.LaporanPenilaian, error) {
+
+	query := `
+	SELECT
+	p.id_pegawai,
+	p.id,
+	p.jenis_nilai,
+	p.nilai_kinerja,
+	p.tahun,
+	p.bulan,
+	p.kode_opd,
+	p.created_at,
+	p.updated_at,
+	p.created_by
+
+	FROM (
+		SELECT
+			id_pegawai,
+			jenis_nilai,
+			MAX(id) AS max_id
+		FROM penilaian_kinerja
+		WHERE tahun = ?
+		AND bulan = ?
+		AND kode_tim = ?
+		GROUP BY id_pegawai, jenis_nilai
+	) latest_p
+
+	JOIN penilaian_kinerja p
+	ON p.id = latest_p.max_id
+
+	ORDER BY p.id_pegawai;
+	`
+
+	rows, err := tx.QueryContext(ctx, query, tahun, bulan, kodeTimBayangan)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	groupMap := make(map[string]*domain.LaporanPenilaian)
+	order := []string{}
+
+	for rows.Next() {
+
+		var (
+			pegawaiID      string
+			idNS           sql.NullInt64
+			jenisNilaiNS   sql.NullString
+			nilaiKinerjaNS sql.NullInt64
+			tahunNS        sql.NullInt64
+			bulanNS        sql.NullInt64
+			kodeOpdNS      sql.NullString
+			createdAtNS    sql.NullTime
+			updatedAtNS    sql.NullTime
+			createdByNS    sql.NullString
+		)
+
+		if err := rows.Scan(
+			&pegawaiID,
+			&idNS,
+			&jenisNilaiNS,
+			&nilaiKinerjaNS,
+			&tahunNS,
+			&bulanNS,
+			&kodeOpdNS,
+			&createdAtNS,
+			&updatedAtNS,
+			&createdByNS,
+		); err != nil {
+			return nil, err
+		}
+
+		// init group
+		group, exists := groupMap[kodeTimBayangan]
+		if !exists {
+			group = &domain.LaporanPenilaian{
+				NamaTim:           "KEPALA OPD",
+				KodeTim:           kodeTimBayangan,
+				IsSekretariat:     false,
+				IsPenanggungJawab: true,
+				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+				Penilaians:        []domain.PenilaianKinerja{},
+			}
+			groupMap[kodeTimBayangan] = group
+			order = append(order, kodeTimBayangan)
+		}
+
+		// Bentuk objek penilaian (bisa kosong/default)
+		pen := domain.PenilaianKinerja{
+			Id:              intOrZero(idNS),
+			IdPegawai:       pegawaiID,
+			NamaPegawai:     "--",
+			SusunanTimId:    0,
+			LevelJabatanTim: 1,
+			NamaJabatanTim:  "Penanggung Jawab",
+			KodeTim:         kodeTimBayangan,
+			JenisNilai:      stringOrEmpty(jenisNilaiNS),
+			NilaiKinerja:    intOrZero(nilaiKinerjaNS),
+			Tahun:           strconv.Itoa(tahun),
+			Bulan:           bulan,
+			KodeOpd:         stringOrEmpty(kodeOpdNS),
+			CreatedAt:       timeOrZero(createdAtNS),
+			UpdatedAt:       timeOrZero(updatedAtNS),
+			CreatedBy:       stringOrEmpty(createdByNS),
+		}
+
+		group.Penilaians = append(group.Penilaians, pen)
+	}
+
+	// convert ke slice sesuai order
+	result := make([]domain.LaporanPenilaian, 0, len(order))
+	for _, k := range order {
+		result = append(result, *groupMap[k])
+	}
+
+	return result, nil
+}
+
 func stringOrEmpty(ns sql.NullString) string {
 	if ns.Valid {
 		return ns.String

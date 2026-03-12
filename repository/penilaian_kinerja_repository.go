@@ -11,4 +11,5 @@ type PenilaianKinerjaRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, penilaian domain.PenilaianKinerja, id int) (domain.PenilaianKinerja, error)
 	ExistById(ctx context.Context, tx *sql.Tx, id int) (bool, error)
 	FindByTahunBulan(ctx context.Context, tx *sql.Tx, tahun int, bulan int) ([]domain.LaporanPenilaian, error)
+	FindTimBayangan(ctx context.Context, tx *sql.Tx, tahun int, bulan int, kodeTimBayangan string) ([]domain.LaporanPenilaian, error)
 }
