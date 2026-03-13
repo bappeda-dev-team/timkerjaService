@@ -226,35 +226,29 @@ func MergePenilaianKinerjaParallel(
 			tahun,
 		)
 	}
-	// cek apakah kepala opd sudah ada nilainya (untuk guard)
 	var kepalaItem *web.PenilaianGroupedResponse
 
 	if kepala != nil {
+
+		// cari dan hapus kepala dari semua tim
 		for i := range responses {
-			for j := range responses[i].PenilaianKinerjas {
+			filtered := responses[i].PenilaianKinerjas[:0]
 
-				if responses[i].PenilaianKinerjas[j].IdPegawai == kepala.NIP {
+			for _, p := range responses[i].PenilaianKinerjas {
 
-					// copy dulu
-					tmp := responses[i].PenilaianKinerjas[j]
+				if p.IdPegawai == kepala.NIP {
+					tmp := p
 					kepalaItem = &tmp
-
-					// hapus dari tim lama
-					responses[i].PenilaianKinerjas =
-						append(
-							responses[i].PenilaianKinerjas[:j],
-							responses[i].PenilaianKinerjas[j+1:]...,
-						)
-
-					break
+					continue
 				}
+
+				filtered = append(filtered, p)
 			}
 
-			if kepalaItem != nil {
-				break
-			}
+			responses[i].PenilaianKinerjas = filtered
 		}
 
+		// jika kepala tidak punya penilaian
 		if kepalaItem == nil {
 
 			item := web.PenilaianGroupedResponse{
@@ -290,42 +284,22 @@ func MergePenilaianKinerjaParallel(
 				PotonganBPJS4: kepala.Bpjs4,
 			}
 
-			row := web.LaporanPenilaianKinerjaResponse{
-				NamaTim:           "KEPALA OPD",
-				KodeTim:           "000",
-				IsSekretariat:     false,
-				IsPenanggungJawab: true,
-				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-				PenilaianKinerjas: []web.PenilaianGroupedResponse{
-					item,
-				},
-			}
-			responses = append(responses, row)
+			kepalaItem = &item
 		}
 
-		if kepalaItem != nil {
-			kepalaItem.NamaTim = "KEPALA OPD"
-			kepalaItem.KodeTim = "000"
-			kepalaItem.NamaJabatanTim = "Penanggung Jawab"
-			kepalaItem.LevelJabatanTim = 1
-			kepalaItem.NamaPegawai = kepala.NamaPegawai
+		// buat satu tim bayangan saja
+		row := web.LaporanPenilaianKinerjaResponse{
+			NamaTim:           "KEPALA OPD",
+			KodeTim:           "000",
+			IsSekretariat:     false,
+			IsPenanggungJawab: true,
+			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+			PenilaianKinerjas: []web.PenilaianGroupedResponse{
+				*kepalaItem,
+			},
 		}
 
-		if kepalaItem != nil {
-
-			row := web.LaporanPenilaianKinerjaResponse{
-				NamaTim:           "KEPALA OPD",
-				KodeTim:           "000",
-				IsSekretariat:     false,
-				IsPenanggungJawab: true,
-				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-				PenilaianKinerjas: []web.PenilaianGroupedResponse{
-					*kepalaItem,
-				},
-			}
-
-			responses = append(responses, row)
-		}
+		responses = append(responses, row)
 	}
 
 	// ======================
