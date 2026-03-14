@@ -848,6 +848,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 	}
 	defer helper.CommitOrRollback(tx)
 	// --- 1) Ambil data program unggulan dari API ---
+	// SERVICE IN LANGSUNG AMBIL SELURUH PROGRAM UNGGULAN
 	perencanaanHost := os.Getenv("PERENCANAAN_HOST")
 	if perencanaanHost == "" {
 		log.Println("PERENCANAAN_HOST belum diatur — skip merge eksternal")

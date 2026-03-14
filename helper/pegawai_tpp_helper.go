@@ -217,7 +217,8 @@ func MergePenilaianKinerjaParallel(
 			break
 		}
 	}
-	// LOG JIKA KEPALA TIDAK DITEMUKAN DARI TPP KEPEGAWAIAN
+
+	// LOG JIKA KEPALA TIDAK DITEMUKAN
 	if kepala == nil {
 		log.Printf(
 			"[TPP][WARNING] Kepala OPD tidak ditemukan | kode_opd=%s | bulan=%d | tahun=%d",
@@ -226,19 +227,23 @@ func MergePenilaianKinerjaParallel(
 			tahun,
 		)
 	}
+
 	var kepalaItem *web.PenilaianGroupedResponse
 
 	if kepala != nil {
 
 		// cari dan hapus kepala dari semua tim
 		for i := range responses {
+
 			filtered := responses[i].PenilaianKinerjas[:0]
 
-			for _, p := range responses[i].PenilaianKinerjas {
+			for j := range responses[i].PenilaianKinerjas {
+
+				p := responses[i].PenilaianKinerjas[j]
 
 				if p.IdPegawai == kepala.NIP {
-					tmp := p
-					kepalaItem = &tmp
+					responses[i].PenilaianKinerjas[j].NamaPegawai = kepala.NamaPegawai
+					kepalaItem = &responses[i].PenilaianKinerjas[j]
 					continue
 				}
 
@@ -250,6 +255,7 @@ func MergePenilaianKinerjaParallel(
 
 		// jika kepala tidak punya penilaian
 		if kepalaItem == nil {
+			log.Println("KEPALA TIDAK PUNYA PENILAIAN")
 
 			item := web.PenilaianGroupedResponse{
 				PenilaianGroupedBase: web.PenilaianGroupedBase{
