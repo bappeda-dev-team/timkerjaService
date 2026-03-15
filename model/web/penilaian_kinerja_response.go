@@ -39,7 +39,8 @@ type PenilaianGroupedBase struct {
 	KinerjaTim       int     `json:"kinerja_tim"`
 	KinerjaPerson    int     `json:"kinerja_person"`
 	KinerjaKehadiran int     `json:"kinerja_kehadiran"`
-	NilaiAkhir       float64 `json:"nilai_akhir"`
+	NilaiAkhirStr    string  `json:"nilai_akhir"`
+	NilaiAkhir       float64 `json:"-"`
 }
 
 type PenilaianTppExtension struct {

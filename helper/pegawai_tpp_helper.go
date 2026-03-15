@@ -116,6 +116,7 @@ func MergePenilaianKinerjaParallel(
 					v.KinerjaTim = val
 				}
 				v.NilaiAkhir = hitungNilaiAkhir(v.PenilaianGroupedBase)
+				v.NilaiAkhirStr = fmt.Sprintf("%.2f", v.NilaiAkhir)
 				grouped = append(grouped, *v)
 			}
 
@@ -389,6 +390,8 @@ func hitungNilaiAkhir(item web.PenilaianGroupedBase) float64 {
 	// percentage
 	// KEHADIRAN PAKAI BASE 100 -> 80.50 simpan 8050
 	hasilAkhir := avgNilai * float64(item.KinerjaKehadiran) / 10_000
+
+	hasilAkhir = math.Round(hasilAkhir*100) / 100
 
 	return hasilAkhir
 }
