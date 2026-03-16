@@ -34,6 +34,8 @@ type PenilaianGroupedBase struct {
 	KodeTim         string `json:"kode_tim"`
 	Tahun           string `json:"tahun"`
 	Bulan           int    `json:"bulan"`
+	Npwp            string `json:"npwp"`
+	NomorRekening   string `json:"nomorRekening"`
 
 	KinerjaBappeda   int     `json:"kinerja_bappeda"`
 	KinerjaTim       int     `json:"kinerja_tim"`

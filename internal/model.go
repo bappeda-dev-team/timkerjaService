@@ -212,9 +212,9 @@ type FindByIdRekinsRequest struct {
 }
 
 type DetailPegawaiBatchRequest struct {
-	Bulan       int      `json:"bulan" validate:"required"`
-	Tahun       int      `json:"tahun" validate:"required"`
-	KodeOpd     string   `json:"kodeOpd" validate:"required"`
+	Bulan   int    `json:"bulan" validate:"required"`
+	Tahun   int    `json:"tahun" validate:"required"`
+	KodeOpd string `json:"kodeOpd" validate:"required"`
 }
 
 type DetailPegawaiResponse struct {
@@ -237,4 +237,6 @@ type DetailPegawaiResponse struct {
 	Bpjs1         float64 `json:"bpjs_1"`
 	Bpjs4         float64 `json:"bpjs_4"`
 	IsKepala      bool    `json:"isKepala"`
+	Npwp          string  `json:"npwp"`
+	NomorRekening string  `json:"nomorRekening"`
 }

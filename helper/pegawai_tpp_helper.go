@@ -82,10 +82,12 @@ func MergePenilaianKinerjaParallel(
 							NamaJabatanTim:  p.NamaJabatanTim,
 
 							// Akan diisi dari API eksternal
-							Pangkat:      "",
-							Golongan:     "",
-							Jabatan:      "",
-							JenisJabatan: "",
+							Pangkat:       "",
+							Golongan:      "",
+							Jabatan:       "",
+							JenisJabatan:  "",
+							Npwp:          "",
+							NomorRekening: "",
 
 							KodeTim: p.KodeTim,
 							Tahun:   p.Tahun,
@@ -176,10 +178,14 @@ func MergePenilaianKinerjaParallel(
 			}
 
 			// Basic biodata
+			// isi dari API eksternal
+			item.NamaPegawai = dp.NamaPegawai
 			item.Pangkat = dp.Pangkat
 			item.Golongan = dp.Golongan
 			item.Jabatan = dp.NamaJabatan
 			item.JenisJabatan = dp.JenisJabatan
+			item.Npwp = dp.Npwp
+			item.NomorRekening = dp.NomorRekening
 
 			// TPP extension selalu aman
 			if item.Tpp == nil {
@@ -243,7 +249,7 @@ func MergePenilaianKinerjaParallel(
 				p := responses[i].PenilaianKinerjas[j]
 
 				if p.IdPegawai == kepala.NIP {
-					responses[i].PenilaianKinerjas[j].NamaPegawai = kepala.NamaPegawai
+					// responses[i].PenilaianKinerjas[j].NamaPegawai = kepala.NamaPegawai
 					kepalaItem = &responses[i].PenilaianKinerjas[j]
 					continue
 				}
@@ -266,10 +272,12 @@ func MergePenilaianKinerjaParallel(
 					LevelJabatanTim: 1,
 					NamaJabatanTim:  "Penanggung Jawab",
 
-					Pangkat:      kepala.Pangkat,
-					Golongan:     kepala.Golongan,
-					Jabatan:      kepala.NamaJabatan,
-					JenisJabatan: kepala.JenisJabatan,
+					Pangkat:       kepala.Pangkat,
+					Golongan:      kepala.Golongan,
+					Jabatan:       kepala.NamaJabatan,
+					JenisJabatan:  kepala.JenisJabatan,
+					Npwp:          kepala.Npwp,
+					NomorRekening: kepala.NomorRekening,
 
 					NamaTim:          "KEPALA OPD",
 					KodeTim:          "000",
