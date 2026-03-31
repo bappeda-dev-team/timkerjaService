@@ -929,6 +929,32 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 
 	addPetugasTimToResponses(result, petugasTimMap)
 
+	// dedup result -> group by id program unggulan
+	grouped := make(map[int]*web.ProgramUnggulanTimKerjaResponse)
+
+	for _, item := range result {
+		key := item.IdProgramUnggulan
+
+		if existing, ok := grouped[key]; ok {
+			// gabungkan pokin
+			existing.Pokin = append(existing.Pokin, item.Pokin...)
+
+			// optional: merge petugas kalau perlu (biasanya sama)
+			if len(existing.PetugasTims) == 0 {
+				existing.PetugasTims = item.PetugasTims
+			}
+		} else {
+			// copy pertama
+			copyItem := item
+			grouped[key] = &copyItem
+		}
+	}
+	result = result[:0] // reset slice
+
+	for _, v := range grouped {
+		result = append(result, *v)
+	}
+
 	return result, nil
 }
 
