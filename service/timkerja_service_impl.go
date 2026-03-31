@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"time"
 	"timkerjaService/helper"
@@ -895,6 +896,25 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 
 		result = append(result, item)
 	}
+	// group by Id Program Unggulan
+	grouped := make(map[int]*web.ProgramUnggulanTimKerjaResponse)
+
+	for _, item := range result {
+		key := item.IdProgramUnggulan
+
+		if _, ok := grouped[key]; !ok {
+			copyItem := item
+			copyItem.Pokin = nil // reset
+			grouped[key] = &copyItem
+		}
+
+		grouped[key].Pokin = append(grouped[key].Pokin, item.Pokin...)
+	}
+	// return grouped result
+	result = result[:0]
+	for _, v := range grouped {
+		result = append(result, *v)
+	}
 
 	// --- 4) Query realisasi berdasarkan IdPohon (sudah diketahui) ---
 	tx2, err := service.DB.BeginTx(ctx, nil)
@@ -911,13 +931,7 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 
 	// --- 6) petugas tim
 	idProgramUnggulans := make([]int, 0, len(result))
-	seen := make(map[int]struct{})
-
 	for _, m := range result {
-		if _, ok := seen[m.IdProgramUnggulan]; ok {
-			continue
-		}
-		seen[m.IdProgramUnggulan] = struct{}{}
 		idProgramUnggulans = append(idProgramUnggulans, m.IdProgramUnggulan)
 	}
 
@@ -929,32 +943,10 @@ func (service *TimKerjaServiceImpl) FindAllProgramUnggulanOpd(ctx context.Contex
 
 	addPetugasTimToResponses(result, petugasTimMap)
 
-	// dedup result -> group by id program unggulan
-	grouped := make(map[int]*web.ProgramUnggulanTimKerjaResponse)
-
-	for _, item := range result {
-		key := item.IdProgramUnggulan
-
-		if existing, ok := grouped[key]; ok {
-			// gabungkan pokin
-			existing.Pokin = append(existing.Pokin, item.Pokin...)
-
-			// optional: merge petugas kalau perlu (biasanya sama)
-			if len(existing.PetugasTims) == 0 {
-				existing.PetugasTims = item.PetugasTims
-			}
-		} else {
-			// copy pertama
-			copyItem := item
-			grouped[key] = &copyItem
-		}
-	}
-	result = result[:0] // reset slice
-
-	for _, v := range grouped {
-		result = append(result, *v)
-	}
-
+	// sort ?
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].IdProgramUnggulan < result[j].IdProgramUnggulan
+	})
 	return result, nil
 }
 
