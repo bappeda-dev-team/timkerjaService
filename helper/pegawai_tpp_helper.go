@@ -138,22 +138,7 @@ func MergePenilaianKinerjaParallel(
 	// ==============================
 	// 2) AMBIL DETAIL PEGAWAI (BATCH)
 	// ==============================
-	// idPegawaiSet := map[string]struct{}{}
-	// for _, resp := range responses {
-	// 	for _, p := range resp.PenilaianKinerjas {
-	// 		if p.IdPegawai != "" {
-	// 			idPegawaiSet[p.IdPegawai] = struct{}{}
-	// 		}
-	// 	}
-	// }
 
-	// // Siapkan list ID
-	// listIdPegawais := make([]string, 0, len(idPegawaiSet))
-	// for id := range idPegawaiSet {
-	// 	listIdPegawais = append(listIdPegawais, id)
-	// }
-
-	// Ambil detail pegawai batch
 	detailPegawais, err := client.GetDetailPegawaiBatch(ctx, bulan, tahun, kodeOpd)
 	if err != nil {
 		log.Printf("ERROR KEPEGAWAIAN HOST: %v\n", err)
@@ -208,11 +193,13 @@ func MergePenilaianKinerjaParallel(
 	// 4) INJECT KEPALA JIKA BELUM ADA
 	// ==============================
 
-	var kepala *internal.DetailPegawaiResponse
+	var kepala internal.DetailPegawaiResponse
+	var kepalaFound bool
 
 	for i := range detailPegawais {
 		if detailPegawais[i].IsKepala {
-			kepala = &detailPegawais[i]
+			kepala = detailPegawais[i]
+			kepalaFound = true
 
 			log.Printf(
 				"[TPP] Kepala OPD ditemukan | nip=%s | nama=%s | jabatan=%s",
@@ -226,7 +213,7 @@ func MergePenilaianKinerjaParallel(
 	}
 
 	// LOG JIKA KEPALA TIDAK DITEMUKAN
-	if kepala == nil {
+	if !kepalaFound {
 		log.Printf(
 			"[TPP][WARNING] Kepala OPD tidak ditemukan | kode_opd=%s | bulan=%d | tahun=%d",
 			kodeOpd,
@@ -236,9 +223,9 @@ func MergePenilaianKinerjaParallel(
 	}
 
 	var kepalaItem web.PenilaianGroupedResponse
-	var kepalaFound bool
+	var kepalaPenilaianFound bool
 
-	if kepala != nil {
+	if kepalaFound {
 
 		// cari dan hapus kepala dari semua tim
 		for i := range responses {
@@ -251,7 +238,7 @@ func MergePenilaianKinerjaParallel(
 
 				if p.IdPegawai == kepala.NIP {
 					kepalaItem = p
-					kepalaFound = true
+					kepalaPenilaianFound = true
 					continue
 				}
 
@@ -262,7 +249,7 @@ func MergePenilaianKinerjaParallel(
 		}
 
 		// jika kepala tidak punya penilaian
-		if !kepalaFound {
+		if !kepalaPenilaianFound {
 			log.Println("KEPALA TIDAK PUNYA PENILAIAN")
 
 			item := web.PenilaianGroupedResponse{
@@ -303,19 +290,50 @@ func MergePenilaianKinerjaParallel(
 			kepalaItem = item
 		}
 
-		// buat satu tim bayangan saja
-		row := web.LaporanPenilaianKinerjaResponse{
-			NamaTim:           "KEPALA OPD",
-			KodeTim:           "000",
-			IsSekretariat:     false,
-			IsPenanggungJawab: true,
-			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-			PenilaianKinerjas: []web.PenilaianGroupedResponse{
+		var existing *web.LaporanPenilaianKinerjaResponse
+
+		for i := range responses {
+			if responses[i].KodeTim == "000" {
+				existing = &responses[i]
+				break
+			}
+		}
+		if existing != nil {
+			existing.IsSekretariat = false
+			existing.IsPenanggungJawab = true
+			existing.PenilaianKinerjas = append(
+				existing.PenilaianKinerjas,
 				kepalaItem,
-			},
+			)
+		} else {
+			// belum ada → buat baru
+			row := web.LaporanPenilaianKinerjaResponse{
+				NamaTim:           "KEPALA OPD",
+				KodeTim:           "000",
+				IsSekretariat:     false,
+				IsPenanggungJawab: true,
+				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+				PenilaianKinerjas: []web.PenilaianGroupedResponse{
+					kepalaItem,
+				},
+			}
+
+			responses = append(responses, row)
 		}
 
-		responses = append(responses, row)
+		// // tim bayangan sudah ada dari realisasi
+		// row := web.LaporanPenilaianKinerjaResponse{
+		// 	NamaTim:           "KEPALA OPD",
+		// 	KodeTim:           "000",
+		// 	IsSekretariat:     false,
+		// 	IsPenanggungJawab: true,
+		// 	Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+		// 	PenilaianKinerjas: []web.PenilaianGroupedResponse{
+		// 		kepalaItem,
+		// 	},
+		// }
+
+		// responses = append(responses, row)
 	}
 
 	// ======================

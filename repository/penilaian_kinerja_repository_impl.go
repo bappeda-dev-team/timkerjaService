@@ -324,8 +324,14 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindTimBayangan(
 	}
 	defer rows.Close()
 
-	groupMap := make(map[string]*domain.LaporanPenilaian)
-	order := []string{}
+	var group = &domain.LaporanPenilaian{
+		NamaTim:           "KEPALA OPD",
+		KodeTim:           kodeTimBayangan,
+		IsSekretariat:     false,
+		IsPenanggungJawab: true,
+		Keterangan:        "KHUSUS PENANGGUNG JAWAB",
+		Penilaians:        []domain.PenilaianKinerja{},
+	}
 
 	for rows.Next() {
 
@@ -357,21 +363,6 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindTimBayangan(
 			return nil, err
 		}
 
-		// init group
-		group, exists := groupMap[kodeTimBayangan]
-		if !exists {
-			group = &domain.LaporanPenilaian{
-				NamaTim:           "KEPALA OPD",
-				KodeTim:           kodeTimBayangan,
-				IsSekretariat:     false,
-				IsPenanggungJawab: true,
-				Keterangan:        "KHUSUS PENANGGUNG JAWAB",
-				Penilaians:        []domain.PenilaianKinerja{},
-			}
-			groupMap[kodeTimBayangan] = group
-			order = append(order, kodeTimBayangan)
-		}
-
 		// Bentuk objek penilaian (bisa kosong/default)
 		pen := domain.PenilaianKinerja{
 			Id:              intOrZero(idNS),
@@ -394,13 +385,7 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindTimBayangan(
 		group.Penilaians = append(group.Penilaians, pen)
 	}
 
-	// convert ke slice sesuai order
-	result := make([]domain.LaporanPenilaian, 0, len(order))
-	for _, k := range order {
-		result = append(result, *groupMap[k])
-	}
-
-	return result, nil
+	return []domain.LaporanPenilaian{*group}, nil
 }
 
 func stringOrEmpty(ns sql.NullString) string {
