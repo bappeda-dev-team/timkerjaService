@@ -235,22 +235,23 @@ func MergePenilaianKinerjaParallel(
 		)
 	}
 
-	var kepalaItem *web.PenilaianGroupedResponse
+	var kepalaItem web.PenilaianGroupedResponse
+	var kepalaFound bool
 
 	if kepala != nil {
 
 		// cari dan hapus kepala dari semua tim
 		for i := range responses {
 
-			filtered := responses[i].PenilaianKinerjas[:0]
+			filtered := make([]web.PenilaianGroupedResponse, 0, len(responses[i].PenilaianKinerjas))
 
 			for j := range responses[i].PenilaianKinerjas {
 
 				p := responses[i].PenilaianKinerjas[j]
 
 				if p.IdPegawai == kepala.NIP {
-					// responses[i].PenilaianKinerjas[j].NamaPegawai = kepala.NamaPegawai
-					kepalaItem = &responses[i].PenilaianKinerjas[j]
+					kepalaItem = p
+					kepalaFound = true
 					continue
 				}
 
@@ -261,7 +262,7 @@ func MergePenilaianKinerjaParallel(
 		}
 
 		// jika kepala tidak punya penilaian
-		if kepalaItem == nil {
+		if !kepalaFound {
 			log.Println("KEPALA TIDAK PUNYA PENILAIAN")
 
 			item := web.PenilaianGroupedResponse{
@@ -299,7 +300,7 @@ func MergePenilaianKinerjaParallel(
 				PotonganBPJS4: kepala.Bpjs4,
 			}
 
-			kepalaItem = &item
+			kepalaItem = item
 		}
 
 		// buat satu tim bayangan saja
@@ -310,7 +311,7 @@ func MergePenilaianKinerjaParallel(
 			IsPenanggungJawab: true,
 			Keterangan:        "KHUSUS PENANGGUNG JAWAB",
 			PenilaianKinerjas: []web.PenilaianGroupedResponse{
-				*kepalaItem,
+				kepalaItem,
 			},
 		}
 
