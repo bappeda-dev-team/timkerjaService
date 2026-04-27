@@ -533,7 +533,9 @@ func ConvertToAllLaporan(
 			}
 
 			// inject context dari parent
+			item.KodeTim = lap.KodeTim
 			item.NamaTim = lap.NamaTim
+			item.Keterangan = lap.Keterangan
 
 			// konfigurasi tambahan
 			// item.Tpp.PotonganBPJS = 0.01

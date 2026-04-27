@@ -36,6 +36,7 @@ type PenilaianGroupedBase struct {
 	Bulan           int    `json:"bulan"`
 	Npwp            string `json:"npwp"`
 	NomorRekening   string `json:"nomorRekening"`
+	Keterangan      string `json:"keterangan"`
 
 	KinerjaBappeda   int     `json:"kinerja_bappeda"`
 	KinerjaTim       int     `json:"kinerja_tim"`
