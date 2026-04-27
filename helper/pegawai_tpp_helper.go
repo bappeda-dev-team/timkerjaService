@@ -299,6 +299,7 @@ func MergePenilaianKinerjaParallel(
 			}
 		}
 		if existing != nil {
+			existing.KodeTim = "000"
 			existing.IsSekretariat = false
 			existing.IsPenanggungJawab = true
 			existing.PenilaianKinerjas = append(
