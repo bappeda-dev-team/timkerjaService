@@ -238,6 +238,7 @@ func MergePenilaianKinerjaParallel(
 
 				if p.IdPegawai == kepala.NIP {
 					kepalaItem = p
+					kepalaItem.NamaTim = kepala.NamaJabatan
 					kepalaPenilaianFound = true
 					continue
 				}
@@ -267,7 +268,7 @@ func MergePenilaianKinerjaParallel(
 					Npwp:          kepala.Npwp,
 					NomorRekening: kepala.NomorRekening,
 
-					NamaTim:          "KEPALA OPD",
+					NamaTim:          kepala.NamaJabatan,
 					KodeTim:          "000",
 					Tahun:            strconv.Itoa(tahun),
 					Bulan:            bulan,
@@ -299,6 +300,7 @@ func MergePenilaianKinerjaParallel(
 			}
 		}
 		if existing != nil {
+			existing.NamaTim = kepala.NamaJabatan
 			existing.KodeTim = "000"
 			existing.IsSekretariat = false
 			existing.IsPenanggungJawab = true
