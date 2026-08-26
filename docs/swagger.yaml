@@ -55,11 +55,21 @@ definitions:
     type: object
   internal.TaggingPohonKinerjaItem:
     properties:
+      catatan_pelaporan_aset:
+        type: string
+      catatan_pelaporan_keuangan:
+        type: string
+      catatan_penata_usaha_keuangan:
+        type: string
+      catatan_realisasi_anggaran:
+        type: string
       faktor_pendorong:
         type: string
       faktor_penghambat:
         type: string
       id_pohon:
+        type: integer
+      id_program_unggulan:
         type: integer
       id_tagging:
         type: integer
@@ -126,6 +136,25 @@ definitions:
       tw_4:
         type: integer
     type: object
+  web.CloneSusunanTimRequest:
+    properties:
+      bulan:
+        type: integer
+      bulanTarget:
+        type: integer
+      kodeTim:
+        type: string
+      tahun:
+        type: integer
+      tahunTarget:
+        type: integer
+    required:
+    - bulan
+    - bulanTarget
+    - kodeTim
+    - tahun
+    - tahunTarget
+    type: object
   web.JabatanTimCreateRequest:
     properties:
       level_jabatan:
@@ -157,6 +186,8 @@ definitions:
     type: object
   web.LaporanPenilaianKinerjaResponse:
     properties:
+      is_penanggung_jawab:
+        type: boolean
       is_sekretariat:
         type: boolean
       keterangan:
@@ -181,9 +212,15 @@ definitions:
         type: string
       id_pegawai:
         type: string
+      jabatan:
+        type: string
       jenis_jabatan:
         type: string
+      keterangan:
+        type: string
       kinerja_bappeda:
+        type: integer
+      kinerja_kehadiran:
         type: integer
       kinerja_person:
         type: integer
@@ -197,8 +234,14 @@ definitions:
         type: string
       nama_pegawai:
         type: string
+      nama_tim:
+        type: string
       nilai_akhir:
-        type: integer
+        type: string
+      nomorRekening:
+        type: string
+      npwp:
+        type: string
       pangkat:
         type: string
       tahun:
@@ -270,6 +313,10 @@ definitions:
     type: object
   web.PenilaianTppExtension:
     properties:
+      bpjs_1:
+        type: integer
+      bpjs_4:
+        type: integer
       jumlah_bersih:
         type: integer
       jumlah_kotor:
@@ -280,7 +327,9 @@ definitions:
         type: number
       persentase_penerimaan:
         type: string
-      potongan_bpjs:
+      potongan_bpjs_1:
+        type: number
+      potongan_bpjs_4:
         type: number
       tpp_basic:
         type: integer
@@ -307,7 +356,11 @@ definitions:
     properties:
       id:
         type: integer
+      kode_tim:
+        type: string
       nama_pegawai:
+        type: string
+      nama_tim:
         type: string
       pegawai_id:
         description: nip
@@ -324,6 +377,8 @@ definitions:
       kode_program_unggulan:
         type: string
       kode_tim:
+        type: string
+      nama_tim:
         type: string
       petugas_tims:
         items:
@@ -344,6 +399,14 @@ definitions:
         type: string
       bulan:
         type: integer
+      catatan_pelaporan_aset:
+        type: string
+      catatan_pelaporan_keuangan:
+        type: string
+      catatan_penata_usaha_keuangan:
+        type: string
+      catatan_realisasi_anggaran:
+        type: string
       faktor_pendorong:
         type: string
       faktor_penghambat:
@@ -388,6 +451,14 @@ definitions:
         type: string
       bulan:
         type: integer
+      catatan_pelaporan_aset:
+        type: string
+      catatan_pelaporan_keuangan:
+        type: string
+      catatan_penata_usaha_keuangan:
+        type: string
+      catatan_realisasi_anggaran:
+        type: string
       created_at:
         type: string
       faktor_pendorong:
@@ -469,6 +540,8 @@ definitions:
     type: object
   web.SusunanTimCreateRequest:
     properties:
+      bulan:
+        type: integer
       id_jabatan_tim:
         type: integer
       is_active:
@@ -483,15 +556,21 @@ definitions:
         type: string
       nip:
         type: string
+      tahun:
+        type: integer
     required:
+    - bulan
     - id_jabatan_tim
     - kode_tim
     - nama_jabatan_tim
     - nama_pegawai
     - nip
+    - tahun
     type: object
   web.SusunanTimDetailResponse:
     properties:
+      bulan:
+        type: integer
       id:
         type: integer
       is_active:
@@ -506,9 +585,13 @@ definitions:
         type: string
       nip:
         type: string
+      tahun:
+        type: integer
     type: object
   web.SusunanTimResponse:
     properties:
+      bulan:
+        type: integer
       created_at:
         type: string
       id:
@@ -527,11 +610,15 @@ definitions:
         type: string
       nip:
         type: string
+      tahun:
+        type: integer
       updated_at:
         type: string
     type: object
   web.SusunanTimUpdateRequest:
     properties:
+      bulan:
+        type: integer
       id:
         type: integer
       id_jabatan_tim:
@@ -548,15 +635,23 @@ definitions:
         type: string
       nip:
         type: string
+      tahun:
+        type: integer
     required:
+    - bulan
     - id_jabatan_tim
     - kode_tim
     - nama_jabatan_tim
     - nama_pegawai
     - nip
+    - tahun
     type: object
   web.TimKerjaCreateRequest:
     properties:
+      bulan:
+        type: integer
+      clone_from:
+        type: integer
       is_active:
         type: boolean
       is_sekretariat:
@@ -567,9 +662,14 @@ definitions:
         type: string
       tahun:
         type: string
+    required:
+    - nama_tim
+    - tahun
     type: object
   web.TimKerjaDetailResponse:
     properties:
+      bulan:
+        type: integer
       id:
         type: integer
       is_active:
@@ -586,9 +686,13 @@ definitions:
         items:
           $ref: '#/definitions/web.SusunanTimDetailResponse'
         type: array
+      tahun:
+        type: integer
     type: object
   web.TimKerjaResponse:
     properties:
+      bulan:
+        type: integer
       created_at:
         type: string
       id:
@@ -610,6 +714,8 @@ definitions:
     type: object
   web.TimKerjaUpdateRequest:
     properties:
+      bulan:
+        type: integer
       id:
         type: integer
       is_active:
@@ -814,6 +920,7 @@ paths:
       consumes:
       - application/json
       description: Penilaian Kinerja berdasarkan bulan & tahun plus nilai tpp individu
+        in one array
       parameters:
       - description: 'Tahun penilaian (ex: 2025)'
         in: query
@@ -847,7 +954,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebResponse'
-      summary: Laporan TPP Konker by bulan tahun
+      summary: Laporan TPP ALL by bulan tahun
       tags:
       - TPP
   /only_timkerja:
@@ -1212,6 +1319,17 @@ paths:
       consumes:
       - application/json
       description: Get All Susunan Tim
+      parameters:
+      - description: 'Tahun penilaian (ex: 2025)'
+        in: query
+        name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -1394,12 +1512,51 @@ paths:
       summary: Susunan Tim by Kode Tim
       tags:
       - Susunan Tim
+  /susunantim/clone:
+    post:
+      consumes:
+      - application/json
+      description: Clone susunan tim dari periode asal ke periode target
+      parameters:
+      - description: Payload clone
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.CloneSusunanTimRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Clone susunan tim ke periode target
+      tags:
+      - Susunan Tim
   /timkerja:
     get:
       consumes:
       - application/json
       description: Get All Tim Kerja with their Susunan Tim details
       parameters:
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
       - description: 'Tahun penilaian (ex: 2025)'
         in: query
         name: tahun
@@ -1469,6 +1626,11 @@ paths:
       - description: 'Tahun penilaian (ex: 2025)'
         in: query
         name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
         required: true
         type: integer
       produces:
@@ -1593,6 +1755,85 @@ paths:
       summary: Update Tim Kerja
       tags:
       - Tim Kerja
+  /timkerja/{kodeTim}:
+    get:
+      consumes:
+      - application/json
+      description: Get Tim Kerja with their Susunan Tim details
+      parameters:
+      - description: Kode Tim Kerja
+        in: path
+        name: kodeTim
+        required: true
+        type: string
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
+      - description: 'Tahun penilaian (ex: 2025)'
+        in: query
+        name: tahun
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.TimKerjaDetailResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: Get Tim Kerja with Details by Kode Tim
+      tags:
+      - Tim Kerja
+  /timkerja/{kodeopd}/all_program_unggulan:
+    get:
+      consumes:
+      - application/json
+      description: Program Unggulan by Kode OPD satu table
+      parameters:
+      - description: 'Tahun penilaian (ex: 2025)'
+        in: query
+        name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/web.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/web.ProgramUnggulanTimKerjaResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebResponse'
+      summary: All Program Unggulan By Kode OPD
+      tags:
+      - Tim Kerja
   /timkerja/{kodetim}/program_unggulan:
     get:
       consumes:
@@ -1602,6 +1843,11 @@ paths:
       - description: 'Tahun penilaian (ex: 2025)'
         in: query
         name: tahun
+        required: true
+        type: integer
+      - description: 'Bulan penilaian (ex: 1)'
+        in: query
+        name: bulan
         required: true
         type: integer
       produces:

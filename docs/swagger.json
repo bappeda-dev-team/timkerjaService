@@ -281,7 +281,7 @@
         },
         "/laporan_tpp": {
             "get": {
-                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun plus nilai tpp individu",
+                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun plus nilai tpp individu in one array",
                 "consumes": [
                     "application/json"
                 ],
@@ -291,7 +291,7 @@
                 "tags": [
                     "TPP"
                 ],
-                "summary": "Laporan TPP Konker by bulan tahun",
+                "summary": "Laporan TPP ALL by bulan tahun",
                 "parameters": [
                     {
                         "type": "integer",
@@ -932,6 +932,22 @@
                     "Susunan Tim"
                 ],
                 "summary": "Get All Susunan Tim",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1006,6 +1022,58 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/susunantim/clone": {
+            "post": {
+                "description": "Clone susunan tim dari periode asal ke periode target",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Susunan Tim"
+                ],
+                "summary": "Clone susunan tim ke periode target",
+                "parameters": [
+                    {
+                        "description": "Payload clone",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.CloneSusunanTimRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/web.WebResponse"
                         }
@@ -1240,6 +1308,13 @@
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
                         "in": "query",
@@ -1351,6 +1426,13 @@
                         "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
                         "in": "query",
                         "required": true
                     }
@@ -1547,6 +1629,133 @@
                 }
             }
         },
+        "/timkerja/{kodeTim}": {
+            "get": {
+                "description": "Get Tim Kerja with their Susunan Tim details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Get Tim Kerja with Details by Kode Tim",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kode Tim Kerja",
+                        "name": "kodeTim",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.TimKerjaDetailResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/timkerja/{kodeopd}/all_program_unggulan": {
+            "get": {
+                "description": "Program Unggulan by Kode OPD satu table",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "All Program Unggulan By Kode OPD",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.ProgramUnggulanTimKerjaResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timkerja/{kodetim}/program_unggulan": {
             "get": {
                 "description": "Find all program unggulan to existing tim kerja, multiple",
@@ -1565,6 +1774,13 @@
                         "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
                         "in": "query",
                         "required": true
                     }
@@ -1793,6 +2009,18 @@
         "internal.TaggingPohonKinerjaItem": {
             "type": "object",
             "properties": {
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
+                },
                 "faktor_pendorong": {
                     "type": "string"
                 },
@@ -1800,6 +2028,9 @@
                     "type": "string"
                 },
                 "id_pohon": {
+                    "type": "integer"
+                },
+                "id_program_unggulan": {
                     "type": "integer"
                 },
                 "id_tagging": {
@@ -1901,6 +2132,33 @@
                 }
             }
         },
+        "web.CloneSusunanTimRequest": {
+            "type": "object",
+            "required": [
+                "bulan",
+                "bulanTarget",
+                "kodeTim",
+                "tahun",
+                "tahunTarget"
+            ],
+            "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "bulanTarget": {
+                    "type": "integer"
+                },
+                "kodeTim": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                },
+                "tahunTarget": {
+                    "type": "integer"
+                }
+            }
+        },
         "web.JabatanTimCreateRequest": {
             "type": "object",
             "properties": {
@@ -1953,6 +2211,9 @@
                 "nama_tim"
             ],
             "properties": {
+                "is_penanggung_jawab": {
+                    "type": "boolean"
+                },
                 "is_sekretariat": {
                     "type": "boolean"
                 },
@@ -1985,10 +2246,19 @@
                 "id_pegawai": {
                     "type": "string"
                 },
+                "jabatan": {
+                    "type": "string"
+                },
                 "jenis_jabatan": {
                     "type": "string"
                 },
+                "keterangan": {
+                    "type": "string"
+                },
                 "kinerja_bappeda": {
+                    "type": "integer"
+                },
+                "kinerja_kehadiran": {
                     "type": "integer"
                 },
                 "kinerja_person": {
@@ -2009,8 +2279,17 @@
                 "nama_pegawai": {
                     "type": "string"
                 },
+                "nama_tim": {
+                    "type": "string"
+                },
                 "nilai_akhir": {
-                    "type": "integer"
+                    "type": "string"
+                },
+                "nomorRekening": {
+                    "type": "string"
+                },
+                "npwp": {
+                    "type": "string"
                 },
                 "pangkat": {
                     "type": "string"
@@ -2114,6 +2393,12 @@
         "web.PenilaianTppExtension": {
             "type": "object",
             "properties": {
+                "bpjs_1": {
+                    "type": "integer"
+                },
+                "bpjs_4": {
+                    "type": "integer"
+                },
                 "jumlah_bersih": {
                     "type": "integer"
                 },
@@ -2129,7 +2414,10 @@
                 "persentase_penerimaan": {
                     "type": "string"
                 },
-                "potongan_bpjs": {
+                "potongan_bpjs_1": {
+                    "type": "number"
+                },
+                "potongan_bpjs_4": {
                     "type": "number"
                 },
                 "tpp_basic": {
@@ -2169,7 +2457,13 @@
                 "id": {
                     "type": "integer"
                 },
+                "kode_tim": {
+                    "type": "string"
+                },
                 "nama_pegawai": {
+                    "type": "string"
+                },
+                "nama_tim": {
                     "type": "string"
                 },
                 "pegawai_id": {
@@ -2194,6 +2488,9 @@
                     "type": "string"
                 },
                 "kode_tim": {
+                    "type": "string"
+                },
+                "nama_tim": {
                     "type": "string"
                 },
                 "petugas_tims": {
@@ -2234,6 +2531,18 @@
                 },
                 "bulan": {
                     "type": "integer"
+                },
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
                 },
                 "faktor_pendorong": {
                     "type": "string"
@@ -2290,6 +2599,18 @@
                 },
                 "bulan": {
                     "type": "integer"
+                },
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -2406,13 +2727,18 @@
         "web.SusunanTimCreateRequest": {
             "type": "object",
             "required": [
+                "bulan",
                 "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
-                "nip"
+                "nip",
+                "tahun"
             ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id_jabatan_tim": {
                     "type": "integer"
                 },
@@ -2433,12 +2759,18 @@
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.SusunanTimDetailResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2459,12 +2791,18 @@
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.SusunanTimResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2492,6 +2830,9 @@
                 "nip": {
                     "type": "string"
                 },
+                "tahun": {
+                    "type": "integer"
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -2500,13 +2841,18 @@
         "web.SusunanTimUpdateRequest": {
             "type": "object",
             "required": [
+                "bulan",
                 "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
-                "nip"
+                "nip",
+                "tahun"
             ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2530,12 +2876,25 @@
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.TimKerjaCreateRequest": {
             "type": "object",
+            "required": [
+                "nama_tim",
+                "tahun"
+            ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "clone_from": {
+                    "type": "integer"
+                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -2556,6 +2915,9 @@
         "web.TimKerjaDetailResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2579,12 +2941,18 @@
                     "items": {
                         "$ref": "#/definitions/web.SusunanTimDetailResponse"
                     }
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.TimKerjaResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2617,6 +2985,9 @@
         "web.TimKerjaUpdateRequest": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },

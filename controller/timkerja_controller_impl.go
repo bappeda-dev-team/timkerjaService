@@ -712,7 +712,7 @@ func (controller *TimKerjaControllerImpl) SaveRealisasiPokin(c echo.Context) err
 // @Produce json
 // @Param tahun query int true "Tahun penilaian (ex: 2025)"
 // @Param bulan query int true "Bulan penilaian (ex: 1)"
-// @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponseAll}
+// @Success 200 {object} web.WebResponse{data=[]web.ProgramUnggulanTimKerjaResponse}
 // @Failure 500 {object} web.WebResponse
 // @Router /timkerja/{kodeopd}/all_program_unggulan [get]
 func (controller *TimKerjaControllerImpl) AllProgramUnggulanOpd(c echo.Context) error {

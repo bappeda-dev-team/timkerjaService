@@ -287,7 +287,7 @@ const docTemplate = `{
         },
         "/laporan_tpp": {
             "get": {
-                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun plus nilai tpp individu",
+                "description": "Penilaian Kinerja berdasarkan bulan \u0026 tahun plus nilai tpp individu in one array",
                 "consumes": [
                     "application/json"
                 ],
@@ -297,7 +297,7 @@ const docTemplate = `{
                 "tags": [
                     "TPP"
                 ],
-                "summary": "Laporan TPP Konker by bulan tahun",
+                "summary": "Laporan TPP ALL by bulan tahun",
                 "parameters": [
                     {
                         "type": "integer",
@@ -938,6 +938,22 @@ const docTemplate = `{
                     "Susunan Tim"
                 ],
                 "summary": "Get All Susunan Tim",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1012,6 +1028,58 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/susunantim/clone": {
+            "post": {
+                "description": "Clone susunan tim dari periode asal ke periode target",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Susunan Tim"
+                ],
+                "summary": "Clone susunan tim ke periode target",
+                "parameters": [
+                    {
+                        "description": "Payload clone",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/web.CloneSusunanTimRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/web.WebResponse"
                         }
@@ -1246,6 +1314,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
                         "in": "query",
@@ -1357,6 +1432,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
                         "in": "query",
                         "required": true
                     }
@@ -1553,6 +1635,133 @@ const docTemplate = `{
                 }
             }
         },
+        "/timkerja/{kodeTim}": {
+            "get": {
+                "description": "Get Tim Kerja with their Susunan Tim details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "Get Tim Kerja with Details by Kode Tim",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kode Tim Kerja",
+                        "name": "kodeTim",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.TimKerjaDetailResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/timkerja/{kodeopd}/all_program_unggulan": {
+            "get": {
+                "description": "Program Unggulan by Kode OPD satu table",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tim Kerja"
+                ],
+                "summary": "All Program Unggulan By Kode OPD",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tahun penilaian (ex: 2025)",
+                        "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/web.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/web.ProgramUnggulanTimKerjaResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/timkerja/{kodetim}/program_unggulan": {
             "get": {
                 "description": "Find all program unggulan to existing tim kerja, multiple",
@@ -1571,6 +1780,13 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Tahun penilaian (ex: 2025)",
                         "name": "tahun",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Bulan penilaian (ex: 1)",
+                        "name": "bulan",
                         "in": "query",
                         "required": true
                     }
@@ -1799,6 +2015,18 @@ const docTemplate = `{
         "internal.TaggingPohonKinerjaItem": {
             "type": "object",
             "properties": {
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
+                },
                 "faktor_pendorong": {
                     "type": "string"
                 },
@@ -1806,6 +2034,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id_pohon": {
+                    "type": "integer"
+                },
+                "id_program_unggulan": {
                     "type": "integer"
                 },
                 "id_tagging": {
@@ -1907,6 +2138,33 @@ const docTemplate = `{
                 }
             }
         },
+        "web.CloneSusunanTimRequest": {
+            "type": "object",
+            "required": [
+                "bulan",
+                "bulanTarget",
+                "kodeTim",
+                "tahun",
+                "tahunTarget"
+            ],
+            "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "bulanTarget": {
+                    "type": "integer"
+                },
+                "kodeTim": {
+                    "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
+                },
+                "tahunTarget": {
+                    "type": "integer"
+                }
+            }
+        },
         "web.JabatanTimCreateRequest": {
             "type": "object",
             "properties": {
@@ -1959,6 +2217,9 @@ const docTemplate = `{
                 "nama_tim"
             ],
             "properties": {
+                "is_penanggung_jawab": {
+                    "type": "boolean"
+                },
                 "is_sekretariat": {
                     "type": "boolean"
                 },
@@ -1991,10 +2252,19 @@ const docTemplate = `{
                 "id_pegawai": {
                     "type": "string"
                 },
+                "jabatan": {
+                    "type": "string"
+                },
                 "jenis_jabatan": {
                     "type": "string"
                 },
+                "keterangan": {
+                    "type": "string"
+                },
                 "kinerja_bappeda": {
+                    "type": "integer"
+                },
+                "kinerja_kehadiran": {
                     "type": "integer"
                 },
                 "kinerja_person": {
@@ -2015,8 +2285,17 @@ const docTemplate = `{
                 "nama_pegawai": {
                     "type": "string"
                 },
+                "nama_tim": {
+                    "type": "string"
+                },
                 "nilai_akhir": {
-                    "type": "integer"
+                    "type": "string"
+                },
+                "nomorRekening": {
+                    "type": "string"
+                },
+                "npwp": {
+                    "type": "string"
                 },
                 "pangkat": {
                     "type": "string"
@@ -2120,6 +2399,12 @@ const docTemplate = `{
         "web.PenilaianTppExtension": {
             "type": "object",
             "properties": {
+                "bpjs_1": {
+                    "type": "integer"
+                },
+                "bpjs_4": {
+                    "type": "integer"
+                },
                 "jumlah_bersih": {
                     "type": "integer"
                 },
@@ -2135,7 +2420,10 @@ const docTemplate = `{
                 "persentase_penerimaan": {
                     "type": "string"
                 },
-                "potongan_bpjs": {
+                "potongan_bpjs_1": {
+                    "type": "number"
+                },
+                "potongan_bpjs_4": {
                     "type": "number"
                 },
                 "tpp_basic": {
@@ -2175,7 +2463,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "kode_tim": {
+                    "type": "string"
+                },
                 "nama_pegawai": {
+                    "type": "string"
+                },
+                "nama_tim": {
                     "type": "string"
                 },
                 "pegawai_id": {
@@ -2200,6 +2494,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "kode_tim": {
+                    "type": "string"
+                },
+                "nama_tim": {
                     "type": "string"
                 },
                 "petugas_tims": {
@@ -2240,6 +2537,18 @@ const docTemplate = `{
                 },
                 "bulan": {
                     "type": "integer"
+                },
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
                 },
                 "faktor_pendorong": {
                     "type": "string"
@@ -2296,6 +2605,18 @@ const docTemplate = `{
                 },
                 "bulan": {
                     "type": "integer"
+                },
+                "catatan_pelaporan_aset": {
+                    "type": "string"
+                },
+                "catatan_pelaporan_keuangan": {
+                    "type": "string"
+                },
+                "catatan_penata_usaha_keuangan": {
+                    "type": "string"
+                },
+                "catatan_realisasi_anggaran": {
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -2412,13 +2733,18 @@ const docTemplate = `{
         "web.SusunanTimCreateRequest": {
             "type": "object",
             "required": [
+                "bulan",
                 "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
-                "nip"
+                "nip",
+                "tahun"
             ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id_jabatan_tim": {
                     "type": "integer"
                 },
@@ -2439,12 +2765,18 @@ const docTemplate = `{
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.SusunanTimDetailResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2465,12 +2797,18 @@ const docTemplate = `{
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.SusunanTimResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2498,6 +2836,9 @@ const docTemplate = `{
                 "nip": {
                     "type": "string"
                 },
+                "tahun": {
+                    "type": "integer"
+                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -2506,13 +2847,18 @@ const docTemplate = `{
         "web.SusunanTimUpdateRequest": {
             "type": "object",
             "required": [
+                "bulan",
                 "id_jabatan_tim",
                 "kode_tim",
                 "nama_jabatan_tim",
                 "nama_pegawai",
-                "nip"
+                "nip",
+                "tahun"
             ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2536,12 +2882,25 @@ const docTemplate = `{
                 },
                 "nip": {
                     "type": "string"
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.TimKerjaCreateRequest": {
             "type": "object",
+            "required": [
+                "nama_tim",
+                "tahun"
+            ],
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
+                "clone_from": {
+                    "type": "integer"
+                },
                 "is_active": {
                     "type": "boolean"
                 },
@@ -2562,6 +2921,9 @@ const docTemplate = `{
         "web.TimKerjaDetailResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2585,12 +2947,18 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/web.SusunanTimDetailResponse"
                     }
+                },
+                "tahun": {
+                    "type": "integer"
                 }
             }
         },
         "web.TimKerjaResponse": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -2623,6 +2991,9 @@ const docTemplate = `{
         "web.TimKerjaUpdateRequest": {
             "type": "object",
             "properties": {
+                "bulan": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
