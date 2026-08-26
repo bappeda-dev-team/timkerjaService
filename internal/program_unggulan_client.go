@@ -41,6 +41,7 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 	// request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
+		log.Printf("ERR MAKE REQUEST: %v", err)
 		return nil, fmt.Errorf("[ProgramUnggulanError] Gagal membuat request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -55,35 +56,35 @@ func (c *ProgramUnggulanClient) GetLaporanProgramUnggulanByTahun(ctx context.Con
 	// send request
 	res, err := c.httpClient.Do(req)
 	if err != nil {
+		log.Printf("ERR SEND REQUEST: %v", err)
 		return nil, fmt.Errorf("[ProgramUnggulanError] Request ke gagal: %w", err)
 	}
 	defer res.Body.Close()
 
 	// response status
 	if res.StatusCode != http.StatusOK {
+		log.Printf("ERR RESPONSE: %v", err)
 		return nil, fmt.Errorf("[ProgramUnggulanError] status: %d", res.StatusCode)
 	}
 
 	// safe, response pasti ada
 	type wrapper struct {
-		Status  int                              `json:"status"`
-		Message string                           `json:"message"`
-		Data    []LaporanTagPokinTahunanResponse `json:"data"`
+		Status  int                            `json:"status"`
+		Message string                         `json:"message"`
+		Data    LaporanTagPokinTahunanResponse `json:"data"`
 	}
 
 	var result wrapper
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("[ProgramUnggulanError] gagal decode response: %w", err)
 	}
-	if len(result.Data) == 0 {
+	if len(result.Data.PohonKinerjas) == 0 {
 		return []TaggingPohonKinerjaItem{}, nil
 	}
 	var dataTagging []TaggingPohonKinerjaItem
 
-	for _, data := range result.Data {
-		for _, tag := range data.PohonKinerjas {
-			dataTagging = append(dataTagging, tag)
-		}
+	for _, tag := range result.Data.PohonKinerjas {
+		dataTagging = append(dataTagging, tag)
 	}
 
 	return dataTagging, nil
