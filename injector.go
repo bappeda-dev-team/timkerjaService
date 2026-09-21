@@ -7,8 +7,11 @@ import (
 	"timkerjaService/app"
 
 	"timkerjaService/controller"
+	"timkerjaService/internal"
 	"timkerjaService/repository"
 	"timkerjaService/service"
+	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
@@ -69,6 +72,20 @@ var petugasTimSet = wire.NewSet(
 	wire.Bind(new(controller.PetugasTimController), new(*controller.PetugasTimControllerImpl)),
 )
 
+var eventClientSet = wire.NewSet(
+	internal.NewEventClient,
+)
+
+func ProvideHTTPClient() *http.Client {
+	return &http.Client{
+		Timeout: 30 * time.Second,
+	}
+}
+
+var httpClientSet = wire.NewSet(
+	ProvideHTTPClient,
+)
+
 func InitializedServer() *echo.Echo {
 	wire.Build(
 		app.GetConnection,
@@ -80,6 +97,8 @@ func InitializedServer() *echo.Echo {
 		realisasiAnggaranSet,
 		penilaianKinerjaSet,
 		petugasTimSet,
+		eventClientSet,
+		httpClientSet,
 		app.NewRouter,
 	)
 	return nil

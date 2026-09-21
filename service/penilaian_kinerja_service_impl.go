@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 	"timkerjaService/helper"
 	"timkerjaService/internal"
@@ -21,13 +22,20 @@ type PenilaianKinerjaServiceImpl struct {
 	DB                         *sql.DB
 	PenilaianKinerjaRepository repository.PenilaianKinerjaRepository
 	Validator                  *validator.Validate
+	EventClient                *internal.EventClient
 }
 
-func NewPenilaianKinerjaServiceImpl(db *sql.DB, penilaianRepo repository.PenilaianKinerjaRepository, validator *validator.Validate) *PenilaianKinerjaServiceImpl {
+func NewPenilaianKinerjaServiceImpl(
+	db *sql.DB,
+	penilaianRepo repository.PenilaianKinerjaRepository,
+	validator *validator.Validate,
+	eventClient *internal.EventClient,
+) *PenilaianKinerjaServiceImpl {
 	return &PenilaianKinerjaServiceImpl{
 		DB:                         db,
 		PenilaianKinerjaRepository: penilaianRepo,
 		Validator:                  validator,
+		EventClient:                eventClient,
 	}
 }
 
@@ -101,7 +109,9 @@ func (s *PenilaianKinerjaServiceImpl) Create(ctx context.Context, req web.Penila
 	if err != nil {
 		return web.PenilaianKinerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	domain := domain.PenilaianKinerja{
 		IdPegawai:    req.IdPegawai,
@@ -117,6 +127,24 @@ func (s *PenilaianKinerjaServiceImpl) Create(ctx context.Context, req web.Penila
 	res, err := s.PenilaianKinerjaRepository.Create(ctx, tx, domain)
 	if err != nil {
 		return web.PenilaianKinerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.PenilaianKinerjaResponse{}, err
+	}
+
+	// Audit setelah database berhasil commit.
+	event := internal.NewCreateEvent(
+		"penilaian_kinerja",
+		strconv.Itoa(res.Id),
+		res,
+	)
+	if err := s.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event penilaian_kinerja id=%d: %v",
+			res.Id,
+			err,
+		)
 	}
 
 	return web.PenilaianKinerjaResponse{
@@ -144,14 +172,30 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 	if err != nil {
 		return web.PenilaianKinerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
-	exist, err := s.PenilaianKinerjaRepository.ExistById(ctx, tx, id)
+	// exist, err := s.PenilaianKinerjaRepository.ExistById(ctx, tx, id)
+	// if err != nil {
+	// 	return web.PenilaianKinerjaResponse{}, err
+	// }
+	// if exist == false {
+	// 	return web.PenilaianKinerjaResponse{}, errors.New("id penilaian tidak ditemukan")
+	// }
+	before, err := s.PenilaianKinerjaRepository.FindById(
+		ctx,
+		tx,
+		id,
+	)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return web.PenilaianKinerjaResponse{}, errors.New(
+				"id penilaian tidak ditemukan",
+			)
+		}
+
 		return web.PenilaianKinerjaResponse{}, err
-	}
-	if exist == false {
-		return web.PenilaianKinerjaResponse{}, errors.New("id penilaian tidak ditemukan")
 	}
 
 	domain := domain.PenilaianKinerja{
@@ -168,6 +212,26 @@ func (s *PenilaianKinerjaServiceImpl) Update(ctx context.Context, req web.Penila
 	res, err := s.PenilaianKinerjaRepository.Update(ctx, tx, domain, id)
 	if err != nil {
 		return web.PenilaianKinerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.PenilaianKinerjaResponse{}, err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewUpdateEvent(
+		"penilaian_kinerja",
+		strconv.Itoa(res.Id),
+		// before
+		before,
+		//after
+		res,
+	)
+	if err := s.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event penilaian_kinerja id=%d: %v",
+			res.Id,
+			err,
+		)
 	}
 
 	return web.PenilaianKinerjaResponse{

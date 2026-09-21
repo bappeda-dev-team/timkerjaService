@@ -25,14 +25,22 @@ type TimKerjaServiceImpl struct {
 	PetugasTimService  PetugasTimService
 	DB                 *sql.DB
 	Validator          *validator.Validate
+	EventClient        *internal.EventClient
 }
 
-func NewTimKerjaServiceImpl(timKerjaRepository repository.TimKerjaRepository, petugasTimService PetugasTimService, db *sql.DB, validator *validator.Validate) *TimKerjaServiceImpl {
+func NewTimKerjaServiceImpl(
+	timKerjaRepository repository.TimKerjaRepository,
+	petugasTimService PetugasTimService,
+	db *sql.DB,
+	validator *validator.Validate,
+	eventClient *internal.EventClient,
+) *TimKerjaServiceImpl {
 	return &TimKerjaServiceImpl{
 		TimKerjaRepository: timKerjaRepository,
 		PetugasTimService:  petugasTimService,
 		DB:                 db,
 		Validator:          validator,
+		EventClient:        eventClient,
 	}
 }
 
@@ -46,7 +54,9 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	if err != nil {
 		return web.TimKerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	timKerjaDomain := domain.TimKerja{
 		KodeTim:       helper.GenerateKodeTim(0),
@@ -61,6 +71,24 @@ func (service *TimKerjaServiceImpl) Create(ctx context.Context, timKerja web.Tim
 	timKerjaDomain, err = service.TimKerjaRepository.Create(ctx, tx, timKerjaDomain)
 	if err != nil {
 		return web.TimKerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.TimKerjaResponse{}, err
+	}
+
+	// Audit setelah database berhasil commit.
+	event := internal.NewCreateEvent(
+		"tim_kerja",
+		strconv.Itoa(timKerjaDomain.Id),
+		timKerjaDomain,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event tim_kerja id=%d: %v",
+			timKerjaDomain.Id,
+			err,
+		)
 	}
 
 	return web.TimKerjaResponse{
@@ -111,7 +139,19 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 	if err != nil {
 		return web.TimKerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
+	before, err := service.TimKerjaRepository.FindById(ctx, tx, timKerja.Id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return web.TimKerjaResponse{}, errors.New(
+				"id tim_kerja tidak ditemukan",
+			)
+		}
+
+		return web.TimKerjaResponse{}, err
+	}
 
 	timKerjaDomain := domain.TimKerja{
 		Id:            timKerja.Id,
@@ -126,6 +166,25 @@ func (service *TimKerjaServiceImpl) Update(ctx context.Context, timKerja web.Tim
 	timKerjaDomain, err = service.TimKerjaRepository.Update(ctx, tx, timKerjaDomain)
 	if err != nil {
 		return web.TimKerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.TimKerjaResponse{}, err
+	}
+
+	// Audit setelah database berhasil commit.
+	event := internal.NewUpdateEvent(
+		"tim_kerja",
+		strconv.Itoa(timKerjaDomain.Id),
+		timKerjaDomain,
+		before,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event tim_kerja id=%d: %v",
+			timKerjaDomain.Id,
+			err,
+		)
 	}
 
 	kodeTim, err := service.TimKerjaRepository.FindById(ctx, tx, timKerjaDomain.Id)
@@ -150,11 +209,39 @@ func (service *TimKerjaServiceImpl) Delete(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
+	before, err := service.TimKerjaRepository.FindById(ctx, tx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New(
+				"id tim_kerja tidak ditemukan",
+			)
+		}
+
+		return err
+	}
 
 	err = service.TimKerjaRepository.Delete(ctx, tx, id)
 	if err != nil {
 		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewDeleteEvent(
+		"tim_kerja",
+		strconv.Itoa(before.Id),
+		before,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event tim_kerja id=%d: %v",
+			before.Id,
+			err,
+		)
 	}
 
 	return nil
@@ -382,7 +469,9 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	if err != nil {
 		return web.ProgramUnggulanTimKerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	programUnggulanDomain := domain.ProgramUnggulanTimKerja{
 		KodeTim:             programUnggulan.KodeTim,
@@ -396,6 +485,24 @@ func (service *TimKerjaServiceImpl) AddProgramUnggulan(ctx context.Context, prog
 	programUnggulanDomain, err = service.TimKerjaRepository.AddProgramUnggulan(ctx, tx, programUnggulanDomain)
 	if err != nil {
 		return web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.ProgramUnggulanTimKerjaResponse{}, err
+	}
+
+	// Audit setelah database berhasil commit.
+	event := internal.NewCreateEvent(
+		"program_unggulan",
+		programUnggulanDomain.KodeProgramUnggulan,
+		programUnggulanDomain,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event program_ungguan id=%d: %v",
+			programUnggulanDomain.KodeProgramUnggulan,
+			err,
+		)
 	}
 
 	return web.ProgramUnggulanTimKerjaResponse{
@@ -655,7 +762,9 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	if err != nil {
 		return web.RencanaKinerjaTimKerjaResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	rencanaKinerjaDomain := domain.RencanaKinerjaTimKerja{
 		KodeTim:          rencanaKinerja.KodeTim,
@@ -669,6 +778,23 @@ func (service *TimKerjaServiceImpl) AddRencanaKinerja(ctx context.Context, renca
 	rencanaKinerjaDomain, err = service.TimKerjaRepository.AddRencanaKinerja(ctx, tx, rencanaKinerjaDomain)
 	if err != nil {
 		return web.RencanaKinerjaTimKerjaResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.RencanaKinerjaTimKerjaResponse{}, err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewCreateEvent(
+		"tim_kerja-rencana_kinerja",
+		strconv.Itoa(rencanaKinerjaDomain.Id),
+		rencanaKinerjaDomain,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event tim_kerja-rencana_kinerja id=%d: %v",
+			rencanaKinerjaDomain.Id,
+			err,
+		)
 	}
 
 	return web.RencanaKinerjaTimKerjaResponse{
@@ -752,11 +878,39 @@ func (service *TimKerjaServiceImpl) DeleteRencanaKinerjaTim(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
+	before, err := service.TimKerjaRepository.FindRencanaKinerjaByIdAndKodeTim(ctx, tx, id, kodeTim)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New(
+				"id petugas_tim tidak ditemukan",
+			)
+		}
+
+		return err
+	}
 
 	err = service.TimKerjaRepository.DeleteRencanaKinerja(ctx, tx, id, kodeTim)
 	if err != nil {
 		return err
+	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewDeleteEvent(
+		"tim_kerja-rencana_kinerja",
+		strconv.Itoa(before.Id),
+		before,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event tim_kerja-rencana_kinerja id=%d: %v",
+			before.Id,
+			err,
+		)
 	}
 
 	return nil

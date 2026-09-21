@@ -10,8 +10,11 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"github.com/labstack/echo/v4"
+	"net/http"
+	"time"
 	"timkerjaService/app"
 	"timkerjaService/controller"
+	"timkerjaService/internal"
 	"timkerjaService/repository"
 	"timkerjaService/service"
 )
@@ -25,7 +28,9 @@ func InitializedServer() *echo.Echo {
 	db := app.GetConnection()
 	v := _wireValue
 	validate := validator.New(v...)
-	petugasTimServiceImpl := service.NewPetugasTimServiceImpl(petugasTimRepositoryImpl, susunanTimRepositoryImpl, db, validate)
+	client := ProvideHTTPClient()
+	eventClient := internal.NewEventClient(client)
+	petugasTimServiceImpl := service.NewPetugasTimServiceImpl(petugasTimRepositoryImpl, susunanTimRepositoryImpl, db, validate, eventClient)
 	timKerjaServiceImpl := service.NewTimKerjaServiceImpl(timKerjaRepositoryImpl, petugasTimServiceImpl, db, validate)
 	timKerjaControllerImpl := controller.NewTimKerjaControllerImpl(timKerjaServiceImpl)
 	susunanTimServiceImpl := service.NewSusunanTimServiceImpl(susunanTimRepositoryImpl, timKerjaServiceImpl, db, validate)
@@ -37,7 +42,7 @@ func InitializedServer() *echo.Echo {
 	realisasiAnggaranServiceImpl := service.NewRealisasiAnggaranServiceImpl(db, realisasiAnggaranRepositoryImpl)
 	realisasiAnggaranControllerImpl := controller.NewRealisasiAnggaranControllerImpl(realisasiAnggaranServiceImpl)
 	penilaianKinerjaRepositoryImpl := repository.NewPenilaianKinerjaRepositoryImpl()
-	penilaianKinerjaServiceImpl := service.NewPenilaianKinerjaServiceImpl(db, penilaianKinerjaRepositoryImpl, validate)
+	penilaianKinerjaServiceImpl := service.NewPenilaianKinerjaServiceImpl(db, penilaianKinerjaRepositoryImpl, validate, eventClient)
 	penilaianKinerjaControllerImpl := controller.NewPenilaianKinerjaControllerImpl(penilaianKinerjaServiceImpl)
 	petugasTimControllerImpl := controller.NewPetugasTimControllerImpl(petugasTimServiceImpl)
 	echoEcho := app.NewRouter(timKerjaControllerImpl, susunanTimControllerImpl, jabatanTimControllerImpl, realisasiAnggaranControllerImpl, penilaianKinerjaControllerImpl, petugasTimControllerImpl)
@@ -61,3 +66,15 @@ var realisasiAnggaranSet = wire.NewSet(repository.NewRealisasiAnggaranRepository
 var penilaianKinerjaSet = wire.NewSet(repository.NewPenilaianKinerjaRepositoryImpl, wire.Bind(new(repository.PenilaianKinerjaRepository), new(*repository.PenilaianKinerjaRepositoryImpl)), service.NewPenilaianKinerjaServiceImpl, wire.Bind(new(service.PenilaianKinerjaService), new(*service.PenilaianKinerjaServiceImpl)), controller.NewPenilaianKinerjaControllerImpl, wire.Bind(new(controller.PenilaianKinerjaController), new(*controller.PenilaianKinerjaControllerImpl)))
 
 var petugasTimSet = wire.NewSet(repository.NewPetugasTimRepositoryImpl, wire.Bind(new(repository.PetugasTimRepository), new(*repository.PetugasTimRepositoryImpl)), service.NewPetugasTimServiceImpl, wire.Bind(new(service.PetugasTimService), new(*service.PetugasTimServiceImpl)), controller.NewPetugasTimControllerImpl, wire.Bind(new(controller.PetugasTimController), new(*controller.PetugasTimControllerImpl)))
+
+var eventClientSet = wire.NewSet(internal.NewEventClient)
+
+func ProvideHTTPClient() *http.Client {
+	return &http.Client{
+		Timeout: 30 * time.Second,
+	}
+}
+
+var httpClientSet = wire.NewSet(
+	ProvideHTTPClient,
+)

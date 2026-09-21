@@ -36,4 +36,5 @@ type TimKerjaRepository interface {
 	FindRealisasiByPohonIDs(ctx context.Context, tx *sql.Tx, bulan int, tahun int, pohonIDs []int) (map[int]domain.RealisasiAnggaranRecord, error)
 	FindWithSusunanByKodeTimBulanTahun(ctx context.Context, tx *sql.Tx, kodeTim string, bulan int, tahun int) (domain.TimKerja, map[string][]domain.SusunanTim, error)
 	CheckCloned(ctx context.Context, tx *sql.DB, cloneId int, bulan int, tahun int) (bool, error)
+	FindRencanaKinerjaByIdAndKodeTim(ctx context.Context, tx *sql.Tx, id int, kodeTim string) (domain.RencanaKinerjaTimKerja, error)
 }

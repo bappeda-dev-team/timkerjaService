@@ -388,6 +388,55 @@ func (repo *PenilaianKinerjaRepositoryImpl) FindTimBayangan(
 	return []domain.LaporanPenilaian{*group}, nil
 }
 
+func (repo *PenilaianKinerjaRepositoryImpl) FindById(
+	ctx context.Context,
+	tx *sql.Tx,
+	id int,
+) (domain.PenilaianKinerja, error) {
+
+	const query = `
+		SELECT
+			id,
+			id_pegawai,
+			kode_tim,
+			jenis_nilai,
+			nilai_kinerja,
+			tahun,
+			bulan,
+			kode_opd,
+			created_at,
+			updated_at,
+			created_by
+		FROM penilaian_kinerja
+		WHERE id = ?
+	`
+
+	var result domain.PenilaianKinerja
+
+	err := tx.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&result.Id,
+		&result.IdPegawai,
+		&result.KodeTim,
+		&result.JenisNilai,
+		&result.NilaiKinerja,
+		&result.Tahun,
+		&result.Bulan,
+		&result.KodeOpd,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+		&result.CreatedBy,
+	)
+	if err != nil {
+		return domain.PenilaianKinerja{}, err
+	}
+
+	return result, nil
+}
+
 func stringOrEmpty(ns sql.NullString) string {
 	if ns.Valid {
 		return ns.String

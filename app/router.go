@@ -21,6 +21,8 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/swagger/doc.json", echoSwagger.WrapHandler)
 
+	// TIM KERJA
+	// AUDITED
 	e.POST("/timkerja", timKerjaController.Create)
 	e.PUT("/timkerja/:id", timKerjaController.Update)
 	e.DELETE("/timkerja/:id", timKerjaController.Delete)
@@ -48,6 +50,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	// BKAD
 	e.GET("/timkerja/:kodeopd/all_program_unggulan", timKerjaController.AllProgramUnggulanOpd)
 
+	// audited
 	e.POST("/susunantim", susunanTimController.Create)
 	e.PUT("/susunantim/:id", susunanTimController.Update)
 	e.DELETE("/susunantim/:id", susunanTimController.Delete)
@@ -69,6 +72,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.POST("/realisasianggaran", realisasiAnggaranController.Upsert)
 
 	// Penilaian Kinerja
+	// audited
 	e.GET("/penilaian_kinerja", penilaianKinerjaController.All) // filter by bulan tahun
 	e.POST("/penilaian_kinerja", penilaianKinerjaController.Create)
 	// pindah ke post dengan menimpa
@@ -81,6 +85,7 @@ func NewRouter(timKerjaController controller.TimKerjaController, susunanTimContr
 	e.GET("/laporan_tpp_all", penilaianKinerjaController.LaporanTppAll) // filter by bulan tahun
 
 	// petugs tim
+	// audited
 	e.POST("/petugas_tim", petugasTimController.AddPetugas)
 	e.DELETE("/petugas_tim/:idPetugasTim", petugasTimController.DeletePetugas)
 

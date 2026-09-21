@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -1139,4 +1140,37 @@ func (repository *TimKerjaRepositoryImpl) CheckCloned(
 	}
 
 	return true, nil
+}
+
+func (repository *TimKerjaRepositoryImpl) FindRencanaKinerjaByIdAndKodeTim(
+	ctx context.Context,
+	tx *sql.Tx,
+	id int,
+	kodeTim string,
+) (domain.RencanaKinerjaTimKerja, error) {
+	query := "SELECT rekin.id, rekin.kode_tim, rekin.id_rencana_kinerja, rekin.id_pegawai, rekin.tahun, rekin.kode_opd FROM rencana_kinerja_sekretariat rekin WHERE rekin.id = ? AND rekin.kode_tim = ?"
+	rows, err := tx.QueryContext(ctx, query, id, kodeTim)
+	if err != nil {
+		return domain.RencanaKinerjaTimKerja{}, err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		var rencanaKinerja domain.RencanaKinerjaTimKerja
+
+		err := rows.Scan(
+			&rencanaKinerja.Id,
+			&rencanaKinerja.KodeTim,
+			&rencanaKinerja.IdRencanaKinerja,
+			&rencanaKinerja.IdPegawai,
+			&rencanaKinerja.Tahun,
+			&rencanaKinerja.KodeOpd,
+		)
+		if err != nil {
+			return domain.RencanaKinerjaTimKerja{}, err
+		}
+		return rencanaKinerja, nil
+	}
+
+	return domain.RencanaKinerjaTimKerja{}, errors.New("rencana kinerja not found")
 }

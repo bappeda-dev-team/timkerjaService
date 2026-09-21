@@ -142,3 +142,46 @@ ORDER BY pt.pegawai_id, pt.id
 
 	return results, nil
 }
+
+func (repo *PetugasTimRepositoryImpl) FindById(
+	ctx context.Context,
+	tx *sql.Tx,
+	id int,
+) (domain.PetugasTim, error) {
+
+	const query = `
+		SELECT
+			id,
+			id_program_unggulan,
+			kode_tim,
+			pegawai_id,
+			tahun,
+			bulan,
+			created_at,
+			updated_at
+		FROM petugas_tim
+		WHERE id = ?
+	`
+
+	var result domain.PetugasTim
+
+	err := tx.QueryRowContext(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&result.Id,
+		&result.IdProgramUnggulan,
+		&result.KodeTim,
+		&result.PegawaiId,
+		&result.Tahun,
+		&result.Bulan,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+	)
+	if err != nil {
+		return domain.PetugasTim{}, err
+	}
+
+	return result, nil
+}

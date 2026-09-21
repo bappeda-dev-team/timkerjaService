@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"timkerjaService/helper"
+	"timkerjaService/internal"
 	"timkerjaService/model/domain"
 	"timkerjaService/model/web"
 	"timkerjaService/repository"
@@ -19,18 +21,22 @@ type SusunanTimServiceImpl struct {
 	TimKerjaService      TimKerjaService
 	DB                   *sql.DB
 	Validator            *validator.Validate
+	EventClient          *internal.EventClient
 }
 
 func NewSusunanTimServiceImpl(
 	susunanTimRepository repository.SusunanTimRepository,
 	timKerjaService TimKerjaService,
 	db *sql.DB,
-	validator *validator.Validate) *SusunanTimServiceImpl {
+	validator *validator.Validate,
+	eventClient *internal.EventClient,
+) *SusunanTimServiceImpl {
 	return &SusunanTimServiceImpl{
 		SusunanTimRepository: susunanTimRepository,
 		TimKerjaService:      timKerjaService,
 		DB:                   db,
 		Validator:            validator,
+		EventClient:          eventClient,
 	}
 }
 
@@ -54,7 +60,9 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 	if err != nil {
 		return web.SusunanTimResponse{}, err
 	}
-	defer helper.NewCommitOrRollback(tx, &err)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	susunanTimDomain := domain.SusunanTim{
 		KodeTim:        susunanTim.KodeTim,
@@ -72,8 +80,26 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 	if err != nil {
 		return web.SusunanTimResponse{}, err
 	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.SusunanTimResponse{}, err
+	}
 
-	res := web.SusunanTimResponse{
+	// Audit setelah database berhasil commit.
+	event := internal.NewCreateEvent(
+		"susunan_tim",
+		strconv.Itoa(susunanTimDomain.Id),
+		susunanTimDomain,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event susunan_tim id=%d: %v",
+			susunanTimDomain.Id,
+			err,
+		)
+	}
+
+	return web.SusunanTimResponse{
 		Id:             susunanTimDomain.Id,
 		KodeTim:        susunanTimDomain.KodeTim,
 		PegawaiId:      susunanTimDomain.PegawaiId,
@@ -82,9 +108,7 @@ func (service *SusunanTimServiceImpl) Create(ctx context.Context, susunanTim web
 		NamaJabatanTim: susunanTimDomain.NamaJabatanTim,
 		IsActive:       susunanTimDomain.IsActive,
 		Keterangan:     susunanTimDomain.Keterangan,
-	}
-
-	return res, nil
+	}, nil
 }
 
 func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web.SusunanTimUpdateRequest) (web.SusunanTimResponse, error) {
@@ -97,7 +121,19 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 	if err != nil {
 		return web.SusunanTimResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
+	before, err := service.SusunanTimRepository.FindById(ctx, tx, susunanTim.Id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return web.SusunanTimResponse{}, errors.New(
+				"id susunan_tim tidak ditemukan",
+			)
+		}
+
+		return web.SusunanTimResponse{}, err
+	}
 
 	susunanTimDomain := domain.SusunanTim{
 		Id:             susunanTim.Id,
@@ -115,6 +151,24 @@ func (service *SusunanTimServiceImpl) Update(ctx context.Context, susunanTim web
 	susunanTimDomain, err = service.SusunanTimRepository.Update(ctx, tx, susunanTimDomain)
 	if err != nil {
 		return web.SusunanTimResponse{}, err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return web.SusunanTimResponse{}, err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewUpdateEvent(
+		"susunan_tim",
+		strconv.Itoa(susunanTimDomain.Id),
+		susunanTimDomain,
+		before,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event susunan_tim id=%d: %v",
+			susunanTimDomain.Id,
+			err,
+		)
 	}
 
 	return web.SusunanTimResponse{
@@ -134,11 +188,38 @@ func (service *SusunanTimServiceImpl) Delete(ctx context.Context, id int) error 
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
+	before, err := service.SusunanTimRepository.FindById(ctx, tx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New(
+				"id susunan_tim tidak ditemukan",
+			)
+		}
+
+		return err
+	}
 
 	err = service.SusunanTimRepository.Delete(ctx, tx, id)
 	if err != nil {
 		return err
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewDeleteEvent(
+		"susunan_tim",
+		strconv.Itoa(id),
+		before,
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event susunan_tim id=%d: %v",
+			id,
+			err,
+		)
 	}
 
 	return nil
@@ -227,7 +308,9 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	// pakai audit, commit manual
+	// defer helper.CommitOrRollback(tx)
+	defer tx.Rollback()
 
 	// cek untuk memastikan susunan tim belum ada di bulan tahun target
 	exists, err := service.SusunanTimRepository.
@@ -303,6 +386,32 @@ func (service *SusunanTimServiceImpl) CloneByKodeTim(ctx context.Context, bulan 
 	err = service.SusunanTimRepository.SaveAll(ctx, tx, cloneSusunanTim)
 	if err != nil {
 		return fmt.Errorf("save clone susunan tim gagal: %w", err)
+	}
+	// commit db
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	// Audit setelah database berhasil commit.
+	event := internal.NewCloneEvent(
+		"susunan_tim",
+		kodeTimTarget,
+		cloneSusunanTim,
+		map[string]any{
+			"source_kode_tim": kodeTim,
+			"target_kode_tim": kodeTimTarget,
+			"source_bulan":    bulan,
+			"source_tahun":    tahun,
+			"target_bulan":    bulanTarget,
+			"target_tahun":    tahunTarget,
+			"total":           len(cloneSusunanTim),
+		},
+	)
+	if err := service.EventClient.CreateEvent(ctx, event); err != nil {
+		log.Printf(
+			"gagal membuat audit event susunan_tim id=%d: %v",
+			kodeTim,
+			err,
+		)
 	}
 
 	return nil

@@ -10,4 +10,5 @@ type PetugasTimRepository interface {
 	Create(ctx context.Context, tx *sql.Tx, petugasTimDomain domain.PetugasTim) (domain.PetugasTim, error)
 	Delete(ctx context.Context, tx *sql.Tx, idPetugasTim int) error
 	FindAllByIdProgramUnggulans(ctx context.Context, tx *sql.Tx, idProgramUnggulans []int, bulan int, tahun int) ([]domain.PetugasTim, error)
+	FindById(ctx context.Context, tx *sql.Tx, id int) (domain.PetugasTim, error)
 }
