@@ -64,6 +64,13 @@ func (service *PetugasTimServiceImpl) Create(ctx context.Context, petugasTimReq 
 	if err != nil {
 		return web.PetugasTimResponse{}, err
 	}
+
+	currentPegawaiId := result.PegawaiId
+	namaPegawai, err := service.SusunanTimRepository.FindByIdPegawai(ctx, tx, currentPegawaiId)
+	if err != nil {
+		return web.PetugasTimResponse{}, err
+	}
+
 	// commit db
 	if err := tx.Commit(); err != nil {
 		return web.PetugasTimResponse{}, err
@@ -81,12 +88,6 @@ func (service *PetugasTimServiceImpl) Create(ctx context.Context, petugasTimReq 
 			result.Id,
 			err,
 		)
-	}
-
-	currentPegawaiId := result.PegawaiId
-	namaPegawai, err := service.SusunanTimRepository.FindByIdPegawai(ctx, tx, currentPegawaiId)
-	if err != nil {
-		return web.PetugasTimResponse{}, err
 	}
 
 	return web.PetugasTimResponse{
