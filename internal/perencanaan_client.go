@@ -42,8 +42,12 @@ func (c *PerencanaanClient) GetRincianProgramUnggulans(ctx context.Context, kode
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
+		req.AddCookie(&http.Cookie{
+			Name:  "sessionId",
+			Value: sessionID,
+		})
 	} else {
-		log.Printf("Tidak ada Session Id ditemukan, mungkin akan 401")
+		log.Printf("⚠️ session id tidak ditemukan")
 	}
 
 	// send request
@@ -108,8 +112,12 @@ func (c *PerencanaanClient) GetDataRincianKerjaBatch(
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
+		req.AddCookie(&http.Cookie{
+			Name:  "sessionId",
+			Value: sessionID,
+		})
 	} else {
-		log.Printf("⚠️ session id tidak ditemukan, kemungkinan unauthorized")
+		log.Printf("⚠️ session id tidak ditemukan")
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -159,8 +167,12 @@ func (c *PerencanaanClient) GetNamaProgramUnggulanBatch(ctx context.Context, idP
 	sessionID := getSessionID(ctx)
 	if sessionID != "" {
 		req.Header.Set("X-Session-Id", sessionID)
+		req.AddCookie(&http.Cookie{
+			Name:  "sessionId",
+			Value: sessionID,
+		})
 	} else {
-		log.Printf("Tidak ada X-Session-Id ditemukan, mungkin akan 401")
+		log.Printf("⚠️ session id tidak ditemukan")
 	}
 
 	// send request
